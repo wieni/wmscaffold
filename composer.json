@@ -1,0 +1,24 @@
+{
+  "name": "wieni/wmscaffold",
+  "description": "Provides Drupal services and Drush 9 commands for easy creation of fields & entity types, code style fixing, model & controller generating and more.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Wieni",
+      "email": "info@wieni.be"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://packagist.drupal-composer.org"
+    }
+  ],
+  "minimum-stability": "alpha",
+  "prefer-stable": true,
+  "type": "drupal-module",
+  "require": {
+    "friendsofphp/php-cs-fixer": "^2.10",
+    "nikic/php-parser": "^4.0"
+  }
+}

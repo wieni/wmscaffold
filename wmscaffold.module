@@ -1,0 +1,12 @@
+<?php
+
+function wmscaffold_ksort_recursive(&$array)
+{
+    foreach ($array as &$value) {
+        if (is_array($value)) {
+            wmscaffold_ksort_recursive($value);
+        }
+    }
+
+    return ksort($array);
+}

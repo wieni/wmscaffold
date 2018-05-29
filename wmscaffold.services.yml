@@ -1,0 +1,16 @@
+services:
+    wmscaffold.model_class_generator:
+        class: Drupal\wmscaffold\Service\Generator\ModelClassGenerator
+        arguments:
+            - '@entity_type.manager'
+            - '@entity_field.manager'
+            - '@wmmodel.entity_type.bundle.info'
+            - '@wmmodel.factory.model'
+
+    wmscaffold.controller_class_generator:
+        class: Drupal\wmscaffold\Service\Generator\ControllerClassGenerator
+        arguments:
+            - '@entity_type.manager'
+            - '@entity_field.manager'
+            - '@wmmodel.entity_type.bundle.info'
+            - '@wmscaffold.model_class_generator'

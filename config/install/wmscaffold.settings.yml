@@ -1,0 +1,8 @@
+generators:
+    model:
+        baseClasses:
+            node: Drupal\node\Entity\Node
+            taxonomy_term: Drupal\taxonomy\Entity\Term
+        fieldsToIgnore: []
+    controller:
+        baseClass: Drupal\Core\Controller\ControllerBase

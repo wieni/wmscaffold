@@ -2,10 +2,11 @@
 
 namespace Drupal\wmscaffold\Service\Generator;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\wmscaffold\Controller\ControllerBase;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use PhpParser\BuilderFactory;
 use PhpParser\Node;
@@ -21,12 +22,16 @@ class ControllerClassGenerator
     protected $entityFieldManager;
     /** @var EntityTypeBundleInfo */
     protected $entityTypeBundleInfo;
+    /** @var ModelClassGenerator */
+    protected $modelClassGenerator;
+
+    /** @var ImmutableConfig */
+    protected $config;
     /** @var BuilderFactory */
     protected $builderFactory;
     /** @var ParserFactory */
     protected $parserFactory;
-    /** @var ModelClassGenerator */
-    protected $modelClassGenerator;
+
     /** @var string */
     protected $baseClass;
 
@@ -34,16 +39,19 @@ class ControllerClassGenerator
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
-        ModelClassGenerator $modelClassGenerator
+        ModelClassGenerator $modelClassGenerator,
+        ConfigFactoryInterface $configFactory
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityFieldManager = $entityFieldManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->modelClassGenerator = $modelClassGenerator;
+
+        $this->config = $configFactory->get('wmscaffold.settings');
         $this->builderFactory = new BuilderFactory();
         $this->parserFactory = new ParserFactory();
 
-        $this->baseClass = ControllerBase::class;
+        $this->baseClass = $this->config->get('generators.model.baseClass');
     }
 
     public function generateNew(string $entityType, string $bundle, string $module): \PhpParser\Node\Stmt\Namespace_

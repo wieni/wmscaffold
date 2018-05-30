@@ -2,15 +2,12 @@
 
 namespace Drupal\wmscaffold\Service\Generator;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\eck\Entity\EckEntity;
-use Drupal\wmscaffold\Entity\ContentBlock\ContentBlock;
-use Drupal\wmscaffold\Entity\Item\Item;
-use Drupal\wmscaffold\Entity\Node\NodeModel;
-use Drupal\wmscaffold\Entity\TaxonomyTerm\TermModel;
 use Drupal\wmmedia\Plugin\Field\FieldType\MediaImageExtras;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
@@ -34,11 +31,15 @@ class ModelClassGenerator
     protected $entityTypeBundleInfo;
     /** @var ModelFactory */
     protected $modelFactory;
+
+    /** @var ImmutableConfig */
+    protected $config;
     /** @var BuilderFactory */
     protected $builderFactory;
     /** @var ParserFactory */
     protected $parserFactory;
-    /** @var string */
+
+    /** @var array */
     protected $baseClasses;
     /** @var array */
     protected $fieldsToIgnore;
@@ -47,26 +48,20 @@ class ModelClassGenerator
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
-        ModelFactory $modelFactory
+        ModelFactory $modelFactory,
+        ConfigFactoryInterface $configFactory
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityFieldManager = $entityFieldManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->modelFactory = $modelFactory;
+
+        $this->config = $configFactory->get('wmscaffold.settings');
         $this->builderFactory = new BuilderFactory();
         $this->parserFactory = new ParserFactory();
 
-        $this->baseClasses = [
-            'node' => NodeModel::class,
-            'taxonomy_term' => TermModel::class,
-            'item' => Item::class,
-            'settings' => EckEntity::class,
-            'content_block' => ContentBlock::class,
-        ];
-
-        $this->fieldsToIgnore = [
-            'field_meta',
-        ];
+        $this->baseClasses = $this->config->get('generators.model.baseClasses');
+        $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore');
     }
 
     public function generateNew(string $entityType, string $bundle, string $module): \PhpParser\Node\Stmt\Namespace_
@@ -344,6 +339,11 @@ class ModelClassGenerator
     }
 
     protected function buildTextMethod(FieldDefinitionInterface $field, Method $method)
+    {
+        $this->buildScalarMethod('string', $field, $method);
+    }
+
+    protected function buildTextLongMethod(FieldDefinitionInterface $field, Method $method)
     {
         $this->buildScalarMethod('string', $field, $method);
     }

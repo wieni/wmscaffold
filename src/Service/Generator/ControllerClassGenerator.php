@@ -51,7 +51,7 @@ class ControllerClassGenerator
         $this->builderFactory = new BuilderFactory();
         $this->parserFactory = new ParserFactory();
 
-        $this->baseClass = $this->config->get('generators.model.baseClass');
+        $this->baseClass = $this->config->get('generators.controller.baseClass');
     }
 
     public function generateNew(string $entityType, string $bundle, string $module): \PhpParser\Node\Stmt\Namespace_

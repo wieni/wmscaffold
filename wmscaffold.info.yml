@@ -1,0 +1,6 @@
+name: wmscaffold
+type: module
+description: Wieni Scaffolding
+core: 8.x
+package: Wieni
+dependencies: {  }

@@ -302,7 +302,17 @@ class ModelClassGenerator
         $this->buildScalarMethod('int', $field, $method);
     }
 
+    protected function buildListIntegerMethod(FieldDefinitionInterface $field, Method $method)
+    {
+        $this->buildScalarMethod('int', $field, $method);
+    }
+
     protected function buildFloatMethod(FieldDefinitionInterface $field, Method $method)
+    {
+        $this->buildScalarMethod('float', $field, $method);
+    }
+
+    protected function buildListFloatMethod(FieldDefinitionInterface $field, Method $method)
     {
         $this->buildScalarMethod('float', $field, $method);
     }
@@ -344,6 +354,11 @@ class ModelClassGenerator
     }
 
     protected function buildTextLongMethod(FieldDefinitionInterface $field, Method $method)
+    {
+        $this->buildScalarMethod('string', $field, $method);
+    }
+
+    protected function buildListStringMethod(FieldDefinitionInterface $field, Method $method)
     {
         $this->buildScalarMethod('string', $field, $method);
     }

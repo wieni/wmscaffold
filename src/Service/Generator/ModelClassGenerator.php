@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\imgix\Plugin\Field\FieldType\ImgixFieldType;
 use Drupal\wmmedia\Plugin\Field\FieldType\MediaImageExtras;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
@@ -384,6 +385,22 @@ class ModelClassGenerator
         } else {
             $expression = sprintf('return $this->get(\'%s\')->first();', $field->getName());
             $method->setReturnType((new \ReflectionClass(MediaImageExtras::class))->getShortName());
+        }
+
+        $method->addStmt($this->parseExpression($expression));
+    }
+
+    protected function buildImgixMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
+    {
+        $uses[] = $this->builderFactory->use(ImgixFieldType::class);
+
+        if ($this->isFieldMultiple($field)) {
+            $expression = sprintf('return $this->get(\'%s\');', $field->getName());
+            $method->setReturnType('array');
+            $method->setDocComment('/** @return ImgixFieldType[] */');
+        } else {
+            $expression = sprintf('return $this->get(\'%s\')->first();', $field->getName());
+            $method->setReturnType((new \ReflectionClass(ImgixFieldType::class))->getShortName());
         }
 
         $method->addStmt($this->parseExpression($expression));

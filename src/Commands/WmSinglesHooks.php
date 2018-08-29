@@ -3,6 +3,7 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,11 +13,24 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class WmSinglesHooks extends DrushCommands
 {
+    /** @var ModuleHandlerInterface */
+    protected $moduleHandler;
+
+    public function __construct(
+        ModuleHandlerInterface $moduleHandler
+    ) {
+        $this->moduleHandler = $moduleHandler;
+    }
+
     /**
      * @hook interact nodetype:create
      */
     public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
+        if (!$this->isInstalled()) {
+            return;
+        }
+
         $input->setOption(
             'is-single',
             $this->input->getOption('is-single') ?? $this->askIsSingle()
@@ -28,6 +42,10 @@ class WmSinglesHooks extends DrushCommands
      */
     public function hookOption(Command $command, AnnotationData $annotationData)
     {
+        if (!$this->isInstalled()) {
+            return;
+        }
+
         $command->addOption(
             'is-single',
             '',
@@ -41,6 +59,10 @@ class WmSinglesHooks extends DrushCommands
      */
     public function hookCreate(&$values)
     {
+        if (!$this->isInstalled()) {
+            return;
+        }
+
         $values['third_party_settings']['wmsingles']['isSingle'] = (int) $this->input()->getOption('is-single');
     }
 
@@ -49,5 +71,10 @@ class WmSinglesHooks extends DrushCommands
         return $this->io()->askQuestion(
             new ConfirmationQuestion('Content type with a single entity?', false)
         );
+    }
+
+    protected function isInstalled()
+    {
+        return $this->moduleHandler->moduleExists('wmsingles');
     }
 }

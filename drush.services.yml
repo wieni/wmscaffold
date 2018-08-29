@@ -68,3 +68,5 @@ services:
     wmscaffold.hooks.wmsingles:
         class: \Drupal\wmscaffold\Commands\WmSinglesHooks
         tags: [{ name: drush.command }]
+        arguments:
+            - '@module_handler'

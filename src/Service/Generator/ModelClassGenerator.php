@@ -3,18 +3,15 @@
 namespace Drupal\wmscaffold\Service\Generator;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Config\ImmutableConfig;
-use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\imgix\Plugin\Field\FieldType\ImgixFieldType;
+use Drupal\Core\File\FileSystemInterface;
 use Drupal\wmmedia\Plugin\Field\FieldType\MediaImageExtras;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
 use PhpParser\Builder;
 use PhpParser\Builder\Method;
-use PhpParser\BuilderFactory;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Use_;
@@ -22,23 +19,10 @@ use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 
-class ModelClassGenerator
+class ModelClassGenerator extends ClassGeneratorBase
 {
-    /** @var EntityTypeManagerInterface */
-    protected $entityTypeManager;
-    /** @var EntityFieldManager */
-    protected $entityFieldManager;
-    /** @var EntityTypeBundleInfo */
-    protected $entityTypeBundleInfo;
     /** @var ModelFactory */
     protected $modelFactory;
-
-    /** @var ImmutableConfig */
-    protected $config;
-    /** @var BuilderFactory */
-    protected $builderFactory;
-    /** @var ParserFactory */
-    protected $parserFactory;
 
     /** @var array */
     protected $baseClasses;
@@ -49,17 +33,12 @@ class ModelClassGenerator
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
-        ModelFactory $modelFactory,
-        ConfigFactoryInterface $configFactory
+        FileSystemInterface $fileSystem,
+        ConfigFactoryInterface $configFactory,
+        ModelFactory $modelFactory
     ) {
-        $this->entityTypeManager = $entityTypeManager;
-        $this->entityFieldManager = $entityFieldManager;
-        $this->entityTypeBundleInfo = $entityTypeBundleInfo;
+        parent::__construct($entityTypeManager, $entityFieldManager, $entityTypeBundleInfo, $fileSystem, $configFactory);
         $this->modelFactory = $modelFactory;
-
-        $this->config = $configFactory->get('wmscaffold.settings');
-        $this->builderFactory = new BuilderFactory();
-        $this->parserFactory = new ParserFactory();
 
         $this->baseClasses = $this->config->get('generators.model.baseClasses');
         $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore');
@@ -78,7 +57,7 @@ class ModelClassGenerator
         $class->extend($baseClass->getShortName());
 
         foreach ($this->getCustomFields($entityType, $bundle) as $field) {
-            if (!$result = $this->buildFieldGetter($entityType, $bundle, $field, $module)) {
+            if (!$result = $this->buildFieldGetter($field)) {
                 continue;
             }
 
@@ -101,9 +80,6 @@ class ModelClassGenerator
         return $this->appendFieldGettersToExistingModel($entityType, $bundle, $module, $this->getCustomFields($entityType, $bundle));
     }
 
-    /**
-     * @return bool|\PhpParser\Node\Stmt\Namespace_
-     */
     public function appendFieldGettersToExistingModel(string $entityType, string $bundle, string $module, array $fields)
     {
         $className = $this->buildClassName($entityType, $bundle, $module);
@@ -140,7 +116,7 @@ class ModelClassGenerator
             }
 
             foreach ($fields as $field) {
-                if (!$result = $this->buildFieldGetter($entityType, $bundle, $field, $module)) {
+                if (!$result = $this->buildFieldGetter($field)) {
                     continue;
                 }
 
@@ -201,7 +177,7 @@ class ModelClassGenerator
 
         return sprintf(
             '%s/src/%s.php',
-            \Drupal::service('file_system')->realpath(
+            $this->fileSystem->realpath(
                 drupal_get_path('module', $module)
             ),
             implode('/', array_slice(explode('\\', $className), 2))
@@ -210,12 +186,14 @@ class ModelClassGenerator
 
     public function buildNamespaceName(string $entityType, string $module)
     {
-        return implode('\\', ['Drupal', $module, 'Entity', $this->toPascalCase($entityType)]);
+        $label = $this->stripInvalidCharacters($entityType);
+        return implode('\\', ['Drupal', $module, 'Entity', $this->toPascalCase($label)]);
     }
 
     public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false)
     {
         $label = $this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundle]['label'] ?? $bundle;
+        $label = $this->stripInvalidCharacters($label);
 
         if ($shortName) {
             return $this->toPascalCase($label);
@@ -224,14 +202,14 @@ class ModelClassGenerator
         return sprintf('%s\%s', $this->buildNamespaceName($entityType, $module), $this->toPascalCase($label));
     }
 
-    /** @param FieldDefinitionInterface|string $field */
-    public function buildFieldGetterName($field)
+    public function buildFieldGetterName(FieldDefinitionInterface $field)
     {
-        return 'get' . $this->toPascalCase($field->getLabel());
+        $label = $field->getLabel();
+        $label = $this->stripInvalidCharacters($label);
+        return 'get' . $this->toPascalCase($label);
     }
 
-    /** @param FieldDefinitionInterface|string $field */
-    protected function buildFieldGetter(string $entityType, string $bundle, $field, $module = null)
+    protected function buildFieldGetter($field)
     {
         if (!$field instanceof FieldDefinitionInterface) {
             return false;
@@ -347,12 +325,6 @@ class ModelClassGenerator
         $this->buildFieldItemListMethod(MediaImageExtras::class, $field, $method);
     }
 
-    protected function buildImgixMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
-    {
-        $uses[] = $this->builderFactory->use(ImgixFieldType::class);
-        $this->buildFieldItemListMethod(ImgixFieldType::class, $field, $method);
-    }
-
     protected function buildLinkMethod(FieldDefinitionInterface $field, Method $method)
     {
         $method->setReturnType('array');
@@ -416,12 +388,6 @@ class ModelClassGenerator
         $method->addStmt($this->parseExpression($expression));
     }
 
-    protected function toPascalCase(string $input)
-    {
-        $input = preg_replace('/\-|\s/', '_', $input);
-        return str_replace('_', '', ucwords($input, '_'));
-    }
-
     protected function getFieldModelClass(FieldDefinitionInterface $field)
     {
         $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
@@ -448,52 +414,6 @@ class ModelClassGenerator
     protected function isFieldMultiple(FieldDefinitionInterface $field)
     {
         return $field->getFieldStorageDefinition()->getCardinality() !== 1;
-    }
-
-    protected function parseExpression(string $expression)
-    {
-        $parser = $this->parserFactory->create(ParserFactory::PREFER_PHP7);
-        $statements = $parser->parse('<?php ' . $expression . ';');
-        return $statements[0];
-    }
-
-    protected function cleanUseStatements(\PhpParser\Node\Stmt\Namespace_ $namespace)
-    {
-        $uses = [];
-
-        // Deduplicate
-        foreach ($namespace->stmts as $i => $statement) {
-            if (!$statement instanceof Use_) {
-                continue;
-            }
-
-            foreach ($statement->uses as $j => $use) {
-                $name = (string) $use->name;
-                if (in_array($name, $uses)) {
-                    unset($statement->uses[$j]);
-                    continue;
-                }
-                $uses[] = $name;
-            }
-
-            if (empty($statement->uses)) {
-                unset($namespace->stmts[$i]);
-            }
-        }
-
-        // Sort
-        usort(
-            $namespace->stmts,
-            function (Node\Stmt $a, Node\Stmt $b) {
-                if ($a instanceof Class_ && $b instanceof Use_) {
-                    return 1;
-                }
-
-                return -1;
-            }
-        );
-
-        return $namespace;
     }
 
     protected function compareNodes()

@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
-use Drupal\imgix\Plugin\Field\FieldType\ImgixFieldType;
 use Drupal\wmmedia\Plugin\Field\FieldType\MediaImageExtras;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
@@ -274,23 +273,11 @@ class ModelClassGenerator
         if ($this->isFieldMultiple($field)) {
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$fieldModelClass->getShortName()}[] */");
-        } else {
+        } else if ($field->isRequired()) {
             $method->setReturnType($fieldModelClass->getShortName());
-        }
-    }
-
-    protected function buildScalarMethod(string $scalarType, FieldDefinitionInterface $field, Method $method)
-    {
-        if ($this->isFieldMultiple($field)) {
-            $expression = sprintf('return (array) $this->get(\'%s\')->value;', $field->getName());
-            $method->setReturnType('array');
-            $method->setDocComment("/** @return {$scalarType}[] */");
         } else {
-            $expression = sprintf('return (%s) $this->get(\'%s\')->value;', $scalarType, $field->getName());
-            $method->setReturnType($scalarType);
+            $method->setDocComment("/** @return {$fieldModelClass->getShortName()}|null */");
         }
-
-        $method->addStmt($this->parseExpression($expression));
     }
 
     protected function buildBooleanMethod(FieldDefinitionInterface $field, Method $method)
@@ -328,17 +315,6 @@ class ModelClassGenerator
         $this->buildScalarMethod('string', $field, $method);
     }
 
-    protected function buildDatetimeMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
-    {
-        $uses[] = $this->builderFactory->use(\DateTime::class);
-        $method->setReturnType(\DateTime::class);
-        $method->addStmt(
-            $this->parseExpression(
-                sprintf('return $this->toDateTime(\'%s\');', $field->getName())
-            )
-        );
-    }
-
     protected function buildEmailMethod(FieldDefinitionInterface $field, Method $method)
     {
         $this->buildScalarMethod('string', $field, $method);
@@ -364,6 +340,12 @@ class ModelClassGenerator
         $this->buildScalarMethod('string', $field, $method);
     }
 
+    protected function buildWmmediaMediaImageExtrasMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
+    {
+        $uses[] = $this->builderFactory->use(MediaImageExtras::class);
+        $this->buildFieldItemListMethod(MediaImageExtras::class, $field, $method);
+    }
+
     protected function buildLinkMethod(FieldDefinitionInterface $field, Method $method)
     {
         $method->setReturnType('array');
@@ -374,33 +356,54 @@ class ModelClassGenerator
         );
     }
 
-    protected function buildWmmediaMediaImageExtrasMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
+    protected function buildDatetimeMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
     {
-        $uses[] = $this->builderFactory->use(MediaImageExtras::class);
+        $className = \DateTime::class;
+        $shortName = (new \ReflectionClass($className))->getShortName();
+        $uses[] = $this->builderFactory->use($className);
 
-        if ($this->isFieldMultiple($field)) {
-            $expression = sprintf('return $this->get(\'%s\');', $field->getName());
-            $method->setReturnType('array');
-            $method->setDocComment('/** @return MediaImageExtras[] */');
+        $method->addStmt(
+            $this->parseExpression(
+                sprintf('return $this->toDateTime(\'%s\');', $field->getName())
+            )
+        );
+
+        if ($field->isRequired()) {
+            $method->setReturnType($className);
         } else {
-            $expression = sprintf('return $this->get(\'%s\')->first();', $field->getName());
-            $method->setReturnType((new \ReflectionClass(MediaImageExtras::class))->getShortName());
+            $method->setDocComment("/** @return {$shortName}|null */");
+        }
+    }
+
+    protected function buildScalarMethod(string $scalarType, FieldDefinitionInterface $field, Method $method)
+    {
+        if ($this->isFieldMultiple($field)) {
+            $expression = sprintf('return (array) $this->get(\'%s\')->value;', $field->getName());
+            $method->setReturnType('array');
+            $method->setDocComment("/** @return {$scalarType}[] */");
+        } else {
+            $expression = sprintf('return (%s) $this->get(\'%s\')->value;', $scalarType, $field->getName());
+            $method->setReturnType($scalarType);
         }
 
         $method->addStmt($this->parseExpression($expression));
     }
 
-    protected function buildImgixMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
+    protected function buildFieldItemListMethod(string $className, FieldDefinitionInterface $field, Method $method)
     {
-        $uses[] = $this->builderFactory->use(ImgixFieldType::class);
-
         if ($this->isFieldMultiple($field)) {
             $expression = sprintf('return $this->get(\'%s\');', $field->getName());
             $method->setReturnType('array');
-            $method->setDocComment('/** @return ImgixFieldType[] */');
+            $method->setDocComment("/** @return {$className}[] */");
         } else {
             $expression = sprintf('return $this->get(\'%s\')->first();', $field->getName());
-            $method->setReturnType((new \ReflectionClass(ImgixFieldType::class))->getShortName());
+            $shortName = (new \ReflectionClass($className))->getShortName();
+
+            if ($field->isRequired()) {
+                $method->setReturnType($className);
+            } else {
+                $method->setDocComment("/** @return {$shortName}|null */");
+            }
         }
 
         $method->addStmt($this->parseExpression($expression));

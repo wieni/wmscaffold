@@ -81,11 +81,12 @@ class ControllerClassGenerator
         $class->extend($baseClass->getShortName());
 
         $method = $this->builderFactory->method('show');
-        $method->addParam($this->builderFactory->param($bundle)
+        $variableName = $this->toCamelCase($modelClass->getShortName());
+        $method->addParam($this->builderFactory->param($variableName)
             ->setTypeHint($modelClass->getShortName()));
         $method->addStmt(
             $this->parseExpression(
-                "return \$this->view('{$entityTypeFolder}.{$bundle}.detail', compact('{$bundle}'));"
+                "return \$this->view('{$entityTypeFolder}.{$bundle}.detail', compact('{$variableName}'));"
             )
         );
 
@@ -126,6 +127,11 @@ class ControllerClassGenerator
         }
 
         return sprintf('%s\%s', $this->buildNamespaceName($entityType, $module), $this->toPascalCase($label));
+    }
+
+    protected function toCamelCase(string $input)
+    {
+        return lcfirst($this->toPascalCase($input));
     }
 
     protected function toPascalCase(string $input)

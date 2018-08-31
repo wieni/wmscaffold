@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\imgix\Plugin\Field\FieldType\ImgixFieldType;
 use Drupal\wmmedia\Plugin\Field\FieldType\MediaImageExtras;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
@@ -344,6 +345,12 @@ class ModelClassGenerator
     {
         $uses[] = $this->builderFactory->use(MediaImageExtras::class);
         $this->buildFieldItemListMethod(MediaImageExtras::class, $field, $method);
+    }
+
+    protected function buildImgixMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
+    {
+        $uses[] = $this->builderFactory->use(ImgixFieldType::class);
+        $this->buildFieldItemListMethod(ImgixFieldType::class, $field, $method);
     }
 
     protected function buildLinkMethod(FieldDefinitionInterface $field, Method $method)

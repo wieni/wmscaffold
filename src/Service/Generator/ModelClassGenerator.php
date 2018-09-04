@@ -186,27 +186,30 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     public function buildNamespaceName(string $entityType, string $module)
     {
-        $label = $this->stripInvalidCharacters($entityType);
-        return implode('\\', ['Drupal', $module, 'Entity', $this->toPascalCase($label)]);
+        $label = $this->toPascalCase($entityType);
+        $label = $this->stripInvalidCharacters($label);
+        return implode('\\', ['Drupal', $module, 'Entity', $label]);
     }
 
     public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false)
     {
         $label = $this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundle]['label'] ?? $bundle;
+        $label = $this->toPascalCase($label);
         $label = $this->stripInvalidCharacters($label);
 
         if ($shortName) {
             return $this->toPascalCase($label);
         }
 
-        return sprintf('%s\%s', $this->buildNamespaceName($entityType, $module), $this->toPascalCase($label));
+        return sprintf('%s\%s', $this->buildNamespaceName($entityType, $module), $label);
     }
 
     public function buildFieldGetterName(FieldDefinitionInterface $field)
     {
         $label = $field->getLabel();
+        $label = $this->toPascalCase($label);
         $label = $this->stripInvalidCharacters($label);
-        return 'get' . $this->toPascalCase($label);
+        return 'get' . $label;
     }
 
     protected function buildFieldGetter($field)

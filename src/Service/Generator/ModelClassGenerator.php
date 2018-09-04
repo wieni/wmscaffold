@@ -188,6 +188,7 @@ class ModelClassGenerator extends ClassGeneratorBase
     {
         $label = $this->toPascalCase($entityType);
         $label = $this->stripInvalidCharacters($label);
+
         return implode('\\', ['Drupal', $module, 'Entity', $label]);
     }
 
@@ -196,6 +197,10 @@ class ModelClassGenerator extends ClassGeneratorBase
         $label = $this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundle]['label'] ?? $bundle;
         $label = $this->toPascalCase($label);
         $label = $this->stripInvalidCharacters($label);
+
+        if ($this->isReservedKeyword($label)) {
+            $label .= 'Model';
+        }
 
         if ($shortName) {
             return $this->toPascalCase($label);

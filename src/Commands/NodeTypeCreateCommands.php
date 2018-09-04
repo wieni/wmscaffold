@@ -400,7 +400,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
     private function logResult(NodeType $type)
     {
         $this->logger()->success(
-            sprintf('Successfully created node type with bundle \'%s\'', $type->label())
+            sprintf('Successfully created node type with bundle \'%s\'', $type->id())
         );
 
         $this->logger()->success(

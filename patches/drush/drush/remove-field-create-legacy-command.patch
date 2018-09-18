@@ -1,0 +1,21 @@
+diff --git a/src/Commands/LegacyCommands.php b/src/Commands/LegacyCommands.php
+index 45c64380..01176c6a 100644
+--- a/src/Commands/LegacyCommands.php
++++ b/src/Commands/LegacyCommands.php
+@@ -126,16 +126,4 @@ class LegacyCommands extends DrushCommands
+     public function download()
+     {
+     }
+-
+-    /**
+-     * field-create has been deprecated. Please try `generate field` command.
+-     *
+-     * @command field:create
+-     * @aliases field-create
+-     * @hidden
+-     * @obsolete
+-     */
+-    public function field()
+-    {
+-    }
+ }

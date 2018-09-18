@@ -47,7 +47,15 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $bundleType = $this->entityTypeManager
             ->getStorage($bundleEntityType)->load($bundle);
         $isSingle = $bundleType && $bundleType->getThirdPartySetting('wmsingles', 'isSingle');
-        $entityTypeFolder = $this->toKebabCase($isSingle ? 'single' : $entityType);
+
+        $variableName = $this->toCamelCase($modelClass->getShortName());
+        $templateName = str_replace('_', '-', $bundle);
+
+        if ($isSingle) {
+            $templatePath = "single.{$templateName}";
+        } else {
+            $templatePath = "{$this->toKebabCase($entityType)}.{$templateName}.detail";
+        }
 
         $baseClass = new \ReflectionClass($this->baseClass);
         $namespace = $this->builderFactory->namespace($namespaceName);
@@ -58,13 +66,10 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $class->extend($baseClass->getShortName());
 
         $method = $this->builderFactory->method('show');
-        $variableName = $this->toCamelCase($modelClass->getShortName());
         $method->addParam($this->builderFactory->param($variableName)
             ->setTypeHint($modelClass->getShortName()));
         $method->addStmt(
-            $this->parseExpression(
-                "return \$this->view('{$entityTypeFolder}.{$bundle}.detail', compact('{$variableName}'));"
-            )
+            $this->parseExpression("return \$this->view('{$templatePath}', compact('{$variableName}'));")
         );
 
         $class->addStmt($method);

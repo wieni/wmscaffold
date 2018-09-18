@@ -327,6 +327,11 @@ class ModelClassGenerator extends ClassGeneratorBase
         $this->buildScalarMethod('string', $field, $method);
     }
 
+    protected function buildUriMethod(FieldDefinitionInterface $field, Method $method)
+    {
+        $this->buildScalarMethod('string', $field, $method);
+    }
+
     protected function buildWmmediaMediaImageExtrasMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
     {
         $uses[] = $this->builderFactory->use(MediaImageExtras::class);
@@ -335,10 +340,12 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     protected function buildLinkMethod(FieldDefinitionInterface $field, Method $method)
     {
+        $methodName = $this->isFieldMultiple($field) ? 'formatLinks' : 'formatLink';
+
         $method->setReturnType('array');
         $method->addStmt(
             $this->parseExpression(
-                sprintf('return $this->formatLink(\'%s\');', $field->getName())
+                sprintf('return $this->%s(\'%s\');', $methodName, $field->getName())
             )
         );
     }
@@ -387,7 +394,7 @@ class ModelClassGenerator extends ClassGeneratorBase
             $shortName = (new \ReflectionClass($className))->getShortName();
 
             if ($field->isRequired()) {
-                $method->setReturnType($className);
+                $method->setReturnType($shortName);
             } else {
                 $method->setDocComment("/** @return {$shortName}|null */");
             }

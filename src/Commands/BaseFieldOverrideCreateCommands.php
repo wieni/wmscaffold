@@ -98,7 +98,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
             $this->input->setArgument('bundle', $this->askBundle());
         }
 
-        $fieldName = $this->input->getOption('field-name') ?? $this->askFieldName($entityType, $bundle);
+        $fieldName = $this->input->getOption('field-name') ?? $this->askFieldName($entityType);
         $this->input->setOption('field-name', $fieldName);
 
         $definition = BaseFieldOverride::loadByName($entityType, $bundle, $fieldName)
@@ -146,17 +146,13 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         return $this->choice('Bundle', $choices);
     }
 
-    protected function askFieldName(string $entityType, string $bundle)
+    protected function askFieldName(string $entityType)
     {
         /** @var \Drupal\Core\Field\BaseFieldDefinition[] $definitions */
         $definitions = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
         $choices = [];
 
         foreach ($definitions as $definition) {
-//            if (BaseFieldOverride::loadByName($entityType, $bundle, $definition->getName())) {
-//                continue;
-//            }
-
             $label = $this->input->getOption('show-machine-names') ? $definition->getName() : $definition->getLabel()->render();
             $choices[$definition->getName()] = $label;
         }

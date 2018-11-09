@@ -314,12 +314,28 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     protected function buildTextMethod(FieldDefinitionInterface $field, Method $method)
     {
-        $this->buildScalarMethod('string', $field, $method);
+        if ($this->isFieldMultiple($field)) {
+            $expression = sprintf('return array_map(function ($item) {
+                return (string) $item->processed;
+            }, iterator_to_array($this->get(\'%s\')));', $field->getName());
+            $method->setReturnType('array');
+            $method->setDocComment("/** @return string[] */");
+        } else {
+            $expression = sprintf('return (string) $this->get(\'%s\')->processed;', $field->getName());
+            $method->setReturnType('string');
+        }
+
+        $method->addStmt($this->parseExpression($expression));
     }
 
     protected function buildTextLongMethod(FieldDefinitionInterface $field, Method $method)
     {
-        $this->buildScalarMethod('string', $field, $method);
+        $this->buildTextMethod($field, $method);
+    }
+
+    protected function buildTextWithSummaryMethod(FieldDefinitionInterface $field, Method $method)
+    {
+        $this->buildTextMethod($field, $method);
     }
 
     protected function buildListStringMethod(FieldDefinitionInterface $field, Method $method)
@@ -372,7 +388,9 @@ class ModelClassGenerator extends ClassGeneratorBase
     protected function buildScalarMethod(string $scalarType, FieldDefinitionInterface $field, Method $method)
     {
         if ($this->isFieldMultiple($field)) {
-            $expression = sprintf('return (array) $this->get(\'%s\')->value;', $field->getName());
+            $expression = sprintf('return array_map(function ($item) {
+                return (%s) $item->value;
+            }, iterator_to_array($this->get(\'%s\')));', $scalarType, $field->getName());
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$scalarType}[] */");
         } else {

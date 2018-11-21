@@ -11,6 +11,13 @@ services:
             - '@entity_field.manager'
         tags: [{ name: drush.command }]
 
+    wmscaffold.commands.field-delete:
+        class: \Drupal\wmscaffold\Commands\FieldDeleteCommands
+        arguments:
+            - '@entity_type.manager'
+            - '@entity_type.bundle.info'
+        tags: [{ name: drush.command }]
+
     wmscaffold.commands.field-info:
         class: \Drupal\wmscaffold\Commands\FieldInfoCommands
         arguments:

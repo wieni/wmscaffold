@@ -1,3 +1,4 @@
+phpVersion: 7.0
 generators:
     model:
         baseClasses:

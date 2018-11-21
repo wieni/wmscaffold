@@ -7,11 +7,11 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\wmmedia\Plugin\Field\FieldType\MediaImageExtras;
 use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
+use Drupal\wmscaffold\ModelMethodGeneratorInterface;
+use Drupal\wmscaffold\ModelMethodGeneratorManager;
 use PhpParser\Builder;
-use PhpParser\Builder\Method;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Use_;
@@ -23,6 +23,8 @@ class ModelClassGenerator extends ClassGeneratorBase
 {
     /** @var ModelFactory */
     protected $modelFactory;
+    /** @var ModelMethodGeneratorManager */
+    protected $modelMethodGeneratorManager;
 
     /** @var array */
     protected $baseClasses;
@@ -35,10 +37,12 @@ class ModelClassGenerator extends ClassGeneratorBase
         EntityTypeBundleInfo $entityTypeBundleInfo,
         FileSystemInterface $fileSystem,
         ConfigFactoryInterface $configFactory,
-        ModelFactory $modelFactory
+        ModelFactory $modelFactory,
+        ModelMethodGeneratorManager $modelMethodGeneratorManager
     ) {
         parent::__construct($entityTypeManager, $entityFieldManager, $entityTypeBundleInfo, $fileSystem, $configFactory);
         $this->modelFactory = $modelFactory;
+        $this->modelMethodGeneratorManager = $modelMethodGeneratorManager;
 
         $this->baseClasses = $this->config->get('generators.model.baseClasses');
         $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore');
@@ -214,6 +218,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         $label = $field->getLabel();
         $label = $this->toPascalCase($label);
         $label = $this->stripInvalidCharacters($label);
+
         return 'get' . $label;
     }
 
@@ -228,209 +233,21 @@ class ModelClassGenerator extends ClassGeneratorBase
         }
 
         $getterMethodName = $this->buildFieldGetterName($field);
-        $generatorMethodName = sprintf('build%sMethod', $this->toPascalCase($field->getType()));
+        $id = $field->getType();
 
         $method = $this->builderFactory->method($getterMethodName)->makePublic();
         $uses = [];
 
-        if (method_exists($this, $generatorMethodName)) {
-            $this->{$generatorMethodName}($field, $method, $uses);
+        if ($this->modelMethodGeneratorManager->hasDefinition($id)) {
+            /** @var ModelMethodGeneratorInterface $generator */
+            $generator = $this->modelMethodGeneratorManager->createInstance($id);
+            $generator->buildGetter($field, $method, $uses);
+
         } else {
-            echo "No field getter builder method '$generatorMethodName'" . PHP_EOL;
+            throw new \Exception("No ModelMethodGenerator implementation for field type $id");
         }
 
         return [$method, $uses];
-    }
-
-    protected function buildEntityReferenceMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
-    {
-        $expression = $this->isFieldMultiple($field)
-            ? sprintf('return $this->get(\'%s\')->referencedEntities();', $field->getName())
-            : sprintf('return $this->get(\'%s\')->entity;', $field->getName());
-
-        $method->addStmt($this->parseExpression($expression));
-
-        if (!$fieldModelClass = $this->getFieldModelClass($field)) {
-            return;
-        }
-
-        $fieldModelClass = new \ReflectionClass($fieldModelClass);
-        $uses[] = $this->builderFactory->use($fieldModelClass->getName());
-
-        if ($this->isFieldMultiple($field)) {
-            $method->setReturnType('array');
-            $method->setDocComment("/** @return {$fieldModelClass->getShortName()}[] */");
-        } else if ($field->isRequired()) {
-            $method->setReturnType($fieldModelClass->getShortName());
-        } else {
-            $method->setDocComment("/** @return {$fieldModelClass->getShortName()}|null */");
-        }
-    }
-
-    protected function buildBooleanMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('bool', $field, $method);
-    }
-
-    protected function buildIntegerMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('int', $field, $method);
-    }
-
-    protected function buildListIntegerMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('int', $field, $method);
-    }
-
-    protected function buildFloatMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('float', $field, $method);
-    }
-
-    protected function buildListFloatMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('float', $field, $method);
-    }
-
-    protected function buildStringMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('string', $field, $method);
-    }
-
-    protected function buildStringLongMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('string', $field, $method);
-    }
-
-    protected function buildEmailMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('string', $field, $method);
-    }
-
-    protected function buildTelephoneMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('string', $field, $method);
-    }
-
-    protected function buildTextMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        if ($this->isFieldMultiple($field)) {
-            $expression = sprintf('return array_map(function ($item) {
-                return (string) $item->processed;
-            }, iterator_to_array($this->get(\'%s\')));', $field->getName());
-            $method->setReturnType('array');
-            $method->setDocComment("/** @return string[] */");
-        } else {
-            $expression = sprintf('return (string) $this->get(\'%s\')->processed;', $field->getName());
-            $method->setReturnType('string');
-        }
-
-        $method->addStmt($this->parseExpression($expression));
-    }
-
-    protected function buildTextLongMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildTextMethod($field, $method);
-    }
-
-    protected function buildTextWithSummaryMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildTextMethod($field, $method);
-    }
-
-    protected function buildListStringMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('string', $field, $method);
-    }
-
-    protected function buildUriMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $this->buildScalarMethod('string', $field, $method);
-    }
-
-    protected function buildWmmediaMediaImageExtrasMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
-    {
-        $uses[] = $this->builderFactory->use(MediaImageExtras::class);
-        $this->buildFieldItemListMethod(MediaImageExtras::class, $field, $method);
-    }
-
-    protected function buildLinkMethod(FieldDefinitionInterface $field, Method $method)
-    {
-        $methodName = $this->isFieldMultiple($field) ? 'formatLinks' : 'formatLink';
-
-        $method->setReturnType('array');
-        $method->addStmt(
-            $this->parseExpression(
-                sprintf('return $this->%s(\'%s\');', $methodName, $field->getName())
-            )
-        );
-    }
-
-    protected function buildDatetimeMethod(FieldDefinitionInterface $field, Method $method, array &$uses)
-    {
-        $className = \DateTime::class;
-        $shortName = (new \ReflectionClass($className))->getShortName();
-        $uses[] = $this->builderFactory->use($className);
-
-        $method->addStmt(
-            $this->parseExpression(
-                sprintf('return $this->toDateTime(\'%s\');', $field->getName())
-            )
-        );
-
-        if ($field->isRequired()) {
-            $method->setReturnType($className);
-        } else {
-            $method->setDocComment("/** @return {$shortName}|null */");
-        }
-    }
-
-    protected function buildScalarMethod(string $scalarType, FieldDefinitionInterface $field, Method $method)
-    {
-        if ($this->isFieldMultiple($field)) {
-            $expression = sprintf('return array_map(function ($item) {
-                return (%s) $item->value;
-            }, iterator_to_array($this->get(\'%s\')));', $scalarType, $field->getName());
-            $method->setReturnType('array');
-            $method->setDocComment("/** @return {$scalarType}[] */");
-        } else {
-            $expression = sprintf('return (%s) $this->get(\'%s\')->value;', $scalarType, $field->getName());
-            $method->setReturnType($scalarType);
-        }
-
-        $method->addStmt($this->parseExpression($expression));
-    }
-
-    protected function buildFieldItemListMethod(string $className, FieldDefinitionInterface $field, Method $method)
-    {
-        if ($this->isFieldMultiple($field)) {
-            $expression = sprintf('return $this->get(\'%s\');', $field->getName());
-            $method->setReturnType('array');
-            $method->setDocComment("/** @return {$className}[] */");
-        } else {
-            $expression = sprintf('return $this->get(\'%s\')->first();', $field->getName());
-            $shortName = (new \ReflectionClass($className))->getShortName();
-
-            if ($field->isRequired()) {
-                $method->setReturnType($shortName);
-            } else {
-                $method->setDocComment("/** @return {$shortName}|null */");
-            }
-        }
-
-        $method->addStmt($this->parseExpression($expression));
-    }
-
-    protected function getFieldModelClass(FieldDefinitionInterface $field)
-    {
-        $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
-        $targetBundles = $field->getSetting('handler_settings')['target_bundles'];
-        $targetBundle = reset($targetBundles);
-
-        return $this->modelFactory->getClassName(
-            $this->entityTypeManager->getDefinition($targetType),
-            $targetBundle
-        );
     }
 
     /** @return FieldDefinitionInterface[] */
@@ -442,11 +259,6 @@ class ModelClassGenerator extends ClassGeneratorBase
                 return $field->getFieldStorageDefinition()->getProvider() === 'field';
             }
         );
-    }
-
-    protected function isFieldMultiple(FieldDefinitionInterface $field)
-    {
-        return $field->getFieldStorageDefinition()->getCardinality() !== 1;
     }
 
     protected function compareNodes()

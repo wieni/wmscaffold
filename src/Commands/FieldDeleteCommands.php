@@ -12,10 +12,11 @@ use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ChoiceQuestion;
 
 class FieldDeleteCommands extends DrushCommands
 {
+    use QuestionTrait;
+
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
     /** @var EntityTypeBundleInfo */
@@ -164,32 +165,5 @@ class FieldDeleteCommands extends DrushCommands
         $this->logger()->success(
             t($message, [':field' => $fieldConfig->label(), ':type' => $bundleLabel])
         );
-    }
-
-    /**
-     * @param string $question
-     * @param array $choices
-     *   If an associative array is passed, the chosen *key* is returned.
-     * @param bool $multiSelect
-     * @param null $default
-     * @return mixed
-     */
-    protected function choice($question, array $choices, $multiSelect = false, $default = null)
-    {
-        $choicesValues = array_values($choices);
-        $question = new ChoiceQuestion($question, $choicesValues, $default);
-        $question->setMultiselect($multiSelect);
-        $return = $this->io()->askQuestion($question);
-
-        if ($multiSelect) {
-            return array_map(
-                function ($value) use ($choices) {
-                    return array_search($value, $choices);
-                },
-                $return
-            );
-        }
-
-        return array_search($return, $choices);
     }
 }

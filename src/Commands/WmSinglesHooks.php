@@ -13,6 +13,8 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class WmSinglesHooks extends DrushCommands
 {
+    use QuestionTrait;
+
     /** @var ModuleHandlerInterface */
     protected $moduleHandler;
 
@@ -68,9 +70,7 @@ class WmSinglesHooks extends DrushCommands
 
     protected function askIsSingle()
     {
-        return $this->io()->askQuestion(
-            new ConfirmationQuestion('Content type with a single entity?', false)
-        );
+        return $this->confirm('Content type with a single entity?', false);
     }
 
     protected function isInstalled()

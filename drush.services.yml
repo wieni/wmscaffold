@@ -92,3 +92,10 @@ services:
         tags: [{ name: drush.command }]
         arguments:
             - '@module_handler'
+
+    wmscaffold.hooks.menu_ui:
+        class: \Drupal\wmscaffold\Commands\MenuUiHooks
+        tags: [{ name: drush.command }]
+        arguments:
+            - '@module_handler'
+            - '@menu.parent_form_selector'

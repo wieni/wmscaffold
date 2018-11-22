@@ -66,6 +66,7 @@ class WmSinglesHooks extends DrushCommands
         }
 
         $values['third_party_settings']['wmsingles']['isSingle'] = (int) $this->input()->getOption('is-single');
+        $values['dependencies']['module'][] = 'wmsingles';
     }
 
     protected function askIsSingle()

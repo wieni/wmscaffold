@@ -19,7 +19,7 @@ class BaseFieldItemList extends ModelMethodGeneratorBase
         $uses[] = $this->builderFactory->use($fieldTypeClass->getName());
 
         if ($this->helper->isFieldMultiple($field)) {
-            $expression = sprintf('return $this->get(\'%s\');', $field->getName());
+            $expression = sprintf('return iterator_to_array($this->get(\'%s\'));', $field->getName());
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$fieldTypeClass->getShortName()}[] */");
 

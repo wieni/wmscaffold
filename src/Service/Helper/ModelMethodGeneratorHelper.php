@@ -62,7 +62,7 @@ class ModelMethodGeneratorHelper
     {
         $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
         $targetBundles = $field->getSetting('handler_settings')['target_bundles'];
-        $targetBundle = reset($targetBundles);
+        $targetBundle = $targetBundles[0] ?? null;
 
         return $this->modelFactory->getClassName(
             $this->entityTypeManager->getDefinition($targetType),

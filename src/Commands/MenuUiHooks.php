@@ -88,7 +88,7 @@ class MenuUiHooks extends DrushCommands
         }
 
         $values['third_party_settings']['menu_ui']['available_menus'] = $this->input->getOption('menu-available');
-        $values['third_party_settings']['menu_ui']['parent'] = $this->input->getOption('menu-default-parent');
+        $values['third_party_settings']['menu_ui']['parent'] = $this->input->getOption('menu-default-parent') ?? '';
         $values['dependencies']['module'][] = 'menu_ui';
     }
 

@@ -44,8 +44,8 @@ class ModelClassGenerator extends ClassGeneratorBase
         $this->modelFactory = $modelFactory;
         $this->modelMethodGeneratorManager = $modelMethodGeneratorManager;
 
-        $this->baseClasses = $this->config->get('generators.model.baseClasses');
-        $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore');
+        $this->baseClasses = $this->config->get('generators.model.baseClasses') ?? [];
+        $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore') ?? [];
     }
 
     public function generateNew(string $entityType, string $bundle, string $module): \PhpParser\Node\Stmt\Namespace_

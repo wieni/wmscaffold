@@ -4,6 +4,8 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
+use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
+use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManager;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
@@ -23,8 +25,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class FieldCreateCommands extends DrushCommands
+class FieldCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
+    use CustomEventAwareTrait;
     use QuestionTrait;
 
     /** @var FieldTypePluginManager */
@@ -388,6 +391,12 @@ class FieldCreateCommands extends DrushCommands
             $values['label'] = $fieldLabel;
         }
 
+        // Command files may customize $values as desired.
+        $handlers = $this->getCustomEventHandlers('field-create-field-config');
+        foreach ($handlers as $handler) {
+            $handler($values);
+        }
+
         /** @var FieldConfig $field */
         $field = $this->entityTypeManager
             ->getStorage('field_config')
@@ -437,6 +446,12 @@ class FieldCreateCommands extends DrushCommands
             $values['settings']['target_type'] = $targetType;
         }
 
+        // Command files may customize $values as desired.
+        $handlers = $this->getCustomEventHandlers('field-create-field-storage');
+        foreach ($handlers as $handler) {
+            $handler($values);
+        }
+
         /** @var FieldStorageConfigInterface $fieldStorage */
         $fieldStorage = $this->entityTypeManager
             ->getStorage('field_storage_config')
@@ -453,6 +468,12 @@ class FieldCreateCommands extends DrushCommands
 
         if ($fieldWidget) {
             $values['type'] = $fieldWidget;
+        }
+
+        // Command files may customize $values as desired.
+        $handlers = $this->getCustomEventHandlers('field-create-form-display');
+        foreach ($handlers as $handler) {
+            $handler($values);
         }
 
         $storage = $this->entityTypeManager
@@ -473,6 +494,12 @@ class FieldCreateCommands extends DrushCommands
     protected function createFieldViewDisplay(string $fieldName, string $entityType, string $bundle)
     {
         $values = [];
+
+        // Command files may customize $values as desired.
+        $handlers = $this->getCustomEventHandlers('field-create-view-display');
+        foreach ($handlers as $handler) {
+            $handler($values);
+        }
 
         $storage = $this->entityTypeManager
             ->getStorage('entity_view_display')

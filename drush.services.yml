@@ -1,6 +1,6 @@
 services:
     wmscaffold.commands.field-create:
-        class: \Drupal\wmscaffold\Commands\FieldCreateCommands
+        class: Drupal\wmscaffold\Commands\FieldCreateCommands
         arguments:
             - '@plugin.manager.field.field_type'
             - '@plugin.manager.field.widget'
@@ -12,21 +12,21 @@ services:
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.field-delete:
-        class: \Drupal\wmscaffold\Commands\FieldDeleteCommands
+        class: Drupal\wmscaffold\Commands\FieldDeleteCommands
         arguments:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.field-info:
-        class: \Drupal\wmscaffold\Commands\FieldInfoCommands
+        class: Drupal\wmscaffold\Commands\FieldInfoCommands
         arguments:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.base-field-override-create:
-        class: \Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
+        class: Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
         arguments:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
@@ -34,7 +34,7 @@ services:
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.nodetype-create:
-        class: \Drupal\wmscaffold\Commands\NodeTypeCreateCommands
+        class: Drupal\wmscaffold\Commands\NodeTypeCreateCommands
         arguments:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
@@ -43,7 +43,7 @@ services:
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.vocabulary-create:
-        class: \Drupal\wmscaffold\Commands\VocabularyCreateCommands
+        class: Drupal\wmscaffold\Commands\VocabularyCreateCommands
         arguments:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
@@ -51,15 +51,15 @@ services:
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.php-cs-fixer:
-        class: \Drupal\wmscaffold\Commands\PhpCsFixerCommands
+        class: Drupal\wmscaffold\Commands\PhpCsFixerCommands
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.field-meta:
-        class: \Drupal\wmscaffold\Commands\FieldMetaCommands
+        class: Drupal\wmscaffold\Commands\FieldMetaCommands
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.wmmodel:
-        class: \Drupal\wmscaffold\Commands\WmModelCommands
+        class: Drupal\wmscaffold\Commands\WmModelCommands
         arguments:
             - '@entity_type.manager'
             - '@wmmodel.entity_type.bundle.info'
@@ -67,14 +67,14 @@ services:
         tags: [{ name: drush.command }]
 
     wmscaffold.hooks.wmmodel:
-        class: \Drupal\wmscaffold\Commands\WmModelHooks
+        class: Drupal\wmscaffold\Commands\WmModelHooks
         arguments:
             - '@entity_field.manager'
             - '@wmscaffold.model_class_generator'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.wmcontroller:
-        class: \Drupal\wmscaffold\Commands\WmControllerCommands
+        class: Drupal\wmscaffold\Commands\WmControllerCommands
         arguments:
             - '@entity_type.manager'
             - '@wmmodel.entity_type.bundle.info'
@@ -82,19 +82,19 @@ services:
         tags: [{ name: drush.command }]
 
     wmscaffold.hooks.wmcontroller:
-        class: \Drupal\wmscaffold\Commands\WmControllerHooks
+        class: Drupal\wmscaffold\Commands\WmControllerHooks
         arguments:
             - '@wmscaffold.controller_class_generator'
         tags: [{ name: drush.command }]
 
     wmscaffold.hooks.wmsingles:
-        class: \Drupal\wmscaffold\Commands\WmSinglesHooks
+        class: Drupal\wmscaffold\Commands\WmSinglesHooks
         tags: [{ name: drush.command }]
         arguments:
             - '@module_handler'
 
     wmscaffold.hooks.menu_ui:
-        class: \Drupal\wmscaffold\Commands\MenuUiHooks
+        class: Drupal\wmscaffold\Commands\MenuUiHooks
         tags: [{ name: drush.command }]
         arguments:
             - '@module_handler'

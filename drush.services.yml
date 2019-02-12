@@ -50,6 +50,19 @@ services:
             - '@module_handler'
         tags: [{ name: drush.command }]
 
+    wmscaffold.commands.eck-type-create:
+        class: Drupal\wmscaffold\Commands\EckTypeCreateCommands
+        arguments:
+            - '@entity_type.manager'
+        tags: [{ name: drush.command }]
+
+    wmscaffold.commands.eck-bundle-create:
+        class: Drupal\wmscaffold\Commands\EckBundleCreateCommands
+        arguments:
+            - '@entity_type.manager'
+            - '@eck.entity_type.bundle.info'
+        tags: [{ name: drush.command }]
+
     wmscaffold.commands.php-cs-fixer:
         class: Drupal\wmscaffold\Commands\PhpCsFixerCommands
         tags: [{ name: drush.command }]

@@ -44,6 +44,6 @@ trait QuestionTrait
 
     protected function askOptional($question)
     {
-        return $this->io()->ask($question, null, function () {});
+        return $this->io()->ask($question, null, function ($value) { return $value; });
     }
 }

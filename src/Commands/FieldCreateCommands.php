@@ -125,7 +125,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $this->createFieldStorage($fieldName, $fieldType, $entityType, $targetType, $cardinality);
         }
 
-        $field = $this->createField($fieldName, $fieldLabel, $entityType, $bundle, $isRequired);
+        $field = $this->createField($fieldName, $fieldType, $fieldLabel, $entityType, $bundle, $isRequired);
         $this->createFieldFormDisplay($fieldName, $fieldWidget, $entityType, $bundle);
         $this->createFieldViewDisplay($fieldName, $entityType, $bundle);
 
@@ -377,7 +377,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Referenced bundles', $choices, true, 0);
     }
 
-    protected function createField(string $fieldName, $fieldLabel, string $entityType, string $bundle, bool $isRequired)
+    protected function createField(string $fieldName, string $fieldType, $fieldLabel, string $entityType, string $bundle, bool $isRequired)
     {
         $values = [
             'field_name' => $fieldName,
@@ -385,6 +385,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             'bundle' => $bundle,
             'translatable' => false,
             'required' => $isRequired,
+            'field_type' => $fieldType,
         ];
 
         if (!empty($fieldLabel)) {

@@ -149,10 +149,12 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
 
         if ($this->input->getOption('existing')) {
-            $this->input->setOption(
-                'field-name',
-                $this->input->getOption('field-name') ?? $this->askExisting()
-            );
+            $fieldName = $this->input->getOption('field-name') ?? $this->askExisting();
+            $fieldType = $this->entityFieldManager->getFieldStorageDefinitions($entityType)[$fieldName]->getType();
+
+            $this->input->setOption('field-name', $fieldName);
+            $this->input->setOption('field-type', $fieldType);
+
             $this->input->setOption(
                 'field-label',
                 $this->input->getOption('field-label') ?? $this->askFieldLabel()

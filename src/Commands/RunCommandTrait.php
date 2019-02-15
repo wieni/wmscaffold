@@ -14,12 +14,19 @@ trait RunCommandTrait
      * @param array $options
      * @param array $arguments
      * @param bool $interactive
+     * @param bool $exitOnFail
      * @return bool
      */
-    protected function drush(string $command, array $options = [], array $arguments = [], bool $interactive = false)
+    protected function drush(string $command, array $options = [], array $arguments = [], bool $interactive = false, bool $exitOnFail = true)
     {
         $backend_options = ['interactive' => $interactive];
-        return (bool) drush_invoke_process('@self', $command, $arguments, $options, $backend_options);
+        $status = drush_invoke_process('@self', $command, $arguments, $options, $backend_options);
+
+        if ($exitOnFail && $status === false) {
+            exit;
+        }
+
+        return $status;
     }
 
     /**

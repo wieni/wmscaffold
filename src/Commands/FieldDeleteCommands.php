@@ -85,7 +85,8 @@ class FieldDeleteCommands extends DrushCommands
         }
 
         if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
-            $this->input->setArgument('bundle', $this->askBundle());
+            $bundle = $this->askBundle();
+            $this->input->setArgument('bundle', $bundle);
         }
 
         $this->input->setOption(

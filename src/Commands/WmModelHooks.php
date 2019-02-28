@@ -134,6 +134,33 @@ class WmModelHooks extends DrushCommands
         );
     }
 
+    /**
+     * @hook option eck:bundle:create
+     */
+    public function hookOptionEckBundleCreate(Command $command)
+    {
+        $this->addModuleOption($command);
+    }
+
+    /**
+     * @hook post-command eck:bundle:create
+     */
+    public function hookPostEckBundleCreate($result, CommandData $commandData)
+    {
+        $entityType = $commandData->input()->getArgument('entityType');
+        $bundle = $commandData->input()->getOption('machine-name');
+        $module = $commandData->input()->getOption('wmmodel-output-module');
+
+        $this->drush(
+            'wmmodel:generate',
+            [
+                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
+                'output-module' => $module,
+            ],
+            compact('entityType', 'bundle')
+        );
+    }
+
     protected function addModuleOption(Command $command)
     {
         if ($command->getDefinition()->hasOption('wmmodel-output-module')) {

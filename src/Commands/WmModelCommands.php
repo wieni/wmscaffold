@@ -60,6 +60,7 @@ class WmModelCommands extends DrushCommands
     {
         $className = $this->modelClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);
         $destination = $this->modelClassGenerator->buildModelPath($entityType, $bundle, $options['output-module']);
+        $hasExistingClass = false;
         $statements = [];
 
         try {

@@ -20,5 +20,12 @@
     "nikic/php-parser": "^4.0",
     "composer/semver": "^1.4",
     "wieni/wmmodel": "^0.3"
+  },
+  "extra": {
+    "drush": {
+      "services": {
+        "drush.services.yml": "^9"
+      }
+    }
   }
 }

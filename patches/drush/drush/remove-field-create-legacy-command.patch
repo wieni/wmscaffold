@@ -1,12 +1,11 @@
 diff --git a/src/Commands/LegacyCommands.php b/src/Commands/LegacyCommands.php
-index 45c64380..01176c6a 100644
+index d5a7fcd6..0f2db839 100644
 --- a/src/Commands/LegacyCommands.php
 +++ b/src/Commands/LegacyCommands.php
-@@ -126,16 +126,4 @@ class LegacyCommands extends DrushCommands
-     public function download()
+@@ -125,18 +125,6 @@ class LegacyCommands extends DrushCommands
      {
      }
--
+
 -    /**
 -     * field-create has been deprecated. Please try `generate field` command.
 -     *
@@ -18,4 +17,7 @@ index 45c64380..01176c6a 100644
 -    public function field()
 -    {
 -    }
- }
+-
+     /**
+      * core:execute has been deprecated. Please try `site:ssh` command.
+      *

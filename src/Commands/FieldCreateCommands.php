@@ -6,6 +6,7 @@ use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManager;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
@@ -70,9 +71,9 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @aliases field-create,fc
      *
      * @param string $entityType
-     *      Name of bundle to attach fields to.
-     * @param string $bundle
      *      Type of entity (e.g. node, user, comment).
+     * @param string $bundle
+     *      Name of bundle to attach fields to.
      *
      * @option field-name
      * @option field-label
@@ -165,9 +166,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             );
 
             /** @var \Drupal\Core\Entity\Entity\EntityFormDisplay $formDisplay */
-            $formDisplay = $this->entityTypeManager
-                ->getStorage('entity_form_display')
-                ->load("$entityType.$bundle.default");
+            $formDisplay = $this->getEntityDisplay('form', $entityType, $bundle);
 
             if (!$formDisplay || $this->input->getOption('field-widget')) {
                 return;
@@ -465,7 +464,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $fieldStorage;
     }
 
-    protected function createFieldFormDisplay(string $fieldName, $fieldWidget, string $entityType, string $bundle)
+    protected function createFieldFormDisplay(string $fieldName, string $fieldWidget, string $entityType, string $bundle)
     {
         $values = [];
 
@@ -479,16 +478,14 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $handler($values);
         }
 
-        $storage = $this->entityTypeManager
-            ->getStorage('entity_form_display')
-            ->load("$entityType.$bundle.default");
+        $storage = $this->getEntityDisplay('form', $entityType, $bundle);
 
-        if (empty($storage)) {
+        if (!$storage instanceof EntityDisplayInterface) {
             $this->logger()->info(
                 sprintf('Form display storage not found for %s type \'%s\', creating now.', $entityType, $bundle)
             );
 
-            $storage = $this->createDisplayStorage('form', $entityType, $bundle);
+            $storage = $this->createEntityDisplay('form', $entityType, $bundle);
         }
 
         $storage->setComponent($fieldName, $values)->save();
@@ -504,22 +501,54 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $handler($values);
         }
 
-        $storage = $this->entityTypeManager
-            ->getStorage('entity_view_display')
-            ->load("$entityType.$bundle.default");
+        $storage = $this->getEntityDisplay('view', $entityType, $bundle);
 
-        if (empty($storage)) {
+        if (!$storage instanceof EntityDisplayInterface) {
             $this->logger()->info(
                 sprintf('View display storage not found for %s type \'%s\', creating now.', $entityType, $bundle)
             );
 
-            $storage = $this->createDisplayStorage('view', $entityType, $bundle);
+            $storage = $this->createEntityDisplay('view', $entityType, $bundle);
         }
 
         $storage->setComponent($fieldName, $values)->save();
     }
 
-    protected function createDisplayStorage(string $context, string $entityType, string $bundle)
+    /**
+     * Load an entity display object.
+     *
+     * @param string $context
+     *      eg. form, view
+     * @param string $entityType
+     * @param string $bundle
+     *
+     * @return EntityDisplayInterface|null
+     *
+     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+     */
+    protected function getEntityDisplay(string $context, string $entityType, string $bundle)
+    {
+        return $this->entityTypeManager
+            ->getStorage(sprintf('entity_%s_display', $context))
+            ->load("$entityType.$bundle.default");
+    }
+
+    /**
+     * Create and save a new entity display object.
+     *
+     * @param string $context
+     *      eg. form, view
+     * @param string $entityType
+     * @param string $bundle
+     *
+     * @return \Drupal\Core\Entity\EntityInterface
+     *
+     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+     * @throws \Drupal\Core\Entity\EntityStorageException
+     */
+    protected function createEntityDisplay(string $context, string $entityType, string $bundle)
     {
         $storageValues = [
             'id' => "$entityType.$bundle.default",
@@ -529,13 +558,13 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             'status' => true,
         ];
 
-        $storage = $this->entityTypeManager
+        $display = $this->entityTypeManager
             ->getStorage(sprintf('entity_%s_display', $context))
             ->create($storageValues);
 
-        $storage->save();
+        $display->save();
 
-        return $storage;
+        return $display;
     }
 
     protected function logResult(FieldConfig $field)
@@ -549,15 +578,11 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             )
         );
 
-        $routeName = "entity.field_config.{$field->get('entity_type')}_field_edit_form";
+        $routeName = "entity.field_config.{$field->getEntityTypeId()}_field_edit_form";
         $routeParams = [
             'field_config' => $field->id(),
-            "{$field->get('entity_type')}_type" => $field->get('bundle'),
+            $field->getEntityType()->getBundleEntityType() => $field->bundle(),
         ];
-
-        if ($this->input->getArgument('entityType') === 'taxonomy_term') {
-            $routeParams['taxonomy_vocabulary'] = $field->get('bundle');
-        }
 
         if ($this->moduleHandler->moduleExists('field_ui')) {
             $this->logger()->success(

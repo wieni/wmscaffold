@@ -57,8 +57,13 @@ class FieldInfoCommands extends DrushCommands
      *      default_value_callback: Default value callback
      *      allowed_values: Allowed values
      *      allowed_values_function: Allowed values function
+     *      handler: Selection handler
+     *      target_bundles: Target bundles
      * @filter-default-field field_name
      * @table-style default
+     *
+     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
      *
      * @return RowsOfFields
      */
@@ -73,6 +78,7 @@ class FieldInfoCommands extends DrushCommands
 
         foreach ($fields as $field) {
             $storage = $field->getFieldStorageDefinition();
+            $handlerSettings = $field->getSetting('handler_settings');
 
             $rows[$field->getName()] = [
                 'label' => $field->getLabel(),
@@ -86,6 +92,8 @@ class FieldInfoCommands extends DrushCommands
                 'default_value_callback' => $field->getDefaultValueCallback(),
                 'allowed_values' => $storage->getSetting('allowed_values'),
                 'allowed_values_function' => $storage->getSetting('allowed_values_function'),
+                'handler' => $field->getSetting('handler'),
+                'target_bundles' => $handlerSettings['target_bundles'] ?? null,
             ];
         }
 

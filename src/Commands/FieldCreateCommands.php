@@ -10,12 +10,12 @@ use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManager;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManager;
-use Drupal\Core\Field\Plugin\Field\FieldType\EntityReferenceItem;
 use Drupal\Core\Field\WidgetPluginManager;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
@@ -577,10 +577,13 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             )
         );
 
-        $routeName = "entity.field_config.{$field->getEntityTypeId()}_field_edit_form";
+        /** @var EntityTypeInterface $entityType */
+        $entityType = $this->entityTypeManager->getDefinition($field->get('entity_type'));
+
+        $routeName = "entity.field_config.{$entityType->id()}_field_edit_form";
         $routeParams = [
             'field_config' => $field->id(),
-            $field->getEntityType()->getBundleEntityType() => $field->bundle(),
+            $entityType->getBundleEntityType() => $field->get('bundle'),
         ];
 
         if ($this->moduleHandler->moduleExists('field_ui')) {

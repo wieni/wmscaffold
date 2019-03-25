@@ -321,10 +321,11 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     protected function askCardinality()
     {
         $fieldType = $this->input->getOption('field-type');
-        $enforcedCardinality = $this->getEnforcedCardinality($fieldType);
+        $definition = $this->fieldTypePluginManager->getDefinition($fieldType);
 
-        if (!is_null($enforcedCardinality)) {
-            return $enforcedCardinality;
+        // Some field types choose to enforce a fixed cardinality.
+        if (isset($definition['cardinality'])) {
+            return $definition['cardinality'];
         }
 
         $choices = ['Limited', 'Unlimited'];
@@ -614,6 +615,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     protected function fieldStorageExists(string $fieldName, string $entityType)
     {
         $fieldStorageDefinitions = $this->entityFieldManager->getFieldStorageDefinitions($entityType);
+
         return isset($fieldStorageDefinitions[$fieldName]);
     }
 
@@ -624,10 +626,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
 
     protected function getExistingFieldStorageOptions(string $entityType, string $bundle)
     {
-        $options = [];
-
-        // Load the fieldStorages and build the list of options.
         $fieldTypes = $this->fieldTypePluginManager->getDefinitions();
+        $options = [];
 
         foreach ($this->entityFieldManager->getFieldStorageDefinitions($entityType) as $fieldName => $fieldStorage) {
             // Do not show:
@@ -653,20 +653,5 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         asort($options);
 
         return $options;
-    }
-
-    /**
-     * Returns the cardinality enforced by the field type.
-     *
-     * Some field types choose to enforce a fixed cardinality. This method
-     * returns that cardinality or NULL if no cardinality has been enforced.
-     *
-     * @param string $entityType
-     * @return int|null
-     */
-    protected function getEnforcedCardinality(string $entityType)
-    {
-        $definition = $this->fieldTypePluginManager->getDefinition($entityType);
-        return $definition['cardinality'] ?? null;
     }
 }

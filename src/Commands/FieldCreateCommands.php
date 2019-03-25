@@ -406,29 +406,27 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
 
         $field->save();
 
-        $fieldType = $this->getFieldType($fieldName, $entityType, $bundle);
+        $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityType);
 
-        if (!$fieldType instanceof EntityReferenceItem) {
-            return $field;
-        }
+        if ($fieldType === 'entity_reference' && $entityTypeDefinition->hasKey('bundle')) {
+            if ($referencedBundle = $this->input->getOption('target-bundle')) {
+                $referencedBundles = [$referencedBundle];
+            } else {
+                $referencedBundles = $this->askReferencedBundles($field);
+            }
 
-        if ($referencedBundle = $this->input->getOption('target-bundle')) {
-            $referencedBundles = [$referencedBundle];
-        } else {
-            $referencedBundles = $this->askReferencedBundles($field);
-        }
-
-        if (is_array($referencedBundles)) {
-            $field->setSetting('handler_settings', [
-                'target_bundles' => array_combine($referencedBundles, $referencedBundles),
-                'sort' => [
-                    'field' => '_none',
-                    'direction' => 'ASC',
-                ],
-                'auto_create' => false,
-                'auto_create_bundle' => null,
-            ]);
-            $field->save();
+            if (is_array($referencedBundles)) {
+                $field->setSetting('handler_settings', [
+                    'target_bundles' => array_combine($referencedBundles, $referencedBundles),
+                    'sort' => [
+                        'field' => '_none',
+                        'direction' => 'ASC',
+                    ],
+                    'auto_create' => false,
+                    'auto_create_bundle' => null,
+                ]);
+                $field->save();
+            }
         }
 
         return $field;
@@ -670,26 +668,5 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     {
         $definition = $this->fieldTypePluginManager->getDefinition($entityType);
         return $definition['cardinality'] ?? null;
-    }
-
-    /**
-     * @param string $fieldName
-     * @param string $entityType
-     * @param string $bundle
-     * @return \Drupal\Core\Field\FieldItemInterface
-     */
-    protected function getFieldType(string $fieldName, string $entityType, string $bundle)
-    {
-        $ids = (object) [
-            'entity_type' => $entityType,
-            'bundle' => $bundle,
-            'entity_id' => null,
-        ];
-
-        $entity = _field_create_entity_from_ids($ids);
-        $items = $entity->get($fieldName);
-        $item = $items->first() ?: $items->appendItem();
-
-        return $item;
     }
 }

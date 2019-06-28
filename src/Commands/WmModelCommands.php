@@ -98,7 +98,10 @@ class WmModelCommands extends DrushCommands
             return;
         }
 
-        if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
+        if (
+            $this->entityTypeHasBundles($entityType)
+            && (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle))
+        ) {
             $this->input->setArgument('bundle', $this->askBundle());
         }
     }
@@ -147,8 +150,13 @@ class WmModelCommands extends DrushCommands
         return $this->choice('Bundle', $choices);
     }
 
-    protected function entityTypeBundleExists(string $entityType, string $bundleName)
+    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
     {
         return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
+    }
+
+    protected function entityTypeHasBundles(string $entityType): bool
+    {
+        return !empty($this->entityTypeBundleInfo->getBundleInfo($entityType));
     }
 }

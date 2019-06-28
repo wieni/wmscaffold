@@ -166,7 +166,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         return $this->io()->ask('Field label', $default);
     }
 
-    protected function askFieldDescription(string $default)
+    protected function askFieldDescription(?string $default)
     {
         return $this->io()->ask('Field description', $default);
     }

@@ -146,7 +146,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
 
         if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
-            $this->input->setArgument('bundle', $this->askBundle());
+            $bundle = $this->askBundle();
+            $this->input->setArgument('bundle', $bundle);
         }
 
         if ($this->input->getOption('existing')) {
@@ -463,7 +464,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $fieldStorage;
     }
 
-    protected function createFieldFormDisplay(string $fieldName, string $fieldWidget, string $entityType, string $bundle)
+    protected function createFieldFormDisplay(string $fieldName, $fieldWidget, string $entityType, string $bundle)
     {
         $values = [];
 

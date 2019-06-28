@@ -50,6 +50,9 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     public function generateNew(string $entityType, string $bundle, string $module): \PhpParser\Node\Stmt\Namespace_
     {
+        // Make sure the wmmodel class mapping is up to date
+        $this->modelFactory->rebuildMapping();
+
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);
 
@@ -86,6 +89,9 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     public function appendFieldGettersToExistingModel(string $entityType, string $bundle, string $module, array $fields)
     {
+        // Make sure the wmmodel class mapping is up to date
+        $this->modelFactory->rebuildMapping();
+
         $className = $this->buildClassName($entityType, $bundle, $module);
 
         if (!isset($this->baseClasses[$entityType])) {

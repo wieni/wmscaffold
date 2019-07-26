@@ -7,7 +7,6 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
@@ -34,13 +33,12 @@ class ModelClassGenerator extends ClassGeneratorBase
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
         FileSystemInterface $fileSystem,
         ConfigFactoryInterface $configFactory,
         ModelFactory $modelFactory,
         ModelMethodGeneratorManager $modelMethodGeneratorManager
     ) {
-        parent::__construct($entityTypeManager, $entityFieldManager, $entityTypeBundleInfo, $fileSystem, $configFactory);
+        parent::__construct($entityTypeManager, $entityFieldManager, $fileSystem, $configFactory);
         $this->modelFactory = $modelFactory;
         $this->modelMethodGeneratorManager = $modelMethodGeneratorManager;
 
@@ -198,8 +196,7 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false)
     {
-        $label = $this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundle]['label'] ?? $bundle;
-        $label = $this->toPascalCase($label);
+        $label = $this->toPascalCase($bundle);
         $label = $this->stripInvalidCharacters($label);
 
         if ($this->isReservedKeyword($label)) {

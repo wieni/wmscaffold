@@ -4,7 +4,6 @@ services:
         arguments:
             - '@entity_type.manager'
             - '@entity_field.manager'
-            - '@wmmodel.entity_type.bundle.info'
             - '@file_system'
             - '@config.factory'
 

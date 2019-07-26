@@ -8,7 +8,6 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Namespace_;
@@ -22,8 +21,6 @@ abstract class ClassGeneratorBase
     protected $entityTypeManager;
     /** @var EntityFieldManager */
     protected $entityFieldManager;
-    /** @var EntityTypeBundleInfo */
-    protected $entityTypeBundleInfo;
     /** @var FileSystemInterface */
     protected $fileSystem;
 
@@ -37,13 +34,11 @@ abstract class ClassGeneratorBase
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
         FileSystemInterface $fileSystem,
         ConfigFactoryInterface $configFactory
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityFieldManager = $entityFieldManager;
-        $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->fileSystem = $fileSystem;
 
         $this->config = $configFactory->get('wmscaffold.settings');

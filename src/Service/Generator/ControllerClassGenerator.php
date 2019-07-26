@@ -6,7 +6,6 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\wmmodel\Entity\EntityTypeBundleInfo;
 use PhpParser\Node\Stmt\Namespace_;
 
 class ControllerClassGenerator extends ClassGeneratorBase
@@ -20,12 +19,11 @@ class ControllerClassGenerator extends ClassGeneratorBase
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
         FileSystemInterface $fileSystem,
         ConfigFactoryInterface $configFactory,
         ModelClassGenerator $modelClassGenerator
     ) {
-        parent::__construct($entityTypeManager, $entityFieldManager, $entityTypeBundleInfo, $fileSystem, $configFactory);
+        parent::__construct($entityTypeManager, $entityFieldManager, $fileSystem, $configFactory);
         $this->modelClassGenerator = $modelClassGenerator;
 
         $this->baseClass = $this->config->get('generators.controller.baseClass');
@@ -103,8 +101,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
 
     public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false)
     {
-        $label = $this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundle]['label'] ?? $bundle;
-        $label = $this->toPascalCase($label);
+        $label = $this->toPascalCase($bundle);
         $label = $this->stripInvalidCharacters($label);
         $label .= 'Controller';
 

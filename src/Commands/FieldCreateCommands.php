@@ -141,8 +141,10 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
 
-        if (!$entityType) {
-            return;
+        if (!$this->entityTypeManager->hasDefinition($entityType)) {
+            throw new \InvalidArgumentException(
+                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
+            );
         }
 
         if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {

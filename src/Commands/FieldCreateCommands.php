@@ -126,7 +126,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $this->createFieldStorage($fieldName, $fieldType, $entityType, $targetType, $cardinality);
         }
 
-        $field = $this->createField($fieldName, $fieldType, $fieldLabel, $entityType, $bundle, $isRequired);
+        $field = $this->createField($fieldName, $fieldType, $fieldLabel, $entityType, $bundle, $targetType, $isRequired);
         $this->createFieldFormDisplay($fieldName, $fieldWidget, $entityType, $bundle);
         $this->createFieldViewDisplay($fieldName, $entityType, $bundle);
 
@@ -380,7 +380,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Referenced bundles', $choices, true, 0);
     }
 
-    protected function createField(string $fieldName, string $fieldType, $fieldLabel, string $entityType, string $bundle, bool $isRequired)
+    protected function createField(string $fieldName, string $fieldType, $fieldLabel, string $entityType, string $bundle, $targetType, bool $isRequired)
     {
         $values = [
             'field_name' => $fieldName,
@@ -406,30 +406,32 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             ->getStorage('field_config')
             ->create($values);
 
-        $field->save();
+        $targetTypeDefinition = $this->entityTypeManager->getDefinition($targetType);
 
-        $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityType);
+        if ($fieldType === 'entity_reference') {
+            // For the 'target_bundles' setting, a NULL value is equivalent to "allow
+            // entities from any bundle to be referenced" and an empty array value is
+            // equivalent to "no entities from any bundle can be referenced".
+            $targetBundles = null;
 
-        if ($fieldType === 'entity_reference' && $entityTypeDefinition->hasKey('bundle')) {
-            if ($referencedBundle = $this->input->getOption('target-bundle')) {
-                $referencedBundles = [$referencedBundle];
-            } else {
-                $referencedBundles = $this->askReferencedBundles($field);
+            if ($targetTypeDefinition->hasKey('bundle')) {
+                if ($referencedBundle = $this->input->getOption('target-bundle')) {
+                    $referencedBundles = [$referencedBundle];
+                } else {
+                    $referencedBundles = $this->askReferencedBundles($field);
+                }
+
+                if (!empty($referencedBundles)) {
+                    $targetBundles = array_combine($referencedBundles, $referencedBundles);
+                }
             }
 
-            if (is_array($referencedBundles)) {
-                $field->setSetting('handler_settings', [
-                    'target_bundles' => array_combine($referencedBundles, $referencedBundles),
-                    'sort' => [
-                        'field' => '_none',
-                        'direction' => 'ASC',
-                    ],
-                    'auto_create' => false,
-                    'auto_create_bundle' => null,
-                ]);
-                $field->save();
-            }
+            $settings = $field->getSetting('handler_settings') ?? [];
+            $settings['target_bundles'] = $targetBundles;
+            $field->setSetting('handler_settings', $settings);
         }
+
+        $field->save();
 
         return $field;
     }

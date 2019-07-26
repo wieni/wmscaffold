@@ -61,13 +61,14 @@ class ModelMethodGeneratorHelper
     public function getFieldModelClass(FieldDefinitionInterface $field)
     {
         $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
+        $definition = $this->entityTypeManager->getDefinition($targetType);
         $targetBundles = $field->getSetting('handler_settings')['target_bundles'];
-        $targetBundle = reset($targetBundles) ?: null;
 
-        return $this->modelFactory->getClassName(
-            $this->entityTypeManager->getDefinition($targetType),
-            $targetBundle
-        );
+        if (empty($targetBundles)) {
+            return $definition->getClass();
+        }
+
+        return $this->modelFactory->getClassName($definition, reset($targetBundles));
     }
 
     /**

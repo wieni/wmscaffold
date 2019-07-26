@@ -71,7 +71,7 @@ class WmModelCommands extends DrushCommands
                 return;
             }
 
-            $statements[] = $this->modelClassGenerator->generateExisting($entityType, $bundle, $options['output-module']);
+            $statements[] = $this->modelClassGenerator->generateExisting($entityType, $bundle);
         } catch (\ReflectionException $e) {
             // No existing class, generate a new one
             $statements[] = $this->modelClassGenerator->generateNew($entityType, $bundle, $options['output-module']);

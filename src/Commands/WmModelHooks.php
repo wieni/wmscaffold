@@ -59,7 +59,7 @@ class WmModelHooks extends DrushCommands
             return;
         }
 
-        if (!$statement = $this->modelClassGenerator->appendFieldGettersToExistingModel($entityType, $bundle, $module, [$field])) {
+        if (!$statement = $this->modelClassGenerator->appendFieldGettersToExistingModel($entityType, $bundle, [$field])) {
             return;
         }
 

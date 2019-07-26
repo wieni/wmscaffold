@@ -82,27 +82,21 @@ class ModelClassGenerator extends ClassGeneratorBase
         return $node;
     }
 
-    public function generateExisting(string $entityType, string $bundle, string $module)
+    public function generateExisting(string $entityType, string $bundle)
     {
-        return $this->appendFieldGettersToExistingModel($entityType, $bundle, $module, $this->getCustomFields($entityType, $bundle));
+        return $this->appendFieldGettersToExistingModel($entityType, $bundle, $this->getCustomFields($entityType, $bundle));
     }
 
-    public function appendFieldGettersToExistingModel(string $entityType, string $bundle, string $module, array $fields)
+    public function appendFieldGettersToExistingModel(string $entityType, string $bundle, array $fields)
     {
         // Make sure the wmmodel class mapping is up to date
         $this->modelFactory->rebuildMapping();
 
-        $className = $this->buildClassName($entityType, $bundle, $module);
-
-        if (!isset($this->baseClasses[$entityType])) {
-            throw new \Exception(
-                sprintf('Unknown base class for class %s', $className)
-            );
-        }
+        $definition = $this->entityTypeManager->getDefinition($entityType);
+        $className = $this->modelFactory->getClassName($definition, $bundle);
 
         // Must have an existing class
         try {
-            $baseClass = new \ReflectionClass($this->baseClasses[$entityType]);
             $class = new \ReflectionClass($className);
         } catch (\ReflectionException $e) {
             return false;
@@ -155,7 +149,7 @@ class ModelClassGenerator extends ClassGeneratorBase
                 $getterMethodName = $this->buildFieldGetterName($field);
                 $index = 1;
 
-                while ($class->hasMethod($getterMethodName) || $baseClass->hasMethod($getterMethodName)) {
+                while ($class->hasMethod($getterMethodName)) {
                     $getterMethodName = $this->buildFieldGetterName($field) . $index;
                     $index++;
                 }

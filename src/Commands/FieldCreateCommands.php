@@ -408,9 +408,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             ->getStorage('field_config')
             ->create($values);
 
-        $targetTypeDefinition = $this->entityTypeManager->getDefinition($targetType);
-
         if ($fieldType === 'entity_reference') {
+            $targetTypeDefinition = $this->entityTypeManager->getDefinition($targetType);
             // For the 'target_bundles' setting, a NULL value is equivalent to "allow
             // entities from any bundle to be referenced" and an empty array value is
             // equivalent to "no entities from any bundle can be referenced".

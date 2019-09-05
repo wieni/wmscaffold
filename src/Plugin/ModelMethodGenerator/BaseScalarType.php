@@ -5,6 +5,7 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorBase;
 use PhpParser\Builder\Method;
+use PhpParser\Node\NullableType;
 
 abstract class BaseScalarType extends ModelMethodGeneratorBase
 {
@@ -12,16 +13,23 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
     {
         $scalarType = static::getType();
 
+        $expression = $this->helper->isFieldMultiple($field)
+            ? sprintf(
+                'array_column(
+                    $this->get(\'%s\')->getValue(),
+                    \'value\'
+                )',
+                $field->getName()
+            )
+            : sprintf('return $this->get(\'%s\')->value;', $scalarType, $field->getName());
+
         if ($this->helper->isFieldMultiple($field)) {
-            $expression = sprintf('return array_map(function ($item) {
-                return (%s) $item->value;
-            }, iterator_to_array($this->get(\'%s\')));', $scalarType, $field->getName());
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$scalarType}[] */");
 
         } else {
-            $expression = sprintf('return $this->get(\'%s\')->value;', $field->getName());
             $method->setReturnType($scalarType);
+            $method->setDocComment("/** @return {$scalarType}|null */");
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

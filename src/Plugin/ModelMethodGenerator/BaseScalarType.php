@@ -20,7 +20,7 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
             $method->setDocComment("/** @return {$scalarType}[] */");
 
         } else {
-            $expression = sprintf('return (%s) $this->get(\'%s\')->value;', $scalarType, $field->getName());
+            $expression = sprintf('return $this->get(\'%s\')->value;', $field->getName());
             $method->setReturnType($scalarType);
         }
 

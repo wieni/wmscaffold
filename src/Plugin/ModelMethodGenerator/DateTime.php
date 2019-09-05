@@ -20,33 +20,23 @@ class DateTime extends ModelMethodGeneratorBase
         $shortName = (new \ReflectionClass($className))->getShortName();
         $uses[] = $this->builderFactory->use($className);
 
-        if ($this->helper->isFieldMultiple($field)) {
-            // TODO: Fix this
-            $expression = sprintf('return $this->toDateTime(\'%s\');', $field->getName());
-        } else {
-            $expression = sprintf('return $this->toDateTime(\'%s\');', $field->getName());
-        }
-
-        $method->addStmt(
-            $this->helper->parseExpression($expression)
-        );
+        // TODO: Fix multiple
+        $expression = $this->helper->isFieldMultiple($field)
+            ? sprintf('return $this->toDateTime(\'%s\');', $field->getName())
+            : sprintf('return $this->toDateTime(\'%s\');', $field->getName());
 
         if ($this->helper->isFieldMultiple($field)) {
+            $expression = sprintf('return $this->toDateTime(\'%s\');', $field->getName());
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$shortName}[] */");
-
+        } else if ($field->isRequired()) {
+            $method->setReturnType($shortName);
+        } else if ($this->helper->supportsNullableTypes()) {
+            $method->setReturnType(new NullableType($shortName));
         } else {
-            if ($field->isRequired()) {
-                $method->setReturnType($shortName);
-
-            } else {
-                if ($this->helper->supportsNullableTypes()) {
-                    $method->setReturnType(new NullableType($shortName));
-
-                } else {
-                    $method->setDocComment("/** @return {$shortName}|null */");
-                }
-            }
+            $method->setDocComment("/** @return {$shortName}|null */");
         }
+
+        $method->addStmt($this->helper->parseExpression($expression));
     }
 }

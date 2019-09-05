@@ -37,5 +37,5 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
         $method->addStmt($this->helper->parseExpression($expression));
     }
 
-    public abstract static function getType();
+    abstract public static function getType();
 }

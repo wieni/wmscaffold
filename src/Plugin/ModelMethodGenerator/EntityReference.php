@@ -25,24 +25,17 @@ class EntityReference extends ModelMethodGeneratorBase
             ? sprintf('return $this->get(\'%s\')->referencedEntities();', $field->getName())
             : sprintf('return $this->get(\'%s\')->entity;', $field->getName());
 
-        $method->addStmt($this->helper->parseExpression($expression));
-
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$fieldModelClass->getShortName()}[] */");
-
+        } else if ($field->isRequired()) {
+            $method->setReturnType($fieldModelClass->getShortName());
+        } else if ($this->helper->supportsNullableTypes()) {
+            $method->setReturnType(new NullableType($fieldModelClass->getShortName()));
         } else {
-            if ($field->isRequired()) {
-                $method->setReturnType($fieldModelClass->getShortName());
-
-            } else {
-                if ($this->helper->supportsNullableTypes()) {
-                    $method->setReturnType(new NullableType($fieldModelClass->getShortName()));
-
-                } else {
-                    $method->setDocComment("/** @return {$fieldModelClass->getShortName()}|null */");
-                }
-            }
+            $method->setDocComment("/** @return {$fieldModelClass->getShortName()}|null */");
         }
+
+        $method->addStmt($this->helper->parseExpression($expression));
     }
 }

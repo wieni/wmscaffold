@@ -21,7 +21,7 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
                 )',
                 $field->getName()
             )
-            : sprintf('return $this->get(\'%s\')->value;', $scalarType, $field->getName());
+            : sprintf('return $this->get(\'%s\')->value;', $field->getName());
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');

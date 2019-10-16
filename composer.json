@@ -9,12 +9,6 @@
       "email": "info@wieni.be"
     }
   ],
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://packagist.drupal-composer.org"
-    }
-  ],
   "require": {
     "friendsofphp/php-cs-fixer": "^2.10",
     "nikic/php-parser": "^4.0",

@@ -3,6 +3,7 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\CommandData;
+use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
@@ -12,7 +13,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
 
-class WmModelHooks extends DrushCommands
+class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterface
 {
     use RunCommandTrait;
 

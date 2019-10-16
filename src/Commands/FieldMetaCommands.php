@@ -2,10 +2,11 @@
 
 namespace Drupal\wmscaffold\Commands;
 
+use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Input\InputOption;
 
-class FieldMetaCommands extends DrushCommands
+class FieldMetaCommands extends DrushCommands implements SiteAliasManagerAwareInterface
 {
     use RunCommandTrait;
 
@@ -39,6 +40,6 @@ class FieldMetaCommands extends DrushCommands
             'target-bundle' => 'meta',
         ];
 
-        $this->drush('field:create', $options, $arguments, true);
+        $this->drush('field:create', $options, $arguments);
     }
 }

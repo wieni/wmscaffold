@@ -4,6 +4,7 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
+use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
@@ -14,7 +15,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
-class WmControllerCommands extends DrushCommands
+class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwareInterface
 {
     use RunCommandTrait;
     use QuestionTrait;

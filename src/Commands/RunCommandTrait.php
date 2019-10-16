@@ -2,11 +2,19 @@
 
 namespace Drupal\wmscaffold\Commands;
 
+use Consolidation\SiteAlias\SiteAlias;
+use Consolidation\SiteAlias\SiteAliasManagerAwareTrait;
+use Consolidation\SiteProcess\ProcessManagerAwareTrait;
+use Consolidation\SiteProcess\Util\ArgumentProcessor;
+use RuntimeException;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\StringInput;
 
 trait RunCommandTrait
 {
+    use SiteAliasManagerAwareTrait;
+    use ProcessManagerAwareTrait;
+
     /**
      * Run another Drush command
      *
@@ -17,16 +25,33 @@ trait RunCommandTrait
      * @param bool $exitOnFail
      * @return bool
      */
-    protected function drush(string $command, array $options = [], array $arguments = [], bool $interactive = false, bool $exitOnFail = true)
+    protected function drush(string $command, array $options = [], array $arguments = [])
     {
-        $backend_options = ['interactive' => $interactive];
-        $status = drush_invoke_process('@self', $command, $arguments, $options, $backend_options);
+        $alias = $this->siteAliasManager()->getSelf();
+        $process = $this->processManager->drush($alias, $command, $arguments, $options + ['yes' => true]);
 
-        if ($exitOnFail && $status === false) {
-            exit;
+        try {
+            $process->setTty(true);
+        } catch (RuntimeException $e) {
+            // At least we tried ¯\_(ツ)_/¯
         }
 
-        return $status;
+        $process->realtimeStdout()->writeln(
+            $this->buildCommandString($alias, $command, $options, $arguments)
+        );
+
+        $process->mustRun($process->showRealtime());
+    }
+
+    protected function buildCommandString(SiteAlias $alias, string $command, array $options = [], array $arguments = []): string
+    {
+        $processor = new ArgumentProcessor;
+
+        return sprintf(
+            '<comment>> %s %s</comment>',
+            $command,
+            implode(' ', $processor->selectArgs($alias, $arguments, $options))
+        );
     }
 
     /**

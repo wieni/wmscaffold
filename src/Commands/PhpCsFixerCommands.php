@@ -81,8 +81,12 @@ class PhpCsFixerCommands extends DrushCommands
 
     protected function getChangedFiles()
     {
-        drush_shell_exec('git diff HEAD --name-only --diff-filter=ACMRTUXB');
-        $output = drush_shell_exec_output();
+        $process = $this->processManager()
+            ->process(['git', 'diff', 'HEAD', '--name-only', '--diff-filter=ACMRTUXB']);
+
+        $process->start();
+        $process->wait();
+        $output = $process->getOutput();
 
         if (strpos($output[0], 'fatal:') === 0) {
             return null;
@@ -92,7 +96,9 @@ class PhpCsFixerCommands extends DrushCommands
             function ($path) {
                 return "../$path";
             },
-            $output
+            array_filter(
+                explode(PHP_EOL, $output)
+            )
         );
     }
 }

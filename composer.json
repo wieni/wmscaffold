@@ -10,6 +10,7 @@
     }
   ],
   "require": {
+    "drupal/core": "^8.0",
     "friendsofphp/php-cs-fixer": "^2.10",
     "nikic/php-parser": "^4.0",
     "composer/semver": "^1.4",

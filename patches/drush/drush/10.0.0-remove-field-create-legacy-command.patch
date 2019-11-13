@@ -1,0 +1,23 @@
+diff --git a/src/Commands/LegacyCommands.php b/src/Commands/LegacyCommands.php
+index 9096e7649..3d382552e 100644
+--- a/src/Commands/LegacyCommands.php
++++ b/src/Commands/LegacyCommands.php
+@@ -129,18 +129,6 @@ class LegacyCommands extends DrushCommands
+     {
+     }
+
+-    /**
+-     * field-create has been removed. Please try `generate field` command.
+-     *
+-     * @command field:create
+-     * @aliases field-create
+-     * @hidden
+-     * @obsolete
+-     */
+-    public function field()
+-    {
+-    }
+-
+     /**
+      * core:execute has been removed. Please try `site:ssh` command.
+      *

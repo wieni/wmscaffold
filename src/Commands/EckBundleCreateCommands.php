@@ -34,20 +34,23 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
     }
 
     /**
-     * Create a new eck entity type
+     * Add a new bundle to an eck entity type
      *
      * @command eck:bundle:create
      * @aliases eck-bundle-create,ebc
      *
      * @param string $entityType
+     *      The machine name of the entity type to add the bundle to.
      * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
-     *
      * @option label
+     *      The human-readable name of this entity bundle.
      * @option machine-name
+     *      A unique machine-readable name for this entity type bundle.
      * @option description
+     *      Describe this entity type bundle.
      *
      * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
      * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException

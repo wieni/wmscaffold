@@ -3,13 +3,14 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\CommandData;
+use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
 
-class WmControllerHooks extends DrushCommands
+class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareInterface
 {
     use RunCommandTrait;
 

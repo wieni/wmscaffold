@@ -83,6 +83,7 @@ services:
         arguments:
             - '@entity_type.manager'
             - '@wmmodel.entity_type.bundle.info'
+            - '@config.factory'
             - '@wmscaffold.model_class_generator'
         tags: [{ name: drush.command }]
 
@@ -90,6 +91,7 @@ services:
         class: Drupal\wmscaffold\Commands\WmModelHooks
         arguments:
             - '@entity_field.manager'
+            - '@config.factory'
             - '@wmscaffold.model_class_generator'
         tags: [{ name: drush.command }]
 
@@ -98,12 +100,14 @@ services:
         arguments:
             - '@entity_type.manager'
             - '@wmmodel.entity_type.bundle.info'
+            - '@config.factory'
             - '@wmscaffold.controller_class_generator'
         tags: [{ name: drush.command }]
 
     wmscaffold.hooks.wmcontroller:
         class: Drupal\wmscaffold\Commands\WmControllerHooks
         arguments:
+            - '@config.factory'
             - '@wmscaffold.controller_class_generator'
         tags: [{ name: drush.command }]
 

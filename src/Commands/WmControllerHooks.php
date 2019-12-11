@@ -2,26 +2,33 @@
 
 namespace Drupal\wmscaffold\Commands;
 
+use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareInterface
 {
     use RunCommandTrait;
 
+    /** @var ConfigFactoryInterface */
+    protected $configFactory;
     /** @var ControllerClassGenerator */
     protected $controllerClassGenerator;
     /** @var \PhpParser\PrettyPrinter\Standard */
     protected $prettyPrinter;
 
     public function __construct(
+        ConfigFactoryInterface $configFactory,
         ControllerClassGenerator $controllerClassGenerator
     ) {
+        $this->configFactory = $configFactory;
         $this->controllerClassGenerator = $controllerClassGenerator;
         $this->prettyPrinter = new Standard();
     }
@@ -31,7 +38,15 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
      */
     public function hookOptionNodeTypeCreate(Command $command)
     {
-        $this->addModuleOption($command);
+        $this->addOption($command);
+    }
+
+    /**
+     * @hook init nodetype:create
+     */
+    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData)
+    {
+        $this->setDefaultValue();
     }
 
     /**
@@ -58,7 +73,15 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
      */
     public function hookOptionVocabularyCreate(Command $command)
     {
-        $this->addModuleOption($command);
+        $this->addOption($command);
+    }
+
+    /**
+     * @hook init vocabulary:create
+     */
+    public function hookInitVocabularyTypeCreate(InputInterface $input, AnnotationData $annotationData)
+    {
+        $this->setDefaultValue();
     }
 
     /**
@@ -80,7 +103,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
         );
     }
 
-    protected function addModuleOption(Command $command)
+    protected function addOption(Command $command)
     {
         if ($command->getDefinition()->hasOption('wmcontroller-output-module')) {
             return;
@@ -92,5 +115,18 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
             InputOption::VALUE_OPTIONAL,
             'The name of the module containing the wmcontroller class.'
         );
+    }
+
+    protected function setDefaultValue()
+    {
+        $module = $this->input->getOption('wmcontroller-output-module');
+
+        if (!$module) {
+            $default = $this->configFactory
+                ->get('wmscaffold.settings')
+                ->get('generators.controller.outputModule');
+
+            $this->input->setOption('wmcontroller-output-module', $default);
+        }
     }
 }

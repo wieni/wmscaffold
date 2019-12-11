@@ -2,14 +2,17 @@
 
 namespace Drupal\wmscaffold\Commands;
 
+use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
 
@@ -19,6 +22,8 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
 
     /** @var EntityFieldManager */
     protected $entityFieldManager;
+    /** @var ConfigFactoryInterface */
+    protected $configFactory;
     /** @var ModelClassGenerator */
     protected $modelClassGenerator;
     /** @var \PhpParser\PrettyPrinter\Standard */
@@ -28,9 +33,11 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
 
     public function __construct(
         EntityFieldManagerInterface $entityFieldManager,
+        ConfigFactoryInterface $configFactory,
         ModelClassGenerator $modelClassGenerator
     ) {
         $this->entityFieldManager = $entityFieldManager;
+        $this->configFactory = $configFactory;
         $this->modelClassGenerator = $modelClassGenerator;
         $this->prettyPrinter = new Standard();
         $this->fileSystem = new Filesystem();
@@ -42,6 +49,14 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
     public function hookOptionFieldCreate(Command $command)
     {
         $this->addModuleOption($command);
+    }
+
+    /**
+     * @hook init field:create
+     */
+    public function hookInitFieldCreate(InputInterface $input, AnnotationData $annotationData)
+    {
+        $this->setDefaultValue();
     }
 
     /**
@@ -90,6 +105,14 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
     }
 
     /**
+     * @hook init nodetype:create
+     */
+    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData)
+    {
+        $this->setDefaultValue();
+    }
+
+    /**
      * @hook post-command nodetype:create
      */
     public function hookPostNodeTypeCreate($result, CommandData $commandData)
@@ -117,6 +140,14 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
     }
 
     /**
+     * @hook init vocabulary:create
+     */
+    public function hookInitVocabularyCreate(InputInterface $input, AnnotationData $annotationData)
+    {
+        $this->setDefaultValue();
+    }
+
+    /**
      * @hook post-command vocabulary:create
      */
     public function hookPostVocabularyCreate($result, CommandData $commandData)
@@ -141,6 +172,14 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
     public function hookOptionEckBundleCreate(Command $command)
     {
         $this->addModuleOption($command);
+    }
+
+    /**
+     * @hook init eck:bundle:create
+     */
+    public function hookInitEckBundleCreate(InputInterface $input, AnnotationData $annotationData)
+    {
+        $this->setDefaultValue();
     }
 
     /**
@@ -174,5 +213,18 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
             InputOption::VALUE_OPTIONAL,
             'The name of the module containing the wmmodel class.'
         );
+    }
+
+    protected function setDefaultValue()
+    {
+        $module = $this->input->getOption('wmmodel-output-module');
+
+        if (!$module) {
+            $default = $this->configFactory
+                ->get('wmscaffold.settings')
+                ->get('generators.model.outputModule');
+
+            $this->input->setOption('wmmodel-output-module', $default);
+        }
     }
 }

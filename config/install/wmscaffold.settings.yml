@@ -5,5 +5,7 @@ generators:
             node: Drupal\node\Entity\Node
             taxonomy_term: Drupal\taxonomy\Entity\Term
         fieldsToIgnore: []
+        outputModule: ''
     controller:
         baseClass: Drupal\Core\Controller\ControllerBase
+        outputModule: ''

@@ -5,6 +5,7 @@ namespace Drupal\wmscaffold\Commands;
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
+use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
@@ -24,6 +25,8 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     protected $entityTypeManager;
     /** @var EntityTypeBundleInfo */
     protected $entityTypeBundleInfo;
+    /** @var ConfigFactoryInterface */
+    protected $configFactory;
     /** @var ControllerClassGenerator */
     protected $controllerClassGenerator;
     /** @var \PhpParser\PrettyPrinter\Standard */
@@ -34,10 +37,12 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
+        ConfigFactoryInterface $configFactory,
         ControllerClassGenerator $controllerClassGenerator
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
+        $this->configFactory = $configFactory;
         $this->controllerClassGenerator = $controllerClassGenerator;
         $this->prettyPrinter = new Standard();
         $this->fileSystem = new Filesystem();
@@ -95,6 +100,22 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
 
         if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
             $this->input->setArgument('bundle', $this->askBundle());
+        }
+    }
+
+    /**
+     * @hook init wmcontroller:generate
+     */
+    public function init(InputInterface $input, AnnotationData $annotationData)
+    {
+        $module = $this->input->getOption('output-module');
+
+        if (!$module) {
+            $default = $this->configFactory
+                ->get('wmscaffold.settings')
+                ->get('generators.controller.outputModule');
+
+            $this->input->setOption('output-module', $default);
         }
     }
 

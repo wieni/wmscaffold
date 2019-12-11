@@ -117,18 +117,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
      */
     public function hookPostNodeTypeCreate($result, CommandData $commandData)
     {
-        $entityType = 'node';
-        $bundle = $commandData->input()->getOption('machine-name');
-        $module = $commandData->input()->getOption('wmmodel-output-module');
-
-        $this->drush(
-            'wmmodel:generate',
-            [
-                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
-                'output-module' => $module,
-            ],
-            compact('entityType', 'bundle')
-        );
+        $this->generateModel($commandData, 'node');
     }
 
     /**
@@ -152,18 +141,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
      */
     public function hookPostVocabularyCreate($result, CommandData $commandData)
     {
-        $entityType = 'taxonomy_term';
-        $bundle = $commandData->input()->getOption('machine-name');
-        $module = $commandData->input()->getOption('wmmodel-output-module');
-
-        $this->drush(
-            'wmmodel:generate',
-            [
-                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
-                'output-module' => $module,
-            ],
-            compact('entityType', 'bundle')
-        );
+        $this->generateModel($commandData, 'taxonomy_term');
     }
 
     /**
@@ -187,18 +165,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
      */
     public function hookPostEckBundleCreate($result, CommandData $commandData)
     {
-        $entityType = $commandData->input()->getArgument('entityType');
-        $bundle = $commandData->input()->getOption('machine-name');
-        $module = $commandData->input()->getOption('wmmodel-output-module');
-
-        $this->drush(
-            'wmmodel:generate',
-            [
-                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
-                'output-module' => $module,
-            ],
-            compact('entityType', 'bundle')
-        );
+        $this->generateModel($commandData, $commandData->input()->getArgument('entityType'));
     }
 
     protected function addModuleOption(Command $command)
@@ -226,5 +193,24 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
 
             $this->input->setOption('wmmodel-output-module', $default);
         }
+    }
+
+    protected function generateModel(CommandData $commandData, string $entityType)
+    {
+        $bundle = $commandData->input()->getOption('machine-name');
+        $module = $commandData->input()->getOption('wmmodel-output-module');
+
+        if (!$module) {
+            return;
+        }
+
+        $this->drush(
+            'wmmodel:generate',
+            [
+                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
+                'output-module' => $module,
+            ],
+            compact('entityType', 'bundle')
+        );
     }
 }

@@ -54,18 +54,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
      */
     public function hookPostNodeTypeCreate($result, CommandData $commandData)
     {
-        $entityType = 'node';
-        $bundle = $commandData->input()->getOption('machine-name');
-        $module = $commandData->input()->getOption('wmcontroller-output-module');
-
-        $this->drush(
-            'wmcontroller:generate',
-            [
-                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
-                'output-module' => $module,
-            ],
-            compact('entityType', 'bundle')
-        );
+        $this->generateController($commandData, 'node');
     }
 
     /**
@@ -89,18 +78,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
      */
     public function hookPostVocabularyCreate($result, CommandData $commandData)
     {
-        $entityType = 'taxonomy_term';
-        $bundle = $commandData->input()->getOption('machine-name');
-        $module = $commandData->input()->getOption('wmcontroller-output-module');
-
-        $this->drush(
-            'wmcontroller:generate',
-            [
-                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
-                'output-module' => $module,
-            ],
-            compact('entityType', 'bundle')
-        );
+        $this->generateController($commandData, 'taxonomy_term');
     }
 
     protected function addOption(Command $command)
@@ -128,5 +106,24 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
 
             $this->input->setOption('wmcontroller-output-module', $default);
         }
+    }
+
+    protected function generateController(CommandData $commandData, string $entityType)
+    {
+        $bundle = $commandData->input()->getOption('machine-name');
+        $module = $commandData->input()->getOption('wmcontroller-output-module');
+
+        if (!$module) {
+            return;
+        }
+
+        $this->drush(
+            'wmcontroller:generate',
+            [
+                'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
+                'output-module' => $module,
+            ],
+            compact('entityType', 'bundle')
+        );
     }
 }

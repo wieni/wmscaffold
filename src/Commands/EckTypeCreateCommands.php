@@ -5,7 +5,9 @@ namespace Drupal\wmscaffold\Commands;
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\Entity\EckEntityType;
 use Drush\Commands\DrushCommands;
@@ -33,27 +35,38 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
      * @command eck:type:create
      * @aliases eck:type-create,etc
      *
+     * @param array $options
+     *
+     * @option label
+     *      The human-readable name of this entity bundle. This name must be unique.
+     * @option machine-name
+     *      The machine name of the entity type
+     * @option created
+     *      Install the created base field
+     * @option changed
+     *      Install the changed base field
+     * @option author
+     *      Install the author base field
+     * @option title
+     *      Install the title base field
+     *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
-     * @option label
-     * @option machine-name
-     *
-     * @option created
-     * @option changed
-     * @option author
-     * @option title
-     *
      * @usage drush eck:type:create
      *      Create a eck entity type by answering the prompts.
+     *
+     * @throws PluginNotFoundException
+     * @throws InvalidPluginDefinitionException
+     * @throws EntityStorageException
      */
     public function create($options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
-        'created' => InputOption::VALUE_REQUIRED,
-        'changed' => InputOption::VALUE_REQUIRED,
-        'author' => InputOption::VALUE_REQUIRED,
-        'title' => InputOption::VALUE_REQUIRED,
+        'created' => InputOption::VALUE_OPTIONAL,
+        'changed' => InputOption::VALUE_OPTIONAL,
+        'author' => InputOption::VALUE_OPTIONAL,
+        'title' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ])
     {

@@ -5,7 +5,10 @@ namespace Drupal\wmscaffold\Commands;
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityFieldManager;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -51,29 +54,50 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
      * @command nodetype:create
      * @aliases nodetype-create,ntc
      *
+     * @param array $options
+     *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
      * @option label
+     *      The human-readable name of this content type.
      * @option machine-name
+     *      A unique machine-readable name for this content type. It must only contain
+     *      lowercase letters, numbers, and underscores.
      * @option description
+     *      This text will be displayed on the Add new content page.
      *
      * @option title-label
+     *      The label of the title field
      * @option preview-before-submit
+     *      Preview before submitting (disabled, optional or required)
      * @option submission-guidelines
+     *      Explanation or submission guidelines. This text will be displayed at the top
+     *      of the page when creating or editing content of this type.
      *
      * @option status
+     *      The default value of the Published field
      * @option promote
+     *      The default value of the Promoted to front page field
      * @option sticky
+     *      The default value of the Sticky at top of lists field
      * @option create-revision
+     *      The default value of the Create new revision field
      *
      * @option default-language
+     *      The default language of new nodes
      * @option show-language-selector
+     *      Whether to show the language selector on create and edit pages
      *
      * @option display-submitted
+     *      Display author username and publish date
      *
      * @usage drush nodetype:create
      *      Create a node type by answering the prompts.
+     *
+     * @throws InvalidPluginDefinitionException
+     * @throws PluginNotFoundException
+     * @throws EntityStorageException
      */
     public function create($options = [
         'label' => InputOption::VALUE_REQUIRED,

@@ -17,14 +17,17 @@ class PhpCsFixerCommands extends DrushCommands
     ];
 
     /**
-     * Fixes a directory or a file.
-     *
-     * @param $path The path.
-     * @return int
+     * Fixes PHP coding standards using the friendsofphp/php-cs-fixer package.
      *
      * @command phpcs:fix
      * @aliases fix
      * @bootstrap none
+     *
+     * @param $path
+     *      Path to a folder of file to fix.
+     *
+     * @return int
+     *      The exit code
      */
     public function fix($path = null, $options = [])
     {
@@ -61,6 +64,10 @@ class PhpCsFixerCommands extends DrushCommands
      */
     public function fixOptions(Command $command, AnnotationData $annotationData)
     {
+        if ($command->getDefinition()->hasOption('fixer-config')) {
+            return;
+        }
+
         // Standard
         $command->addOption('path-mode', '', InputOption::VALUE_REQUIRED, 'Specify path mode (can be override or intersection).', 'override');
         $command->addOption('allow-risky', '', InputOption::VALUE_REQUIRED, 'Are risky fixers allowed (can be yes or no).');

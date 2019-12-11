@@ -4,6 +4,8 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\field\Entity\FieldConfig;
@@ -37,14 +39,26 @@ class FieldDeleteCommands extends DrushCommands
      * @aliases field-delete,fd
      *
      * @param string $entityType
-     *      Name of bundle to attach fields to.
+     *      The machine name of the entity type
      * @param string $bundle
-     *      Type of entity (e.g. node, user, comment).
+     *      The machine name of the bundle
+     * @param array $options
      *
      * @option field-name
+     *      The machine name of the field
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
+     *
+     * @usage drush field:delete
+     *      Delete a field by answering the prompts.
+     * @usage drush field-delete taxonomy_term tag
+     *      Delete a field and fill in the remaining information through prompts.
+     * @usage drush field-delete taxonomy_term tag --field-name=field_tag_label
+     *      Delete a field in a completely non-interactive way.
+     *
+     * @throws InvalidPluginDefinitionException
+     * @throws PluginNotFoundException
      */
     public function delete($entityType, $bundle, $options = [
         'field-name' => InputOption::VALUE_REQUIRED,

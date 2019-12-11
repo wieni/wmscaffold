@@ -6,6 +6,9 @@ use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\EckEntityTypeBundleInfo;
 use Drupal\eck\Entity\EckEntityBundle;
@@ -39,26 +42,33 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
      * @aliases eck-bundle-delete,ebd
      *
      * @param string $entityType
-     *      Name of bundle to attach fields to.
+     *      The machine name of the entity type
      * @param string $bundle
-     *      Type of entity (e.g. node, user, comment).
+     *      The machine name of the bundle
      * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
      * @option label
+     *      The human-readable name of this entity bundle. This name must be unique.
      * @option machine-name
+     *      A unique machine-readable name for this entity type bundle. It must only contain
+     *      lowercase letters, numbers, and underscores.
      * @option description
-     *
-     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-     * @throws \Drupal\Core\Entity\EntityStorageException
+     *      Describe this entity type bundle.
      *
      * @usage drush eck:bundle:delete
-     *      delete a eck entity type by answering the prompts.
+     *      Delete an eck entity type by answering the prompts.
+     *
+     * @throws InvalidPluginDefinitionException
+     * @throws PluginNotFoundException
+     * @throws EntityStorageException
      */
     public function delete($entityType, $bundle, $options = [
+        'label' => InputOption::VALUE_REQUIRED,
+        'machine-name' => InputOption::VALUE_REQUIRED,
+        'description' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ])
     {

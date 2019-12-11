@@ -6,6 +6,8 @@ use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\OutputFormatters\Options\FormatterOptions;
 use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\field\Entity\FieldConfig;
@@ -31,15 +33,16 @@ class FieldInfoCommands extends DrushCommands
     }
 
     /**
-     * Create a new base field override
+     * List all fields of an entity bundle
      *
      * @command field:info
      * @aliases field-info,fi
      *
      * @param string $entityType
-     *      Name of bundle to attach fields to.
+     *      The machine name of the entity type
      * @param string $bundle
-     *      Type of entity (e.g. node, user, comment).
+     *      The machine name of the bundle
+     * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
@@ -62,8 +65,13 @@ class FieldInfoCommands extends DrushCommands
      * @filter-default-field field_name
      * @table-style default
      *
-     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+     * @usage drush field-info taxonomy_term tag
+     *      List all fields.
+     * @usage drush field:info
+     *      List all fields and fill in the remaining information through prompts.
+     *
+     * @throws InvalidPluginDefinitionException
+     * @throws PluginNotFoundException
      *
      * @return RowsOfFields
      */

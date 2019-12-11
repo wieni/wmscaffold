@@ -43,24 +43,29 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
      * @aliases base-field-override-create,bfoc
      *
      * @param string $entityType
-     *      Name of bundle to attach fields to.
+     *      The machine name of the entity type
      * @param string $bundle
-     *      Type of entity (e.g. node, user, comment).
+     *      The machine name of the bundle
+     * @param array $options
      *
      * @option field-name
+     *      A unique machine-readable name containing letters, numbers, and underscores.
      * @option field-label
+     *      The field label
      * @option field-description
+     *      The field description
      * @option is-required
+     *      Whether the field is required
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
      * @usage drush base-field-override:create
-     *      Create a field by answering the prompts.
+     *      Create a base field override by answering the prompts.
      * @usage drush base-field-override:create taxonomy_term tag
-     *      Create a field and fill in the remaining information through prompts.
+     *      Create a base field override and fill in the remaining information through prompts.
      * @usage drush base-field-override:create taxonomy_term tag --field-name=name --field-label=Label --is-required=1
-     *      Create a field in a completely non-interactive way.
+     *      Create a base field override in a completely non-interactive way.
      *
      * @see \Drupal\field_ui\Form\FieldConfigEditForm
      * @see \Drupal\field_ui\Form\FieldStorageConfigEditForm

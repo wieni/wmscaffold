@@ -54,14 +54,26 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      * @command wmcontroller:generate
      * @aliases wmcontroller-generate,wmcg
      *
+     * @param string $entityType
+     *      The machine name of the entity type
+     * @param string $bundle
+     *      The machine name of the bundle
+     * @param array $options
+     *
+     * @option output-module
+     *      The module in which to generate the file
+     *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
-     * @option module
-     *      The custom module in which to generate the file
+     *
+     * @usage drush wmcontroller-generate taxonomy_term tag
+     *      Generate a controller.
+     * @usage drush wmcontroller:generate
+     *      Generate a controller and fill in the remaining information through prompts.
      */
     public function generateController($entityType, $bundle, $options = [
-        'show-machine-names' => InputOption::VALUE_OPTIONAL,
         'output-module' => InputOption::VALUE_REQUIRED,
+        'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ])
     {
         $className = $this->controllerClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);

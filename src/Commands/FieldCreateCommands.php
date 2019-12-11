@@ -71,20 +71,27 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @aliases field-create,fc
      *
      * @param string $entityType
-     *      Type of entity (e.g. node, user, comment).
+     *      The machine name of the entity type
      * @param string $bundle
-     *      Name of bundle to attach fields to.
+     *      The machine name of the bundle
+     * @param array $options
      *
      * @option field-name
+     *      A unique machine-readable name containing letters, numbers, and underscores.
      * @option field-label
+     *      The field label
      * @option field-type
+     *      The field type
      * @option field-widget
+     *      The field widget
      * @option is-required
+     *      Whether the field is required
      * @option cardinality
+     *      The allowed number of values
      * @option target-type
-     *      Only necessary for entity reference fields.
+     *      The target entity type. Only necessary for entity reference fields.
      * @option target-bundle
-     *      Only necessary for entity reference fields.
+     *      The target bundle(s). Only necessary for entity reference fields.
      *
      * @option existing
      *      Re-use an existing field.

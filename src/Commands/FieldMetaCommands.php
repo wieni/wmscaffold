@@ -17,9 +17,10 @@ class FieldMetaCommands extends DrushCommands implements SiteAliasManagerAwareIn
      * @aliases field-meta,fm
      *
      * @param string $entityType
-     *      Name of bundle to attach fields to.
+     *      The machine name of the entity type
      * @param string $bundle
-     *      Type of entity (e.g. node, user, comment).
+     *      The machine name of the bundle
+     * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.

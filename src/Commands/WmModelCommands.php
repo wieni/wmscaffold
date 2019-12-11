@@ -54,14 +54,26 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      * @command wmmodel:generate
      * @aliases wmmodel-generate,wmlg
      *
+     * @param string $entityType
+     *      The machine name of the entity type
+     * @param string $bundle
+     *      The machine name of the bundle
+     * @param array $options
+     *
+     * @option module
+     *      The module in which to generate the file
+     *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
-     * @option module
-     *      The custom module in which to generate the file
+     *
+     * @usage drush wmmodel-generate taxonomy_term tag
+     *      Generate a model.
+     * @usage drush wmmodel:generate
+     *      Generate a model and fill in the remaining information through prompts.
      */
     public function generateModel($entityType, $bundle, $options = [
-        'show-machine-names' => InputOption::VALUE_OPTIONAL,
         'output-module' => InputOption::VALUE_REQUIRED,
+        'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ])
     {
         $className = $this->modelClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);

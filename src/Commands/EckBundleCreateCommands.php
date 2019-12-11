@@ -6,6 +6,9 @@ use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\EckEntityTypeBundleInfo;
@@ -40,21 +43,26 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
      * @aliases eck-bundle-create,ebc
      *
      * @param string $entityType
+     *      The machine name of the entity type
      * @param array $options
+     *
+     * @option label
+     *      The human-readable name of this entity bundle. This name must be unique.
+     * @option machine-name
+     *      A unique machine-readable name for this entity type bundle. It must only contain
+     *      lowercase letters, numbers, and underscores.
+     * @option description
+     *      Describe this entity type bundle.
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
-     * @option label
-     * @option machine-name
-     * @option description
-     *
-     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-     * @throws \Drupal\Core\Entity\EntityStorageException
-     *
      * @usage drush eck:bundle:create
-     *      Create a eck entity type by answering the prompts.
+     *      Create an eck entity type by answering the prompts.
+     *
+     * @throws InvalidPluginDefinitionException
+     * @throws PluginNotFoundException
+     * @throws EntityStorageException
      */
     public function create($entityType, $options = [
         'label' => InputOption::VALUE_REQUIRED,

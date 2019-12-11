@@ -5,6 +5,9 @@ namespace Drupal\wmscaffold\Commands;
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
+use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
@@ -46,18 +49,28 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
      * @command vocabulary:create
      * @aliases vocabulary-create,vc
      *
+     * @param array $options
+     *
+     * @option label
+     *      The human-readable name of this vocabulary.
+     * @option machine-name
+     *      A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.
+     * @option description
+     *      Describe this vocabulary.
+     * @option default-language
+     *      The default language of new nodes
+     * @option show-language-selector
+     *      Whether to show the language selector on create and edit pages
+     *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
-     * @option label
-     * @option machine-name
-     * @option description
-     *
-     * @option default-language
-     * @option show-language-selector
-     *
      * @usage drush vocabulary:create
      *      Create a taxonomy vocabulary by answering the prompts.
+     *
+     * @throws InvalidPluginDefinitionException
+     * @throws PluginNotFoundException
+     * @throws EntityStorageException
      */
     public function create($options = [
         'label' => InputOption::VALUE_REQUIRED,

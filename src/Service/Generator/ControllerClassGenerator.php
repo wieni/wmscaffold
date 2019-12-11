@@ -55,13 +55,16 @@ class ControllerClassGenerator extends ClassGeneratorBase
             $templatePath = "{$this->toKebabCase($entityType)}.{$templateName}.detail";
         }
 
-        $baseClass = new \ReflectionClass($this->baseClass);
         $namespace = $this->builderFactory->namespace($namespaceName);
         $class = $this->builderFactory->class($className);
 
-        $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
         $namespace->addStmt($this->builderFactory->use($modelClass->getName()));
-        $class->extend($baseClass->getShortName());
+
+        if ($this->baseClass) {
+            $baseClass = new \ReflectionClass($this->baseClass);
+            $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
+            $class->extend($baseClass->getShortName());
+        }
 
         $method = $this->builderFactory->method('show');
         $method->addParam($this->builderFactory->param($variableName)

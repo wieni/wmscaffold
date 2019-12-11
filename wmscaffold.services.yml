@@ -26,7 +26,7 @@ services:
         class: Drupal\wmscaffold\Service\Generator\ControllerClassGenerator
         parent: wmscaffold.class_generator_base
         arguments:
-            - '@wmscaffold.model_class_generator'
+            - '@wmmodel.factory.model'
 
     plugin.manager.model_method_generator:
         class: Drupal\wmscaffold\ModelMethodGeneratorManager

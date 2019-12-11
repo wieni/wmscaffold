@@ -6,12 +6,13 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\wmmodel\Factory\ModelFactory;
 use PhpParser\Node\Stmt\Namespace_;
 
 class ControllerClassGenerator extends ClassGeneratorBase
 {
-    /** @var ModelClassGenerator */
-    protected $modelClassGenerator;
+    /** @var ModelFactory */
+    protected $modelFactory;
 
     /** @var string */
     protected $baseClass;
@@ -21,10 +22,10 @@ class ControllerClassGenerator extends ClassGeneratorBase
         EntityFieldManagerInterface $entityFieldManager,
         FileSystemInterface $fileSystem,
         ConfigFactoryInterface $configFactory,
-        ModelClassGenerator $modelClassGenerator
+        ModelFactory $modelFactory
     ) {
         parent::__construct($entityTypeManager, $entityFieldManager, $fileSystem, $configFactory);
-        $this->modelClassGenerator = $modelClassGenerator;
+        $this->modelFactory = $modelFactory;
 
         $this->baseClass = $this->config->get('generators.controller.baseClass');
     }
@@ -33,8 +34,9 @@ class ControllerClassGenerator extends ClassGeneratorBase
     {
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);
+        $definition = $this->entityTypeManager->getDefinition($entityType);
         $modelClass = new \ReflectionClass(
-            $this->modelClassGenerator->buildClassName($entityType, $bundle, $module)
+            $this->modelFactory->getClassName($definition, $bundle)
         );
 
         // Determine entity type folder name

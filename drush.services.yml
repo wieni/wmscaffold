@@ -9,6 +9,8 @@ services:
             - '@entity_type.bundle.info'
             - '@module_handler'
             - '@entity_field.manager'
+        calls:
+            - [setContentTranslationManager, ['@?content_translation.manager']]
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.field-delete:

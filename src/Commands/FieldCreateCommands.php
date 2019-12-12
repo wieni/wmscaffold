@@ -6,6 +6,7 @@ use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
+use Drupal\content_translation\ContentTranslationManagerInterface;
 use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManager;
@@ -45,6 +46,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     protected $entityFieldManager;
     /** @var ModuleHandler */
     protected $moduleHandler;
+    /** @var ContentTranslationManagerInterface */
+    protected $contentTranslationManager;
 
     public function __construct(
         FieldTypePluginManager $fieldTypePluginManager,
@@ -62,6 +65,11 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->moduleHandler = $moduleHandler;
         $this->entityFieldManager = $entityFieldManager;
+    }
+
+    public function setContentTranslationManager(ContentTranslationManagerInterface $manager): void
+    {
+        $this->contentTranslationManager = $manager;
     }
 
     /**
@@ -86,6 +94,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      *      The field widget
      * @option is-required
      *      Whether the field is required
+     * @option is-translatable
+     *      Whether the field is translatable
      * @option cardinality
      *      The allowed number of values
      * @option target-type
@@ -114,6 +124,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         'field-type' => InputOption::VALUE_REQUIRED,
         'field-widget' => InputOption::VALUE_REQUIRED,
         'is-required' => InputOption::VALUE_OPTIONAL,
+        'is-translatable' => InputOption::VALUE_OPTIONAL,
         'cardinality' => InputOption::VALUE_REQUIRED,
         'target-type' => InputOption::VALUE_OPTIONAL,
         'target-bundle' => InputOption::VALUE_OPTIONAL,
@@ -126,6 +137,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $fieldType = $this->input->getOption('field-type');
         $fieldWidget = $this->input->getOption('field-widget');
         $isRequired = $this->input->getOption('is-required');
+        $isTranslatable = (bool) $this->input->getOption('is-translatable');
         $cardinality = $this->input->getOption('cardinality');
         $targetType = $this->input->getOption('target-type');
 
@@ -133,7 +145,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $this->createFieldStorage($fieldName, $fieldType, $entityType, $targetType, $cardinality);
         }
 
-        $field = $this->createField($fieldName, $fieldType, $fieldLabel, $entityType, $bundle, $targetType, $isRequired);
+        $field = $this->createField($fieldName, $fieldType, $fieldLabel, $entityType, $bundle, $targetType, $isRequired, $isTranslatable);
         $this->createFieldFormDisplay($fieldName, $fieldWidget, $entityType, $bundle);
         $this->createFieldViewDisplay($fieldName, $entityType, $bundle);
 
@@ -166,6 +178,16 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $this->input->setOption('field-name', $fieldName);
             $this->input->setOption('field-type', $fieldStorage->getType());
             $this->input->setOption('target-type', $fieldStorage->getSetting('target_type'));
+
+            if (
+                $this->moduleHandler->moduleExists('content_translation')
+                && $this->contentTranslationManager->isEnabled($entityType, $bundle)
+            ) {
+                $this->input->setOption(
+                    'is-translatable',
+                    (bool) ($this->input->getOption('is-translatable') ?? $this->askTranslatable())
+                );
+            }
 
             $this->input->setOption(
                 'field-label',
@@ -206,6 +228,17 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
                 'is-required',
                 (bool) ($this->input->getOption('is-required') ?? $this->askRequired())
             );
+
+            if (
+                $this->moduleHandler->moduleExists('content_translation')
+                && $this->contentTranslationManager->isEnabled($entityType, $bundle)
+            ) {
+                $this->input->setOption(
+                    'is-translatable',
+                    (bool) ($this->input->getOption('is-translatable') ?? $this->askTranslatable())
+                );
+            }
+
             $this->input->setOption(
                 'cardinality',
                 $this->input->getOption('cardinality') ?? $this->askCardinality()
@@ -329,6 +362,11 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->io()->askQuestion(new ConfirmationQuestion('Required', false));
     }
 
+    protected function askTranslatable()
+    {
+        return $this->io()->askQuestion(new ConfirmationQuestion('Translatable', false));
+    }
+
     protected function askCardinality()
     {
         $fieldType = $this->input->getOption('field-type');
@@ -390,13 +428,13 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Referenced bundles', $choices, true, 0);
     }
 
-    protected function createField(string $fieldName, string $fieldType, $fieldLabel, string $entityType, string $bundle, $targetType, bool $isRequired)
+    protected function createField(string $fieldName, string $fieldType, $fieldLabel, string $entityType, string $bundle, $targetType, bool $isRequired, bool $isTranslatable)
     {
         $values = [
             'field_name' => $fieldName,
             'entity_type' => $entityType,
             'bundle' => $bundle,
-            'translatable' => false,
+            'translatable' => $isTranslatable,
             'required' => $isRequired,
             'field_type' => $fieldType,
         ];
@@ -452,7 +490,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             'entity_type' => $entityType,
             'type' => $fieldType,
             'cardinality' => $cardinality,
-            // 'translatable' => false,
+            'translatable' => true,
         ];
 
         if ($targetType) {

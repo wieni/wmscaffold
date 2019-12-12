@@ -18,6 +18,13 @@ services:
             - '@entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
+    wmscaffold.commands.base-field-info:
+        class: Drupal\wmscaffold\Commands\BaseFieldInfoCommands
+        arguments:
+            - '@entity_type.manager'
+            - '@entity_field.manager'
+        tags: [{ name: drush.command }]
+
     wmscaffold.commands.field-info:
         class: Drupal\wmscaffold\Commands\FieldInfoCommands
         arguments:

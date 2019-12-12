@@ -172,6 +172,13 @@ class FieldDeleteCommands extends DrushCommands
 
         if ($fieldStorage && !$fieldStorage->isLocked()) {
             $fieldConfig->delete();
+
+            // If there is only one bundle left for this field storage, it will be
+            // deleted too, notify the user about dependencies.
+            if (count($fieldStorage->getBundles()) <= 1) {
+                $fieldStorage->delete();
+            }
+
             $message = 'The field :field has been deleted from the :type content type.';
         } else {
             $message = 'There was a problem removing the :field from the :type content type.';

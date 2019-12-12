@@ -113,7 +113,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         'field-label' => InputOption::VALUE_REQUIRED,
         'field-type' => InputOption::VALUE_REQUIRED,
         'field-widget' => InputOption::VALUE_REQUIRED,
-        'is-required' => InputOption::VALUE_REQUIRED,
+        'is-required' => InputOption::VALUE_OPTIONAL,
         'cardinality' => InputOption::VALUE_REQUIRED,
         'target-type' => InputOption::VALUE_OPTIONAL,
         'target-bundle' => InputOption::VALUE_OPTIONAL,

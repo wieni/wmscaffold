@@ -67,7 +67,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $this->entityFieldManager = $entityFieldManager;
     }
 
-    public function setContentTranslationManager(ContentTranslationManagerInterface $manager): void
+    public function setContentTranslationManager($manager): void
     {
         $this->contentTranslationManager = $manager;
     }

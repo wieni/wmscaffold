@@ -93,6 +93,7 @@ services:
             - '@entity_type.manager'
             - '@wmmodel.entity_type.bundle.info'
             - '@config.factory'
+            - '@wmmodel.factory.model'
             - '@wmscaffold.model_class_generator'
         tags: [{ name: drush.command }]
 

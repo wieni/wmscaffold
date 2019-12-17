@@ -8,6 +8,7 @@ use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard;
@@ -27,6 +28,8 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     protected $entityTypeBundleInfo;
     /** @var ConfigFactoryInterface */
     protected $configFactory;
+    /** @var ModelFactory */
+    protected $modelFactory;
     /** @var ModelClassGenerator */
     protected $modelClassGenerator;
     /** @var \PhpParser\PrettyPrinter\Standard */
@@ -38,11 +41,13 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         EntityTypeManagerInterface $entityTypeManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
         ConfigFactoryInterface $configFactory,
+        ModelFactory $modelFactory,
         ModelClassGenerator $modelClassGenerator
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->configFactory = $configFactory;
+        $this->modelFactory = $modelFactory;
         $this->modelClassGenerator = $modelClassGenerator;
         $this->prettyPrinter = new Standard();
         $this->fileSystem = new Filesystem();
@@ -76,22 +81,19 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ])
     {
-        $className = $this->modelClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);
-        $destination = $this->modelClassGenerator->buildModelPath($entityType, $bundle, $options['output-module']);
-        $hasExistingClass = false;
         $statements = [];
+        $definition = $this->entityTypeManager->getDefinition($entityType);
+        $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
 
-        try {
-            new \ReflectionClass($className);
-            $hasExistingClass = true;
+        if ($existingClassName) {
+            $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
-            if (file_exists($destination) && !$this->io()->confirm("{$className} already exists. Append to existing class?", false)) {
+            if (file_exists($destination) && !$this->io()->confirm("{$existingClassName} already exists. Append to existing class?", false)) {
                 return;
             }
 
             $statements[] = $this->modelClassGenerator->generateExisting($entityType, $bundle);
-        } catch (\ReflectionException $e) {
-            // No existing class, generate a new one
+        } else {
             $statements[] = $this->modelClassGenerator->generateNew($entityType, $bundle, $options['output-module']);
         }
 
@@ -100,7 +102,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->fileSystem->appendToFile($destination, $output);
 
         $this->logger()->success(
-            sprintf('Successfully %s model class.', $hasExistingClass ? 'updated' : 'created')
+            sprintf('Successfully %s model class.', $existingClassName ? 'updated' : 'created')
         );
     }
 
@@ -161,8 +163,10 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     {
         $entityType = $commandData->input()->getArgument('entityType');
         $bundle = $commandData->input()->getArgument('bundle');
-        $module = $commandData->input()->getOption('output-module');
-        $destination = $this->modelClassGenerator->buildModelPath($entityType, $bundle, $module);
+
+        $definition = $this->entityTypeManager->getDefinition($entityType);
+        $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
+        $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
         $this->logger()->notice('Formatting model class...');
         $this->drush('phpcs:fix', [], ['path' => $destination]);

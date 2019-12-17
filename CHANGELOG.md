@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - Change the model generator to use wmmodel to get the model class
+- Change entity reference getter return type to always be optional
 
 ### Fixed
 - Fix error when content_translation module is not installed

@@ -85,7 +85,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $definition = $this->entityTypeManager->getDefinition($entityType);
         $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
 
-        if ($existingClassName) {
+        if ($existingClassName && $existingClassName !== $definition->getClass()) {
             $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
             if (file_exists($destination) && !$this->io()->confirm("{$existingClassName} already exists. Append to existing class?", false)) {
@@ -94,6 +94,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
             $statements[] = $this->modelClassGenerator->generateExisting($entityType, $bundle);
         } else {
+            $destination = $this->modelClassGenerator->buildModelPath($entityType, $bundle, $options['output-module']);
             $statements[] = $this->modelClassGenerator->generateNew($entityType, $bundle, $options['output-module']);
         }
 
@@ -166,6 +167,11 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
         $definition = $this->entityTypeManager->getDefinition($entityType);
         $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
+
+        if ($existingClassName === $definition->getClass()) {
+            return;
+        }
+
         $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
         $this->logger()->notice('Formatting model class...');

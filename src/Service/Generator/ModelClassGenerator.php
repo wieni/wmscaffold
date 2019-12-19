@@ -93,6 +93,11 @@ class ModelClassGenerator extends ClassGeneratorBase
         $definition = $this->entityTypeManager->getDefinition($entityType);
         $className = $this->modelFactory->getClassName($definition, $bundle);
 
+        // Only edit bundle models
+        if ($className === $definition->getClass()) {
+            return false;
+        }
+
         // Must have an existing class
         try {
             $class = new \ReflectionClass($className);

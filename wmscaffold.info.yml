@@ -1,6 +1,6 @@
 name: wmscaffold
 type: module
-description: Wieni Scaffolding
+description: Provides Drupal services and Drush 9 commands for easy creation of fields & entity types, code style fixing, model & controller generating and more.
 core: 8.x
 core_version_requirement: ^8 || ^9
 package: Wieni

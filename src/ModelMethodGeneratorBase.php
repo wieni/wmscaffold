@@ -42,7 +42,7 @@ abstract class ModelMethodGeneratorBase extends PluginBase implements ModelMetho
         );
     }
 
-    public abstract function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses);
+    abstract public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses);
 
     public function buildSetter()
     {

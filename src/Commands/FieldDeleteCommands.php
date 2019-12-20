@@ -63,7 +63,8 @@ class FieldDeleteCommands extends DrushCommands
     public function delete($entityType, $bundle, $options = [
         'field-name' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ]) {
+    ])
+    {
         $fieldName = $this->input->getOption('field-name');
 
         /** @var FieldConfig[] $results */
@@ -86,9 +87,7 @@ class FieldDeleteCommands extends DrushCommands
         field_purge_batch(10);
     }
 
-    /**
-     * @hook interact field:delete
-     */
+    /** @hook interact field:delete */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -109,9 +108,7 @@ class FieldDeleteCommands extends DrushCommands
         );
     }
 
-    /**
-     * @hook validate field:delete
-     */
+    /** @hook validate field:delete */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');

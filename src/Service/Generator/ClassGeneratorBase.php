@@ -8,11 +8,11 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
-use PhpParser\BuilderFactory;
 use PhpParser\ParserFactory;
 
 abstract class ClassGeneratorBase
@@ -101,7 +101,7 @@ abstract class ClassGeneratorBase
             'final', 'for', 'foreach', 'function', 'global', 'goto', 'if', 'implements', 'include', 'include_once',
             'instanceof', 'insteadof', 'interface', 'isset', 'list', 'namespace', 'new', 'or', 'print', 'private',
             'protected', 'public', 'require', 'require_once', 'return', 'static', 'switch', 'throw', 'trait', 'try',
-            'unset', 'use', 'var', 'while', 'xor'
+            'unset', 'use', 'var', 'while', 'xor',
         ]);
     }
 

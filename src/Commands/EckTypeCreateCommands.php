@@ -96,9 +96,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
         $this->logResult($type);
     }
 
-    /**
-     * @hook interact eck:type:create
-     */
+    /** @hook interact eck:type:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $this->input->setOption(

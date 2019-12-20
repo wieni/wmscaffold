@@ -18,11 +18,6 @@ trait RunCommandTrait
     /**
      * Run another Drush command
      *
-     * @param string $command
-     * @param array $options
-     * @param array $arguments
-     * @param bool $interactive
-     * @param bool $exitOnFail
      * @return bool
      */
     protected function drush(string $command, array $options = [], array $arguments = [])
@@ -57,11 +52,6 @@ trait RunCommandTrait
     /**
      * Run a command in a Symphony Application
      *
-     * @param Application $application
-     * @param string $commandName
-     * @param $arguments
-     * @param $options
-     * @param array $extra
      * @return int
      */
     protected function runCommand(Application $application, string $commandName, $arguments, $options, $extra = [])

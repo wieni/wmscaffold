@@ -95,9 +95,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         $this->logResult($bundle);
     }
 
-    /**
-     * @hook interact eck:bundle:create
-     */
+    /** @hook interact eck:bundle:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -120,9 +118,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         );
     }
 
-    /**
-     * @hook validate eck:bundle:create
-     */
+    /** @hook validate eck:bundle:create */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');

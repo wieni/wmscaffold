@@ -9,18 +9,12 @@ class ChoiceQuestion extends ChoiceQuestionBase
 {
     private $errorMessage = 'Value "%s" is invalid';
 
-    /**
-     * {@inheritdoc}
-     */
     public function __construct($question, array $choices, $default = null)
     {
         parent::__construct($question, $choices, $default);
         $this->setValidator($this->getBetterValidator());
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function setMultiselect($multiselect)
     {
         parent::setMultiselect($multiselect);
@@ -51,12 +45,12 @@ class ChoiceQuestion extends ChoiceQuestionBase
                 $selectedChoices = explode(',', $selectedChoices);
                 $selectedChoices = array_map('trim', $selectedChoices);
             } else {
-                $selectedChoices = array($selected);
+                $selectedChoices = [$selected];
             }
 
-            $multiselectChoices = array();
+            $multiselectChoices = [];
             foreach ($selectedChoices as $value) {
-                $results = array();
+                $results = [];
                 foreach ($choices as $key => $choice) {
                     if ($choice === $value) {
                         $results[] = $key;

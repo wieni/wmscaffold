@@ -156,9 +156,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $this->logResult($field);
     }
 
-    /**
-     * @hook interact field:create
-     */
+    /** @hook interact field:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -265,9 +263,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
     }
 
-    /**
-     * @hook validate field:create
-     */
+    /** @hook validate field:create */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -586,8 +582,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      *
      * @param string $context
      *      eg. form, view
-     * @param string $entityType
-     * @param string $bundle
      *
      * @return EntityDisplayInterface|null
      *
@@ -606,8 +600,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      *
      * @param string $context
      *      eg. form, view
-     * @param string $entityType
-     * @param string $bundle
      *
      * @return \Drupal\Core\Entity\EntityInterface
      *

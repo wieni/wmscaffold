@@ -33,49 +33,37 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
         $this->prettyPrinter = new Standard();
     }
 
-    /**
-     * @hook option nodetype:create
-     */
+    /** @hook option nodetype:create */
     public function hookOptionNodeTypeCreate(Command $command)
     {
         $this->addOption($command);
     }
 
-    /**
-     * @hook init nodetype:create
-     */
+    /** @hook init nodetype:create */
     public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData)
     {
         $this->setDefaultValue();
     }
 
-    /**
-     * @hook post-command nodetype:create
-     */
+    /** @hook post-command nodetype:create */
     public function hookPostNodeTypeCreate($result, CommandData $commandData)
     {
         $this->generateController($commandData, 'node');
     }
 
-    /**
-     * @hook option vocabulary:create
-     */
+    /** @hook option vocabulary:create */
     public function hookOptionVocabularyCreate(Command $command)
     {
         $this->addOption($command);
     }
 
-    /**
-     * @hook init vocabulary:create
-     */
+    /** @hook init vocabulary:create */
     public function hookInitVocabularyTypeCreate(InputInterface $input, AnnotationData $annotationData)
     {
         $this->setDefaultValue();
     }
 
-    /**
-     * @hook post-command vocabulary:create
-     */
+    /** @hook post-command vocabulary:create */
     public function hookPostVocabularyCreate($result, CommandData $commandData)
     {
         $this->generateController($commandData, 'taxonomy_term');

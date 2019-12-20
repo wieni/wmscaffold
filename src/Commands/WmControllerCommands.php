@@ -98,9 +98,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         $this->logger()->success('Successfully created controller class.');
     }
 
-    /**
-     * @hook interact wmcontroller:generate
-     */
+    /** @hook interact wmcontroller:generate */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -115,9 +113,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         }
     }
 
-    /**
-     * @hook init wmcontroller:generate
-     */
+    /** @hook init wmcontroller:generate */
     public function init(InputInterface $input, AnnotationData $annotationData)
     {
         $module = $this->input->getOption('output-module');
@@ -131,9 +127,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         }
     }
 
-    /**
-     * @hook validate wmcontroller:generate
-     */
+    /** @hook validate wmcontroller:generate */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -145,9 +139,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         }
     }
 
-    /**
-     * @hook post-command wmcontroller:generate
-     */
+    /** @hook post-command wmcontroller:generate */
     public function formatController($result, CommandData $commandData)
     {
         $entityType = $commandData->input()->getArgument('entityType');

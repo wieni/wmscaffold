@@ -9,7 +9,6 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class WmSinglesHooks extends DrushCommands
 {
@@ -24,9 +23,7 @@ class WmSinglesHooks extends DrushCommands
         $this->moduleHandler = $moduleHandler;
     }
 
-    /**
-     * @hook interact nodetype:create
-     */
+    /** @hook interact nodetype:create */
     public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         if (!$this->isInstalled()) {
@@ -39,9 +36,7 @@ class WmSinglesHooks extends DrushCommands
         );
     }
 
-    /**
-     * @hook option nodetype:create
-     */
+    /** @hook option nodetype:create */
     public function hookOption(Command $command, AnnotationData $annotationData)
     {
         if (!$this->isInstalled()) {
@@ -56,9 +51,7 @@ class WmSinglesHooks extends DrushCommands
         );
     }
 
-    /**
-     * @hook on-event nodetype-create
-     */
+    /** @hook on-event nodetype-create */
     public function hookCreate(&$values)
     {
         if (!$this->isInstalled()) {

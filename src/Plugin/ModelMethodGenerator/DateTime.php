@@ -29,9 +29,9 @@ class DateTime extends ModelMethodGeneratorBase
             $expression = sprintf('return $this->toDateTime(\'%s\');', $field->getName());
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$shortName}[] */");
-        } else if ($field->isRequired()) {
+        } elseif ($field->isRequired()) {
             $method->setReturnType($shortName);
-        } else if ($this->helper->supportsNullableTypes()) {
+        } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($shortName));
         } else {
             $method->setDocComment("/** @return {$shortName}|null */");

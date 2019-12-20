@@ -90,9 +90,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
         $this->logResult($bundle);
     }
 
-    /**
-     * @hook interact eck:bundle:delete
-     */
+    /** @hook interact eck:bundle:delete */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -107,9 +105,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
         }
     }
 
-    /**
-     * @hook validate eck:bundle:delete
-     */
+    /** @hook validate eck:bundle:delete */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');

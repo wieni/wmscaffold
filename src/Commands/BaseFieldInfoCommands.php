@@ -65,7 +65,8 @@ class BaseFieldInfoCommands extends DrushCommands
      *
      * @return RowsOfFields
      */
-    public function info($entityType, $options = ['format' => 'table']) {
+    public function info($entityType, $options = ['format' => 'table'])
+    {
         $rows = [];
 
         $fields = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
@@ -116,9 +117,7 @@ class BaseFieldInfoCommands extends DrushCommands
         return $value;
     }
 
-    /**
-     * @hook interact field:info
-     */
+    /** @hook interact field:info */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -128,9 +127,7 @@ class BaseFieldInfoCommands extends DrushCommands
         }
     }
 
-    /**
-     * @hook validate field:info
-     */
+    /** @hook validate field:info */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');

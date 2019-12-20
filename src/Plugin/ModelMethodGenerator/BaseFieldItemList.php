@@ -25,9 +25,9 @@ class BaseFieldItemList extends ModelMethodGeneratorBase
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$fieldTypeClass->getShortName()}[] */");
-        } else if ($field->isRequired()) {
+        } elseif ($field->isRequired()) {
             $method->setReturnType($fieldTypeClass->getShortName());
-        } else if ($this->helper->supportsNullableTypes()) {
+        } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($fieldTypeClass->getShortName()));
         } else {
             $method->setDocComment("/** @return {$fieldTypeClass->getShortName()}|null */");

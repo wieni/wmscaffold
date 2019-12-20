@@ -44,7 +44,6 @@ class ModelMethodGeneratorHelper
     /**
      * Determine whether a field's cardinality is multiple
      *
-     * @param FieldDefinitionInterface $field
      * @return bool
      */
     public function isFieldMultiple(FieldDefinitionInterface $field)
@@ -55,7 +54,6 @@ class ModelMethodGeneratorHelper
     /**
      * Returns the full classname of the model of a field
      *
-     * @param FieldDefinitionInterface $field
      * @return mixed
      */
     public function getFieldModelClass(FieldDefinitionInterface $field)
@@ -74,7 +72,6 @@ class ModelMethodGeneratorHelper
     /**
      * Returns the full classname of a field type
      *
-     * @param FieldDefinitionInterface $field
      * @return string|null
      */
     public function getFieldTypeClass(FieldDefinitionInterface $field)
@@ -87,7 +84,6 @@ class ModelMethodGeneratorHelper
     /**
      * Convert a string representation of a PHP statement into a PhpParser node
      *
-     * @param string $expression
      * @return \PhpParser\Node\Stmt|null
      */
     public function parseExpression(string $expression)

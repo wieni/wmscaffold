@@ -88,9 +88,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         $this->logResult($baseFieldOverride);
     }
 
-    /**
-     * @hook interact base-field-override:create
-     */
+    /** @hook interact base-field-override:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -124,9 +122,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         );
     }
 
-    /**
-     * @hook validate base-field-override:create
-     */
+    /** @hook validate base-field-override:create */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');

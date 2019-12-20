@@ -178,9 +178,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         $this->logResult($type);
     }
 
-    /**
-     * @hook interact nodetype:create
-     */
+    /** @hook interact nodetype:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $this->input->setOption(

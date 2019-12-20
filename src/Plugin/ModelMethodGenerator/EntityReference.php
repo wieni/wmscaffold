@@ -28,7 +28,7 @@ class EntityReference extends ModelMethodGeneratorBase
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$fieldModelClass->getShortName()}[] */");
-        } else if ($this->helper->supportsNullableTypes()) {
+        } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($fieldModelClass->getShortName()));
         } else {
             $method->setDocComment("/** @return {$fieldModelClass->getShortName()}|null */");

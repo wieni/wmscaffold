@@ -46,7 +46,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore') ?? [];
     }
 
-    public function generateNew(string $entityType, string $bundle, string $module): \PhpParser\Node\Stmt\Namespace_
+    public function generateNew(string $entityType, string $bundle, string $module): Node\Stmt\Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
         $this->modelFactory->rebuildMapping();
@@ -66,7 +66,7 @@ class ModelClassGenerator extends ClassGeneratorBase
                 continue;
             }
 
-            list($method, $uses) = $result;
+            [$method, $uses] = $result;
 
             $class->addStmt($method);
             $namespace->addStmts($uses);
@@ -127,7 +127,7 @@ class ModelClassGenerator extends ClassGeneratorBase
                     continue;
                 }
 
-                list($method, $uses) = $result;
+                [$method, $uses] = $result;
 
                 // Check for existing methods with the same body
                 // and don't create a new method if any are found
@@ -244,7 +244,6 @@ class ModelClassGenerator extends ClassGeneratorBase
             /** @var ModelMethodGeneratorInterface $generator */
             $generator = $this->modelMethodGeneratorManager->createInstance($id);
             $generator->buildGetter($field, $method, $uses);
-
         } else {
             throw new \Exception("No ModelMethodGenerator implementation for field type $id");
         }

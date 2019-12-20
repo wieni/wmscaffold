@@ -28,9 +28,7 @@ class MenuUiHooks extends DrushCommands
         $this->menuParentFormSelector = $menuParentFormSelector;
     }
 
-    /**
-     * @hook interact nodetype:create
-     */
+    /** @hook interact nodetype:create */
     public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         if (!$this->isInstalled()) {
@@ -54,9 +52,7 @@ class MenuUiHooks extends DrushCommands
         );
     }
 
-    /**
-     * @hook option nodetype:create
-     */
+    /** @hook option nodetype:create */
     public function hookOption(Command $command, AnnotationData $annotationData)
     {
         if (!$this->isInstalled()) {
@@ -78,9 +74,7 @@ class MenuUiHooks extends DrushCommands
         );
     }
 
-    /**
-     * @hook on-event nodetype-create
-     */
+    /** @hook on-event nodetype-create */
     public function hookCreate(&$values)
     {
         if (!$this->isInstalled()) {

@@ -107,9 +107,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         );
     }
 
-    /**
-     * @hook interact wmmodel:generate
-     */
+    /** @hook interact wmmodel:generate */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -127,9 +125,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         }
     }
 
-    /**
-     * @hook init wmmodel:generate
-     */
+    /** @hook init wmmodel:generate */
     public function init(InputInterface $input, AnnotationData $annotationData)
     {
         $module = $this->input->getOption('output-module');
@@ -143,9 +139,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         }
     }
 
-    /**
-     * @hook validate wmmodel:generate
-     */
+    /** @hook validate wmmodel:generate */
     public function validateEntityType(CommandData $commandData)
     {
         $entityType = $this->input->getArgument('entityType');
@@ -157,9 +151,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         }
     }
 
-    /**
-     * @hook post-command wmmodel:generate
-     */
+    /** @hook post-command wmmodel:generate */
     public function formatModel($result, CommandData $commandData)
     {
         $entityType = $commandData->input()->getArgument('entityType');

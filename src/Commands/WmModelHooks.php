@@ -43,25 +43,19 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         $this->fileSystem = new Filesystem();
     }
 
-    /**
-     * @hook option field:create
-     */
+    /** @hook option field:create */
     public function hookOptionFieldCreate(Command $command)
     {
         $this->addModuleOption($command);
     }
 
-    /**
-     * @hook init field:create
-     */
+    /** @hook init field:create */
     public function hookInitFieldCreate(InputInterface $input, AnnotationData $annotationData)
     {
         $this->setDefaultValue();
     }
 
-    /**
-     * @hook post-command field:create
-     */
+    /** @hook post-command field:create */
     public function hookPostFieldCreate($result, CommandData $commandData)
     {
         $entityType = $commandData->input()->getArgument('entityType');
@@ -96,73 +90,55 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         $this->logger()->success('Successfully updated model.');
     }
 
-    /**
-     * @hook option nodetype:create
-     */
+    /** @hook option nodetype:create */
     public function hookOptionNodeTypeCreate(Command $command)
     {
         $this->addModuleOption($command);
     }
 
-    /**
-     * @hook init nodetype:create
-     */
+    /** @hook init nodetype:create */
     public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData)
     {
         $this->setDefaultValue();
     }
 
-    /**
-     * @hook post-command nodetype:create
-     */
+    /** @hook post-command nodetype:create */
     public function hookPostNodeTypeCreate($result, CommandData $commandData)
     {
         $this->generateModel($commandData, 'node');
     }
 
-    /**
-     * @hook option vocabulary:create
-     */
+    /** @hook option vocabulary:create */
     public function hookOptionVocabularyCreate(Command $command)
     {
         $this->addModuleOption($command);
     }
 
-    /**
-     * @hook init vocabulary:create
-     */
+    /** @hook init vocabulary:create */
     public function hookInitVocabularyCreate(InputInterface $input, AnnotationData $annotationData)
     {
         $this->setDefaultValue();
     }
 
-    /**
-     * @hook post-command vocabulary:create
-     */
+    /** @hook post-command vocabulary:create */
     public function hookPostVocabularyCreate($result, CommandData $commandData)
     {
         $this->generateModel($commandData, 'taxonomy_term');
     }
 
-    /**
-     * @hook option eck:bundle:create
-     */
+    /** @hook option eck:bundle:create */
     public function hookOptionEckBundleCreate(Command $command)
     {
         $this->addModuleOption($command);
     }
 
-    /**
-     * @hook init eck:bundle:create
-     */
+    /** @hook init eck:bundle:create */
     public function hookInitEckBundleCreate(InputInterface $input, AnnotationData $annotationData)
     {
         $this->setDefaultValue();
     }
 
-    /**
-     * @hook post-command eck:bundle:create
-     */
+    /** @hook post-command eck:bundle:create */
     public function hookPostEckBundleCreate($result, CommandData $commandData)
     {
         $this->generateModel($commandData, $commandData->input()->getArgument('entityType'));

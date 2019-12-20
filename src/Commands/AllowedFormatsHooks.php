@@ -4,7 +4,6 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Drupal\Core\Extension\ModuleHandlerInterface;
-use Drupal\filter\Entity\FilterFormat;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,9 +23,7 @@ class AllowedFormatsHooks extends DrushCommands
         $this->moduleHandler = $moduleHandler;
     }
 
-    /**
-     * @hook interact field:create
-     */
+    /** @hook interact field:create */
     public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         if (
@@ -42,9 +39,7 @@ class AllowedFormatsHooks extends DrushCommands
         );
     }
 
-    /**
-     * @hook option field:create
-     */
+    /** @hook option field:create */
     public function hookOption(Command $command, AnnotationData $annotationData)
     {
         if (!$this->isInstalled()) {
@@ -59,9 +54,7 @@ class AllowedFormatsHooks extends DrushCommands
         );
     }
 
-    /**
-     * @hook on-event field-create-field-config
-     */
+    /** @hook on-event field-create-field-config */
     public function hookFieldCreate(&$values)
     {
         if (

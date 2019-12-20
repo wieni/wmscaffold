@@ -117,9 +117,7 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
         $this->logResult($type);
     }
 
-    /**
-     * @hook interact vocabulary:create
-     */
+    /** @hook interact vocabulary:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
     {
         $this->input->setOption(

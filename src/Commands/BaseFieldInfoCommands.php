@@ -4,10 +4,9 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
-use Consolidation\OutputFormatters\Options\FormatterOptions;
-use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\wmscaffold\StructuredData\FieldDefinitionRowsOfFields;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -62,56 +61,13 @@ class BaseFieldInfoCommands extends DrushCommands
      * @usage drush base-field:info
      *      List all base fields and fill in the remaining information through prompts.
      */
-    public function info(string $entityType, array $options = ['format' => 'table']): RowsOfFields
+    public function info(string $entityType, array $options = [
+        'format' => 'table',
+    ]): FieldDefinitionRowsOfFields
     {
-        $rows = [];
-
         $fields = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
 
-        foreach ($fields as $field) {
-            $storage = $field->getFieldStorageDefinition();
-            $handlerSettings = $field->getSetting('handler_settings');
-
-            $rows[$field->getName()] = [
-                'label' => $field->getLabel(),
-                'description' => $field->getDescription(),
-                'field_name' => $field->getName(),
-                'field_type' => $field->getType(),
-                'required' => $field->isRequired(),
-                'translatable' => $field->isTranslatable(),
-                'cardinality' => $storage->getCardinality(),
-                'default_value' => empty($field->getDefaultValueLiteral()) ? null : $field->getDefaultValueLiteral(),
-                'default_value_callback' => $field->getDefaultValueCallback(),
-                'allowed_values' => $storage->getSetting('allowed_values'),
-                'allowed_values_function' => $storage->getSetting('allowed_values_function'),
-                'handler' => $field->getSetting('handler'),
-                'target_bundles' => $handlerSettings['target_bundles'] ?? null,
-            ];
-        }
-
-        $result = new RowsOfFields($rows);
-        $result->addRendererFunction([$this, 'renderArray']);
-        $result->addRendererFunction([$this, 'renderBoolean']);
-
-        return $result;
-    }
-
-    public function renderArray($key, $value, FormatterOptions $options)
-    {
-        if (is_array($value)) {
-            return implode(', ', $value);
-        }
-
-        return $value;
-    }
-
-    public function renderBoolean($key, $value, FormatterOptions $options)
-    {
-        if (is_bool($value)) {
-            return $value ? '✔' : '';
-        }
-
-        return $value;
+        return FieldDefinitionRowsOfFields::fromFieldDefinitions($fields);
     }
 
     /** @hook interact field:info */

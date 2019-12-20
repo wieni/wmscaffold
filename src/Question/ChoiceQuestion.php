@@ -24,10 +24,8 @@ class ChoiceQuestion extends ChoiceQuestionBase
     /**
      * Returns the answer validator. this is the same validator as the default one,
      * except spaces in choices are no longer being collapsed.
-     *
-     * @return callable
      */
-    protected function getBetterValidator()
+    protected function getBetterValidator(): callable
     {
         $choices = $this->getChoices();
         $errorMessage = $this->errorMessage;

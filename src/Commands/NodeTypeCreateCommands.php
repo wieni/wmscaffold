@@ -54,8 +54,6 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
      * @command nodetype:create
      * @aliases nodetype-create,ntc
      *
-     * @param array $options
-     *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
      *
@@ -99,7 +97,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
      * @throws PluginNotFoundException
      * @throws EntityStorageException
      */
-    public function create($options = [
+    public function create(array $options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
         'description' => InputOption::VALUE_OPTIONAL,
@@ -114,7 +112,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         'show-language-selector' => InputOption::VALUE_OPTIONAL,
         'display-submitted' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $bundle = $this->input()->getOption('machine-name');
         $definition = $this->entityTypeManager->getDefinition('node');
@@ -179,7 +177,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
     }
 
     /** @hook interact nodetype:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $this->input->setOption(
             'label',
@@ -245,12 +243,12 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         );
     }
 
-    protected function askLabel()
+    protected function askLabel(): string
     {
         return $this->io()->ask('Human-readable name');
     }
 
-    protected function askMachineName()
+    protected function askMachineName(): string
     {
         $label = $this->input->getOption('label');
         $suggestion = null;
@@ -284,17 +282,17 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         return $machineName;
     }
 
-    protected function askDescription()
+    protected function askDescription(): ?string
     {
         return $this->askOptional('Description');
     }
 
-    protected function askSubmissionTitleLabel()
+    protected function askSubmissionTitleLabel(): string
     {
         return $this->io()->ask('Title field label', 'Title');
     }
 
-    protected function askSubmissionPreviewMode()
+    protected function askSubmissionPreviewMode(): int
     {
         $options = [
             DRUPAL_DISABLED => t('Disabled'),
@@ -305,37 +303,37 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         return $this->choice('Preview before submitting', $options, false, DRUPAL_OPTIONAL);
     }
 
-    protected function askSubmissionHelp()
+    protected function askSubmissionHelp(): ?string
     {
         return $this->askOptional('Explanation or submission guidelines');
     }
 
-    protected function askPublished()
+    protected function askPublished(): bool
     {
         return $this->confirm('Published', true);
     }
 
-    protected function askPromoted()
+    protected function askPromoted(): bool
     {
         return $this->confirm('Promoted to front page', true);
     }
 
-    protected function askSticky()
+    protected function askSticky(): bool
     {
         return $this->confirm('Sticky at top of lists', false);
     }
 
-    protected function askCreateRevision()
+    protected function askCreateRevision(): bool
     {
         return $this->confirm('Create new revision', true);
     }
 
-    protected function askDisplaySubmitted()
+    protected function askDisplaySubmitted(): bool
     {
         return $this->confirm('Display author and date information', true);
     }
 
-    protected function askLanguageDefault()
+    protected function askLanguageDefault(): string
     {
         $options = [
             LanguageInterface::LANGCODE_SITE_DEFAULT => t("Site's default language (@language)", ['@language' => \Drupal::languageManager()->getDefaultLanguage()->getName()]),
@@ -353,19 +351,19 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         return $this->choice('Default language', $options, false, 0);
     }
 
-    protected function askLanguageShowSelector()
+    protected function askLanguageShowSelector(): bool
     {
         return $this->confirm('Show language selector on create and edit pages', false);
     }
 
-    protected function bundleExists(string $id)
+    protected function bundleExists(string $id): bool
     {
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo('node_type');
 
         return isset($bundleInfo[$id]);
     }
 
-    protected function generateMachineName(string $source)
+    protected function generateMachineName(string $source): string
     {
         // Only lowercase alphanumeric characters and underscores
         $machineName = preg_replace('/[^_a-z0-9]/i', '_', $source);
@@ -379,7 +377,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         return $machineName;
     }
 
-    private function logResult(NodeType $type)
+    private function logResult(NodeType $type): void
     {
         $this->logger()->success(
             sprintf('Successfully created node type with bundle \'%s\'', $type->id())

@@ -24,7 +24,7 @@ class AllowedFormatsHooks extends DrushCommands
     }
 
     /** @hook interact field:create */
-    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         if (
             !$this->isInstalled()
@@ -40,7 +40,7 @@ class AllowedFormatsHooks extends DrushCommands
     }
 
     /** @hook option field:create */
-    public function hookOption(Command $command, AnnotationData $annotationData)
+    public function hookOption(Command $command, AnnotationData $annotationData): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -55,7 +55,7 @@ class AllowedFormatsHooks extends DrushCommands
     }
 
     /** @hook on-event field-create-field-config */
-    public function hookFieldCreate(&$values)
+    public function hookFieldCreate(array &$values): void
     {
         if (
             !$this->isInstalled()
@@ -75,7 +75,7 @@ class AllowedFormatsHooks extends DrushCommands
         );
     }
 
-    protected function askAllowedFormats()
+    protected function askAllowedFormats(): array
     {
         $formats = filter_formats();
         $choices = ['- None -'];
@@ -90,7 +90,7 @@ class AllowedFormatsHooks extends DrushCommands
         );
     }
 
-    protected function isInstalled()
+    protected function isInstalled(): bool
     {
         return $this->moduleHandler->moduleExists('allowed_formats');
     }

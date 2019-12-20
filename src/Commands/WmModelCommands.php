@@ -5,13 +5,14 @@ namespace Drupal\wmscaffold\Commands;
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
+use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
-use PhpParser\PrettyPrinter\Standard;
+use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,7 +33,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     protected $modelFactory;
     /** @var ModelClassGenerator */
     protected $modelClassGenerator;
-    /** @var \PhpParser\PrettyPrinter\Standard */
+    /** @var PrettyPrinter */
     protected $prettyPrinter;
     /** @var Filesystem */
     protected $fileSystem;
@@ -49,7 +50,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->configFactory = $configFactory;
         $this->modelFactory = $modelFactory;
         $this->modelClassGenerator = $modelClassGenerator;
-        $this->prettyPrinter = new Standard();
+        $this->prettyPrinter = new PrettyPrinter();
         $this->fileSystem = new Filesystem();
     }
 
@@ -63,7 +64,6 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option module
      *      The module in which to generate the file
@@ -75,11 +75,14 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      *      Generate a model.
      * @usage drush wmmodel:generate
      *      Generate a model and fill in the remaining information through prompts.
+     *
+     * @throws PluginNotFoundException
+     * @throws \ReflectionException
      */
-    public function generateModel($entityType, $bundle, $options = [
+    public function generateModel(string $entityType, string $bundle, array $options = [
         'output-module' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $statements = [];
         $definition = $this->entityTypeManager->getDefinition($entityType);
@@ -110,7 +113,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     }
 
     /** @hook interact wmmodel:generate */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -128,7 +131,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     }
 
     /** @hook init wmmodel:generate */
-    public function init(InputInterface $input, AnnotationData $annotationData)
+    public function init(InputInterface $input, AnnotationData $annotationData): void
     {
         $module = $this->input->getOption('output-module');
 
@@ -142,7 +145,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     }
 
     /** @hook validate wmmodel:generate */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -154,7 +157,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     }
 
     /** @hook post-command wmmodel:generate */
-    public function formatModel($result, CommandData $commandData)
+    public function formatModel($result, CommandData $commandData): void
     {
         $entityType = $commandData->input()->getArgument('entityType');
         $bundle = $commandData->input()->getArgument('bundle');
@@ -174,7 +177,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->logger()->success('Successfully formatted model class.');
     }
 
-    protected function askBundle()
+    protected function askBundle(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);

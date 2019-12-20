@@ -9,7 +9,7 @@ use PhpParser\Node\NullableType;
 
 abstract class BaseScalarType extends ModelMethodGeneratorBase
 {
-    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses)
+    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
         $scalarType = static::getType();
 
@@ -37,5 +37,5 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
         $method->addStmt($this->helper->parseExpression($expression));
     }
 
-    abstract public static function getType();
+    abstract public static function getType(): string;
 }

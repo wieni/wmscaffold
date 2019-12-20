@@ -84,7 +84,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
         return $node;
     }
 
-    public function buildControllerPath(string $entityType, string $bundle, string $module)
+    public function buildControllerPath(string $entityType, string $bundle, string $module): string
     {
         $className = $this->buildClassName($entityType, $bundle, $module);
 
@@ -97,14 +97,15 @@ class ControllerClassGenerator extends ClassGeneratorBase
         );
     }
 
-    public function buildNamespaceName(string $entityType, string $module)
+    public function buildNamespaceName(string $entityType, string $module): string
     {
         $label = $this->toPascalCase($entityType);
         $label = $this->stripInvalidCharacters($label);
+
         return implode('\\', ['Drupal', $module, 'Controller', $label]);
     }
 
-    public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false)
+    public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false): string
     {
         $label = $this->toPascalCase($bundle);
         $label = $this->stripInvalidCharacters($label);

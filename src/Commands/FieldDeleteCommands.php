@@ -42,7 +42,6 @@ class FieldDeleteCommands extends DrushCommands
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option field-name
      *      The machine name of the field
@@ -60,10 +59,10 @@ class FieldDeleteCommands extends DrushCommands
      * @throws InvalidPluginDefinitionException
      * @throws PluginNotFoundException
      */
-    public function delete($entityType, $bundle, $options = [
+    public function delete(string $entityType, string $bundle, array $options = [
         'field-name' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $fieldName = $this->input->getOption('field-name');
 
@@ -88,7 +87,7 @@ class FieldDeleteCommands extends DrushCommands
     }
 
     /** @hook interact field:delete */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function inter(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -109,7 +108,7 @@ class FieldDeleteCommands extends DrushCommands
     }
 
     /** @hook validate field:delete */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -120,7 +119,7 @@ class FieldDeleteCommands extends DrushCommands
         }
     }
 
-    protected function askBundle()
+    protected function askBundle(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -134,7 +133,7 @@ class FieldDeleteCommands extends DrushCommands
         return $this->choice('Bundle', $choices);
     }
 
-    protected function askExisting(string $entityType, string $bundle)
+    protected function askExisting(string $entityType, string $bundle): string
     {
         $choices = [];
         /** @var FieldConfigInterface[] $fieldConfigs */
@@ -156,12 +155,12 @@ class FieldDeleteCommands extends DrushCommands
         return $this->choice('Choose a field to delete', $choices);
     }
 
-    protected function entityTypeBundleExists(string $entityType, string $bundleName)
+    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
     {
         return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
     }
 
-    protected function deleteFieldConfig(FieldConfigInterface $fieldConfig)
+    protected function deleteFieldConfig(FieldConfigInterface $fieldConfig): void
     {
         $fieldStorage = $fieldConfig->getFieldStorageDefinition();
         $bundles = $this->entityTypeBundleInfo->getBundleInfo($fieldConfig->getTargetEntityTypeId());

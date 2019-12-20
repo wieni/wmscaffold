@@ -46,7 +46,6 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option field-name
      *      A unique machine-readable name containing letters, numbers, and underscores.
@@ -70,13 +69,13 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
      * @see \Drupal\field_ui\Form\FieldConfigEditForm
      * @see \Drupal\field_ui\Form\FieldStorageConfigEditForm
      */
-    public function create($entityType, $bundle, $options = [
+    public function create(string $entityType, string $bundle, array $options = [
         'field-name' => InputOption::VALUE_REQUIRED,
         'field-label' => InputOption::VALUE_REQUIRED,
         'field-description' => InputOption::VALUE_REQUIRED,
         'is-required' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $fieldName = $this->input->getOption('field-name');
         $fieldLabel = $this->input->getOption('field-label');
@@ -89,7 +88,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
     }
 
     /** @hook interact base-field-override:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -123,7 +122,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
     }
 
     /** @hook validate base-field-override:create */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -134,7 +133,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         }
     }
 
-    protected function askBundle()
+    protected function askBundle(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -148,9 +147,9 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         return $this->choice('Bundle', $choices);
     }
 
-    protected function askFieldName(string $entityType)
+    protected function askFieldName(string $entityType): string
     {
-        /** @var \Drupal\Core\Field\BaseFieldDefinition[] $definitions */
+        /** @var BaseFieldDefinition[] $definitions */
         $definitions = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
         $choices = [];
 
@@ -162,22 +161,22 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         return $this->choice('Field name', $choices);
     }
 
-    protected function askFieldLabel(string $default)
+    protected function askFieldLabel(string $default): string
     {
         return $this->io()->ask('Field label', $default);
     }
 
-    protected function askFieldDescription(?string $default)
+    protected function askFieldDescription(?string $default): string
     {
         return $this->io()->ask('Field description', $default);
     }
 
-    protected function askRequired(bool $default)
+    protected function askRequired(bool $default): bool
     {
         return $this->io()->askQuestion(new ConfirmationQuestion('Required', $default));
     }
 
-    protected function createBaseFieldOverride(string $entityType, string $bundle, string $fieldName, $fieldLabel, $fieldDescription, bool $isRequired)
+    protected function createBaseFieldOverride(string $entityType, string $bundle, string $fieldName, $fieldLabel, $fieldDescription, bool $isRequired): BaseFieldOverride
     {
         $definition = $this->getBaseFieldDefinition($entityType, $fieldName);
         $override = BaseFieldOverride::loadByName($entityType, $bundle, $fieldName)
@@ -192,7 +191,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         return $override;
     }
 
-    protected function logResult(BaseFieldOverride $baseFieldOverride)
+    protected function logResult(BaseFieldOverride $baseFieldOverride): void
     {
         $this->logger()->success(
             sprintf(
@@ -204,15 +203,14 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         );
     }
 
-    protected function entityTypeBundleExists(string $entityType, string $bundleName)
+    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
     {
         return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
     }
 
-    /** @return BaseFieldDefinition|null */
-    protected function getBaseFieldDefinition(string $entityType, string $fieldName)
+    protected function getBaseFieldDefinition(string $entityType, string $fieldName): ?BaseFieldDefinition
     {
-        /** @var \Drupal\Core\Field\BaseFieldDefinition[] $definitions */
+        /** @var BaseFieldDefinition[] $definitions */
         $definitions = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
         return $definitions[$fieldName] ?? null;
     }

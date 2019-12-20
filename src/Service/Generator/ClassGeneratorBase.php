@@ -46,14 +46,15 @@ abstract class ClassGeneratorBase
         $this->parserFactory = new ParserFactory();
     }
 
-    protected function parseExpression(string $expression)
+    protected function parseExpression(string $expression): Stmt
     {
         $parser = $this->parserFactory->create(ParserFactory::PREFER_PHP7);
         $statements = $parser->parse('<?php ' . $expression . ';');
+
         return $statements[0];
     }
 
-    protected function cleanUseStatements(Namespace_ $namespace)
+    protected function cleanUseStatements(Namespace_ $namespace): Namespace_
     {
         $uses = [];
 
@@ -92,7 +93,7 @@ abstract class ClassGeneratorBase
         return $namespace;
     }
 
-    protected function isReservedKeyword(string $input)
+    protected function isReservedKeyword(string $input): bool
     {
         return in_array(strtolower($input), [
             '__halt_compiler', 'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch', 'class',
@@ -105,21 +106,23 @@ abstract class ClassGeneratorBase
         ]);
     }
 
-    protected function toCamelCase(string $input)
+    protected function toCamelCase(string $input): string
     {
         return lcfirst($this->toPascalCase($input));
     }
 
-    protected function toPascalCase(string $input)
+    protected function toPascalCase(string $input): string
     {
         $input = preg_replace('/\-|\s/', '_', $input);
+
         return str_replace('_', '', ucwords($input, '_'));
     }
 
-    protected function toKebabCase(string $input)
+    protected function toKebabCase(string $input): string
     {
         $input = preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '-$0', $input);
-        return ltrim(strtolower($input), '-');
+
+        return strtolower(ltrim($input, '-'));
     }
 
     protected function stripInvalidCharacters(string $string)

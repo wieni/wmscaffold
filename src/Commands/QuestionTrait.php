@@ -8,14 +8,11 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 trait QuestionTrait
 {
     /**
-     * @param string $question
      * @param array $choices
      *   If an associative array is passed, the chosen *key* is returned.
-     * @param bool $multiSelect
-     * @param null $default
      * @return mixed
      */
-    protected function choice($question, array $choices, $multiSelect = false, $default = null)
+    protected function choice(string $question, array $choices, bool $multiSelect = false, $default = null)
     {
         $choicesValues = array_values($choices);
         $question = new ChoiceQuestion($question, $choicesValues, $default);
@@ -42,7 +39,7 @@ trait QuestionTrait
         );
     }
 
-    protected function askOptional($question)
+    protected function askOptional(string $question)
     {
         return $this->io()->ask($question, null, function ($value) { return $value; });
     }

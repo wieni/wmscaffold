@@ -7,6 +7,7 @@ use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\content_translation\ContentTranslationManagerInterface;
+use Drupal\Core\Config\Entity\ConfigEntityType;
 use Drupal\Core\Entity\Display\EntityDisplayInterface;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManager;
@@ -20,6 +21,7 @@ use Drupal\Core\Field\FieldTypePluginManager;
 use Drupal\Core\Field\WidgetPluginManager;
 use Drupal\Core\Url;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Input\InputInterface;
@@ -82,7 +84,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option field-name
      *      A unique machine-readable name containing letters, numbers, and underscores.
@@ -120,7 +121,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @see \Drupal\field_ui\Form\FieldConfigEditForm
      * @see \Drupal\field_ui\Form\FieldStorageConfigEditForm
      */
-    public function create($entityType, $bundle, $options = [
+    public function create(string $entityType, string $bundle, array $options = [
         'field-name' => InputOption::VALUE_REQUIRED,
         'field-label' => InputOption::VALUE_REQUIRED,
         'field-description' => InputOption::VALUE_OPTIONAL,
@@ -133,7 +134,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         'target-bundle' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
         'existing' => false,
-    ])
+    ]): void
     {
         $fieldName = $this->input->getOption('field-name');
         $fieldLabel = $this->input->getOption('field-label');
@@ -157,7 +158,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     }
 
     /** @hook interact field:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -264,7 +265,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     }
 
     /** @hook validate field:create */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -275,15 +276,16 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
     }
 
-    protected function askExisting()
+    protected function askExisting(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
         $choices = $this->getExistingFieldStorageOptions($entityType, $bundle);
+
         return $this->choice('Choose an existing field', $choices);
     }
 
-    protected function askBundle()
+    protected function askBundle(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -297,7 +299,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Bundle', $choices);
     }
 
-    protected function askFieldName()
+    protected function askFieldName(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -333,17 +335,17 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $fieldName;
     }
 
-    protected function askFieldLabel()
+    protected function askFieldLabel(): string
     {
         return $this->io()->ask('Field label');
     }
 
-    protected function askFieldDescription()
+    protected function askFieldDescription(): ?string
     {
         return $this->askOptional('Field description');
     }
 
-    protected function askFieldType()
+    protected function askFieldType(): string
     {
         $definitions = $this->fieldTypePluginManager->getDefinitions();
         $choices = [];
@@ -356,7 +358,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Field type', $choices);
     }
 
-    protected function askFieldWidget()
+    protected function askFieldWidget(): string
     {
         $choices = [];
         $fieldType = $this->input->getOption('field-type');
@@ -370,17 +372,17 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Field widget', $choices, false, 0);
     }
 
-    protected function askRequired()
+    protected function askRequired(): bool
     {
         return $this->io()->askQuestion(new ConfirmationQuestion('Required', false));
     }
 
-    protected function askTranslatable()
+    protected function askTranslatable(): bool
     {
-        return $this->io()->askQuestion(new ConfirmationQuestion('Translatable', false));
+        return $this->confirm('Translatable', false);
     }
 
-    protected function askCardinality()
+    protected function askCardinality(): int
     {
         $fieldType = $this->input->getOption('field-type');
         $definition = $this->fieldTypePluginManager->getDefinition($fieldType);
@@ -400,18 +402,18 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
 
         $limit = FieldStorageDefinitionInterface::CARDINALITY_UNLIMITED;
         while ($cardinality === 'Limited' && $limit < 1) {
-            $limit = $this->io()->ask('Allowed number of values', 1);
+            $limit = (int) $this->io()->ask('Allowed number of values', 1);
         }
 
-        return (int) $limit;
+        return $limit;
     }
 
-    protected function askReferencedEntityType()
+    protected function askReferencedEntityType(): string
     {
         $definitions = $this->entityTypeManager->getDefinitions();
         $choices = [];
 
-        /** @var \Drupal\Core\Config\Entity\ConfigEntityType $definition */
+        /** @var ConfigEntityType $definition */
         foreach ($definitions as $name => $definition) {
             $label = $this->input->getOption('show-machine-names')
                 ? $name
@@ -422,7 +424,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Referenced entity type', $choices);
     }
 
-    protected function askReferencedBundles(FieldDefinitionInterface $fieldDefinition)
+    protected function askReferencedBundles(FieldDefinitionInterface $fieldDefinition): array
     {
         $choices = [];
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo(
@@ -441,7 +443,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Referenced bundles', $choices, true, 0);
     }
 
-    protected function createField(string $fieldName, string $fieldType, $fieldLabel, ?string $fieldDescription, string $entityType, string $bundle, $targetType, bool $isRequired, bool $isTranslatable)
+    protected function createField(string $fieldName, string $fieldType, string $fieldLabel, ?string $fieldDescription, string $entityType, string $bundle, ?string $targetType, bool $isRequired, bool $isTranslatable): FieldConfigInterface
     {
         $values = [
             'field_name' => $fieldName,
@@ -451,11 +453,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             'required' => $isRequired,
             'field_type' => $fieldType,
             'description' => $fieldDescription,
+            'label' => $fieldLabel,
         ];
-
-        if (!empty($fieldLabel)) {
-            $values['label'] = $fieldLabel;
-        }
 
         // Command files may customize $values as desired.
         $handlers = $this->getCustomEventHandlers('field-create-field-config');
@@ -463,7 +462,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $handler($values);
         }
 
-        /** @var FieldConfig $field */
         $field = $this->entityTypeManager
             ->getStorage('field_config')
             ->create($values);
@@ -497,7 +495,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $field;
     }
 
-    protected function createFieldStorage(string $fieldName, string $fieldType, string $entityType, $targetType, int $cardinality)
+    protected function createFieldStorage(string $fieldName, string $fieldType, string $entityType, ?string $targetType, int $cardinality): FieldStorageConfigInterface
     {
         $values = [
             'field_name' => $fieldName,
@@ -527,7 +525,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $fieldStorage;
     }
 
-    protected function createFieldFormDisplay(string $fieldName, $fieldWidget, string $entityType, string $bundle)
+    protected function createFieldFormDisplay(string $fieldName, ?string $fieldWidget, string $entityType, string $bundle): void
     {
         $values = [];
 
@@ -554,7 +552,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $storage->setComponent($fieldName, $values)->save();
     }
 
-    protected function createFieldViewDisplay(string $fieldName, string $entityType, string $bundle)
+    protected function createFieldViewDisplay(string $fieldName, string $entityType, string $bundle): void
     {
         $values = [];
 
@@ -583,12 +581,10 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @param string $context
      *      eg. form, view
      *
-     * @return EntityDisplayInterface|null
-     *
      * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
      * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
      */
-    protected function getEntityDisplay(string $context, string $entityType, string $bundle)
+    protected function getEntityDisplay(string $context, string $entityType, string $bundle): ?EntityDisplayInterface
     {
         return $this->entityTypeManager
             ->getStorage(sprintf('entity_%s_display', $context))
@@ -601,13 +597,11 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @param string $context
      *      eg. form, view
      *
-     * @return \Drupal\Core\Entity\EntityInterface
-     *
      * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
      * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
      * @throws \Drupal\Core\Entity\EntityStorageException
      */
-    protected function createEntityDisplay(string $context, string $entityType, string $bundle)
+    protected function createEntityDisplay(string $context, string $entityType, string $bundle): EntityDisplayInterface
     {
         $storageValues = [
             'id' => "$entityType.$bundle.default",
@@ -626,7 +620,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $display;
     }
 
-    protected function logResult(FieldConfig $field)
+    protected function logResult(FieldConfig $field): void
     {
         $this->logger()->success(
             sprintf(
@@ -657,7 +651,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
     }
 
-    protected function generateFieldName(string $source, string $bundle)
+    protected function generateFieldName(string $source, string $bundle): string
     {
         // Only lowercase alphanumeric characters and underscores
         $machineName = preg_replace('/[^_a-z0-9]/i', '_', $source);
@@ -675,19 +669,19 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $machineName;
     }
 
-    protected function fieldStorageExists(string $fieldName, string $entityType)
+    protected function fieldStorageExists(string $fieldName, string $entityType): bool
     {
         $fieldStorageDefinitions = $this->entityFieldManager->getFieldStorageDefinitions($entityType);
 
         return isset($fieldStorageDefinitions[$fieldName]);
     }
 
-    protected function entityTypeBundleExists(string $entityType, string $bundleName)
+    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
     {
         return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
     }
 
-    protected function getExistingFieldStorageOptions(string $entityType, string $bundle)
+    protected function getExistingFieldStorageOptions(string $entityType, string $bundle): array
     {
         $fieldTypes = $this->fieldTypePluginManager->getDefinitions();
         $options = [];

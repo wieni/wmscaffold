@@ -9,7 +9,7 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
  */
 class FloatType extends BaseScalarType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'float';
     }

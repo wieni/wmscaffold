@@ -14,7 +14,7 @@ use PhpParser\Node\NullableType;
  */
 class DateTime extends ModelMethodGeneratorBase
 {
-    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses)
+    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
         $className = \DateTime::class;
         $shortName = (new \ReflectionClass($className))->getShortName();

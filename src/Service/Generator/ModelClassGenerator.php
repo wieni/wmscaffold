@@ -13,6 +13,7 @@ use Drupal\wmscaffold\ModelMethodGeneratorManager;
 use PhpParser\Builder;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\Class_;
+use PhpParser\Node\Stmt\Namespace_;
 use PhpParser\Node\Stmt\Use_;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
@@ -46,7 +47,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore') ?? [];
     }
 
-    public function generateNew(string $entityType, string $bundle, string $module): Node\Stmt\Namespace_
+    public function generateNew(string $entityType, string $bundle, string $module): Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
         $this->modelFactory->rebuildMapping();
@@ -80,12 +81,12 @@ class ModelClassGenerator extends ClassGeneratorBase
         return $node;
     }
 
-    public function generateExisting(string $entityType, string $bundle)
+    public function generateExisting(string $entityType, string $bundle): ?Namespace_
     {
         return $this->appendFieldGettersToExistingModel($entityType, $bundle, $this->getCustomFields($entityType, $bundle));
     }
 
-    public function appendFieldGettersToExistingModel(string $entityType, string $bundle, array $fields)
+    public function appendFieldGettersToExistingModel(string $entityType, string $bundle, array $fields): ?Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
         $this->modelFactory->rebuildMapping();
@@ -95,14 +96,14 @@ class ModelClassGenerator extends ClassGeneratorBase
 
         // Only edit bundle models
         if ($className === $definition->getClass()) {
-            return false;
+            return null;
         }
 
         // Must have an existing class
         try {
             $class = new \ReflectionClass($className);
         } catch (\ReflectionException $e) {
-            return false;
+            return null;
         }
 
         // Parse the existing file & extract the namespace node
@@ -110,10 +111,10 @@ class ModelClassGenerator extends ClassGeneratorBase
         $input = $parser->parse(file_get_contents($class->getFileName()));
 
         if (empty($input)) {
-            return false;
+            return null;
         }
 
-        /** @var \PhpParser\Node\Stmt\Namespace_ $namespace */
+        /** @var Namespace_ $namespace */
         $namespace = $input[0];
 
         // Add the new method to the class

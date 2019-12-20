@@ -29,7 +29,7 @@ class MenuUiHooks extends DrushCommands
     }
 
     /** @hook interact nodetype:create */
-    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -53,7 +53,7 @@ class MenuUiHooks extends DrushCommands
     }
 
     /** @hook option nodetype:create */
-    public function hookOption(Command $command, AnnotationData $annotationData)
+    public function hookOption(Command $command, AnnotationData $annotationData): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -75,7 +75,7 @@ class MenuUiHooks extends DrushCommands
     }
 
     /** @hook on-event nodetype-create */
-    public function hookCreate(&$values)
+    public function hookCreate(array &$values): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -86,7 +86,7 @@ class MenuUiHooks extends DrushCommands
         $values['dependencies']['module'][] = 'menu_ui';
     }
 
-    protected function askMenus()
+    protected function askMenus(): array
     {
         $menus = menu_ui_get_menus();
         $choices = ['- None -'];
@@ -101,7 +101,7 @@ class MenuUiHooks extends DrushCommands
         );
     }
 
-    protected function askDefaultParent(array $menus)
+    protected function askDefaultParent(array $menus): string
     {
         $menus = array_intersect_key(menu_ui_get_menus(), array_flip($menus));
         $options = $this->menuParentFormSelector->getParentSelectOptions('', $menus);
@@ -109,7 +109,7 @@ class MenuUiHooks extends DrushCommands
         return $this->choice('Default parent item', $options, false, 0);
     }
 
-    protected function isInstalled()
+    protected function isInstalled(): bool
     {
         return $this->moduleHandler->moduleExists('menu_ui');
     }

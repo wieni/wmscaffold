@@ -9,7 +9,7 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
  */
 class Integer extends BaseScalarType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'int';
     }

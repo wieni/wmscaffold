@@ -10,6 +10,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManager;
 use Drupal\wmmodel\Factory\ModelFactory;
 use PhpParser\BuilderFactory;
+use PhpParser\Node\Stmt;
 use PhpParser\ParserFactory;
 
 class ModelMethodGeneratorHelper
@@ -43,20 +44,16 @@ class ModelMethodGeneratorHelper
 
     /**
      * Determine whether a field's cardinality is multiple
-     *
-     * @return bool
      */
-    public function isFieldMultiple(FieldDefinitionInterface $field)
+    public function isFieldMultiple(FieldDefinitionInterface $field): bool
     {
         return $field->getFieldStorageDefinition()->getCardinality() !== 1;
     }
 
     /**
      * Returns the full classname of the model of a field
-     *
-     * @return mixed
      */
-    public function getFieldModelClass(FieldDefinitionInterface $field)
+    public function getFieldModelClass(FieldDefinitionInterface $field): string
     {
         $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
         $definition = $this->entityTypeManager->getDefinition($targetType);
@@ -71,10 +68,8 @@ class ModelMethodGeneratorHelper
 
     /**
      * Returns the full classname of a field type
-     *
-     * @return string|null
      */
-    public function getFieldTypeClass(FieldDefinitionInterface $field)
+    public function getFieldTypeClass(FieldDefinitionInterface $field): ?string
     {
         $definition = $this->fieldTypePluginManager->getDefinition($field->getType());
 
@@ -83,10 +78,8 @@ class ModelMethodGeneratorHelper
 
     /**
      * Convert a string representation of a PHP statement into a PhpParser node
-     *
-     * @return \PhpParser\Node\Stmt|null
      */
-    public function parseExpression(string $expression)
+    public function parseExpression(string $expression): ?Stmt
     {
         $parser = $this->parserFactory->create(ParserFactory::PREFER_PHP7);
         $statements = $parser->parse('<?php ' . $expression . ';');
@@ -96,12 +89,12 @@ class ModelMethodGeneratorHelper
             : null;
     }
 
-    public function supportsReturnTypes()
+    public function supportsReturnTypes(): bool
     {
         return Comparator::greaterThan($this->config->get('phpVersion'), 7);
     }
 
-    public function supportsNullableTypes()
+    public function supportsNullableTypes(): bool
     {
         return Comparator::greaterThan($this->config->get('phpVersion'), 7.1);
     }

@@ -24,7 +24,7 @@ class WmSinglesHooks extends DrushCommands
     }
 
     /** @hook interact nodetype:create */
-    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -37,7 +37,7 @@ class WmSinglesHooks extends DrushCommands
     }
 
     /** @hook option nodetype:create */
-    public function hookOption(Command $command, AnnotationData $annotationData)
+    public function hookOption(Command $command, AnnotationData $annotationData): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -52,7 +52,7 @@ class WmSinglesHooks extends DrushCommands
     }
 
     /** @hook on-event nodetype-create */
-    public function hookCreate(&$values)
+    public function hookCreate(&$values): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -62,12 +62,12 @@ class WmSinglesHooks extends DrushCommands
         $values['dependencies']['module'][] = 'wmsingles';
     }
 
-    protected function askIsSingle()
+    protected function askIsSingle(): bool
     {
         return $this->confirm('Content type with a single entity?', false);
     }
 
-    protected function isInstalled()
+    protected function isInstalled(): bool
     {
         return $this->moduleHandler->moduleExists('wmsingles');
     }

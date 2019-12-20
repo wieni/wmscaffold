@@ -29,7 +29,7 @@ class PhpCsFixerCommands extends DrushCommands
      * @return int
      *      The exit code
      */
-    public function fix($path = null, $options = [])
+    public function fix(?string $path = null, array $options = []): int
     {
         $arguments = [];
         $extra = [];
@@ -62,7 +62,7 @@ class PhpCsFixerCommands extends DrushCommands
      *
      * @hook option phpcs:fix
      */
-    public function fixOptions(Command $command, AnnotationData $annotationData)
+    public function fixOptions(Command $command, AnnotationData $annotationData): void
     {
         if ($command->getDefinition()->hasOption('fixer-config')) {
             return;
@@ -86,7 +86,8 @@ class PhpCsFixerCommands extends DrushCommands
         $command->addOption('changed-only', '', InputOption::VALUE_OPTIONAL, 'Only fix changed files.');
     }
 
-    protected function getChangedFiles()
+    /** @return string[] */
+    protected function getChangedFiles(): array
     {
         $process = $this->processManager()
             ->process(['git', 'diff', 'HEAD', '--name-only', '--diff-filter=ACMRTUXB']);

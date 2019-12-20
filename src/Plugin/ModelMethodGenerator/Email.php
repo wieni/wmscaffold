@@ -9,7 +9,7 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
  */
 class Email extends BaseScalarType
 {
-    public static function getType()
+    public static function getType(): string
     {
         return 'string';
     }

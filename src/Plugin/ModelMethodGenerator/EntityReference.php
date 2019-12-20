@@ -14,7 +14,7 @@ use PhpParser\Node\NullableType;
  */
 class EntityReference extends ModelMethodGeneratorBase
 {
-    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses)
+    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
         $fieldModelClass = $this->helper->getFieldModelClass($field);
         $fieldModelClass = new \ReflectionClass($fieldModelClass);

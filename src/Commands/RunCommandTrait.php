@@ -51,10 +51,8 @@ trait RunCommandTrait
 
     /**
      * Run a command in a Symphony Application
-     *
-     * @return int
      */
-    protected function runCommand(Application $application, string $commandName, $arguments, $options, $extra = [])
+    protected function runCommand(Application $application, string $commandName, array $arguments, array $options, array $extra = []): int
     {
         $definition = $application->get($commandName)->getDefinition();
         $argv = [$commandName];

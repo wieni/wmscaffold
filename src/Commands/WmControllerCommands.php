@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
-use PhpParser\PrettyPrinter\Standard;
+use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -29,7 +29,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     protected $configFactory;
     /** @var ControllerClassGenerator */
     protected $controllerClassGenerator;
-    /** @var \PhpParser\PrettyPrinter\Standard */
+    /** @var PrettyPrinter */
     protected $prettyPrinter;
     /** @var Filesystem */
     protected $fileSystem;
@@ -44,7 +44,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->configFactory = $configFactory;
         $this->controllerClassGenerator = $controllerClassGenerator;
-        $this->prettyPrinter = new Standard();
+        $this->prettyPrinter = new PrettyPrinter();
         $this->fileSystem = new Filesystem();
     }
 
@@ -58,7 +58,6 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option output-module
      *      The module in which to generate the file
@@ -71,10 +70,10 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      * @usage drush wmcontroller:generate
      *      Generate a controller and fill in the remaining information through prompts.
      */
-    public function generateController($entityType, $bundle, $options = [
+    public function generateController(string $entityType, string $bundle, array $options = [
         'output-module' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $className = $this->controllerClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);
         $destination = $this->controllerClassGenerator->buildControllerPath($entityType, $bundle, $options['output-module']);
@@ -99,7 +98,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     }
 
     /** @hook interact wmcontroller:generate */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -114,7 +113,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     }
 
     /** @hook init wmcontroller:generate */
-    public function init(InputInterface $input, AnnotationData $annotationData)
+    public function init(InputInterface $input, AnnotationData $annotationData): void
     {
         $module = $this->input->getOption('output-module');
 
@@ -128,7 +127,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     }
 
     /** @hook validate wmcontroller:generate */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -140,7 +139,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     }
 
     /** @hook post-command wmcontroller:generate */
-    public function formatController($result, CommandData $commandData)
+    public function formatController($result, CommandData $commandData): void
     {
         $entityType = $commandData->input()->getArgument('entityType');
         $bundle = $commandData->input()->getArgument('bundle');
@@ -153,7 +152,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         $this->logger()->success('Successfully formatted controller class.');
     }
 
-    protected function askBundle()
+    protected function askBundle(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -167,7 +166,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         return $this->choice('Bundle', $choices);
     }
 
-    protected function entityTypeBundleExists(string $entityType, string $bundleName)
+    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
     {
         return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
     }

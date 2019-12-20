@@ -45,7 +45,6 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
@@ -65,12 +64,12 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
      * @throws PluginNotFoundException
      * @throws EntityStorageException
      */
-    public function delete($entityType, $bundle, $options = [
+    public function delete(string $entityType, string $bundle, array $options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
         'description' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $definition = $this->entityTypeManager->getDefinition("{$entityType}_type");
         $storage = $this->entityTypeManager->getStorage("{$entityType}_type");
@@ -91,7 +90,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
     }
 
     /** @hook interact eck:bundle:delete */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
@@ -106,7 +105,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
     }
 
     /** @hook validate eck:bundle:delete */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -125,7 +124,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
         }
     }
 
-    protected function askBundle()
+    protected function askBundle(): string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -139,7 +138,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
         return $this->choice('Bundle', $choices);
     }
 
-    protected function bundleExists(string $id)
+    protected function bundleExists(string $id): bool
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -147,7 +146,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
         return isset($bundleInfo[$id]);
     }
 
-    private function logResult(EckEntityBundle $bundle)
+    private function logResult(EckEntityBundle $bundle): void
     {
         $this->logger()->success(
             sprintf('Successfully deleted %s bundle \'%s\'', $bundle->getEckEntityTypeMachineName(), $bundle->id())

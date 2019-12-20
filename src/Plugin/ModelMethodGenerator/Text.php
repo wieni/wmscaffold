@@ -13,7 +13,7 @@ use PhpParser\Builder\Method;
  */
 class Text extends ModelMethodGeneratorBase
 {
-    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses)
+    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
         $expression = $this->helper->isFieldMultiple($field)
             ? sprintf('return array_map(function ($item) {

@@ -20,7 +20,6 @@ class FieldMetaCommands extends DrushCommands implements SiteAliasManagerAwareIn
      *      The machine name of the entity type
      * @param string $bundle
      *      The machine name of the bundle
-     * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
@@ -28,7 +27,9 @@ class FieldMetaCommands extends DrushCommands implements SiteAliasManagerAwareIn
      * @usage drush field:meta node page
      *      Create an instance of field_meta on the page content type
      */
-    public function create($entityType, $bundle = null, $options = ['show-machine-names' => InputOption::VALUE_OPTIONAL])
+    public function create(string $entityType, ?string $bundle = null, array $options = [
+        'show-machine-names' => InputOption::VALUE_OPTIONAL,
+    ]): void
     {
         $arguments = compact('entityType', 'bundle');
         $options = [

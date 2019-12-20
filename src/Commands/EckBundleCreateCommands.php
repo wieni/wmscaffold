@@ -44,7 +44,6 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
      *
      * @param string $entityType
      *      The machine name of the entity type
-     * @param array $options
      *
      * @option label
      *      The human-readable name of this entity bundle. This name must be unique.
@@ -64,12 +63,12 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
      * @throws PluginNotFoundException
      * @throws EntityStorageException
      */
-    public function create($entityType, $options = [
+    public function create(string $entityType, array $options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
         'description' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $definition = $this->entityTypeManager->getDefinition("{$entityType}_type");
         $storage = $this->entityTypeManager->getStorage("{$entityType}_type");
@@ -96,7 +95,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
     }
 
     /** @hook interact eck:bundle:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -119,7 +118,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
     }
 
     /** @hook validate eck:bundle:create */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -138,12 +137,12 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         }
     }
 
-    protected function askLabel()
+    protected function askLabel(): string
     {
         return $this->io()->ask('Human-readable name');
     }
 
-    protected function askMachineName()
+    protected function askMachineName(): string
     {
         $label = $this->input->getOption('label');
         $suggestion = null;
@@ -177,12 +176,12 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         return $machineName;
     }
 
-    protected function askDescription()
+    protected function askDescription(): ?string
     {
         return $this->askOptional('Description');
     }
 
-    protected function bundleExists(string $id)
+    protected function bundleExists(string $id): bool
     {
         $entityType = $this->input->getArgument('entityType');
         $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
@@ -190,7 +189,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         return isset($bundleInfo[$id]);
     }
 
-    protected function generateMachineName(string $source)
+    protected function generateMachineName(string $source): string
     {
         // Only lowercase alphanumeric characters and underscores
         $machineName = preg_replace('/[^_a-z0-9]/i', '_', $source);
@@ -204,7 +203,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         return $machineName;
     }
 
-    private function logResult(EckEntityBundle $bundle)
+    private function logResult(EckEntityBundle $bundle): void
     {
         $this->logger()->success(
             sprintf('Successfully created %s bundle \'%s\'', $bundle->getEckEntityTypeMachineName(), $bundle->id())

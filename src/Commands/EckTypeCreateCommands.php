@@ -35,8 +35,6 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
      * @command eck:type:create
      * @aliases eck:type-create,etc
      *
-     * @param array $options
-     *
      * @option label
      *      The human-readable name of this entity bundle. This name must be unique.
      * @option machine-name
@@ -60,7 +58,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
      * @throws InvalidPluginDefinitionException
      * @throws EntityStorageException
      */
-    public function create($options = [
+    public function create(array $options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
         'created' => InputOption::VALUE_OPTIONAL,
@@ -68,7 +66,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
         'author' => InputOption::VALUE_OPTIONAL,
         'title' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
-    ])
+    ]): void
     {
         $definition = $this->entityTypeManager->getDefinition('eck_entity_type');
         $storage = $this->entityTypeManager->getStorage('eck_entity_type');

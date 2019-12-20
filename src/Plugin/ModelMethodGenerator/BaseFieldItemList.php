@@ -9,7 +9,7 @@ use PhpParser\Node\NullableType;
 
 class BaseFieldItemList extends ModelMethodGeneratorBase
 {
-    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses)
+    public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
         if (!$fieldTypeClass = $this->helper->getFieldTypeClass($field)) {
             return;

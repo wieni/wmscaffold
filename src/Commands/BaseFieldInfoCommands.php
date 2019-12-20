@@ -35,7 +35,6 @@ class BaseFieldInfoCommands extends DrushCommands
      *
      * @param string $entityType
      *      The machine name of the entity type
-     * @param array $options
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
@@ -62,10 +61,8 @@ class BaseFieldInfoCommands extends DrushCommands
      *      List all base fields.
      * @usage drush base-field:info
      *      List all base fields and fill in the remaining information through prompts.
-     *
-     * @return RowsOfFields
      */
-    public function info($entityType, $options = ['format' => 'table'])
+    public function info(string $entityType, array $options = ['format' => 'table']): RowsOfFields
     {
         $rows = [];
 
@@ -118,7 +115,7 @@ class BaseFieldInfoCommands extends DrushCommands
     }
 
     /** @hook interact field:info */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $entityType = $this->input->getArgument('entityType');
 
@@ -128,7 +125,7 @@ class BaseFieldInfoCommands extends DrushCommands
     }
 
     /** @hook validate field:info */
-    public function validateEntityType(CommandData $commandData)
+    public function validateEntityType(CommandData $commandData): void
     {
         $entityType = $this->input->getArgument('entityType');
 

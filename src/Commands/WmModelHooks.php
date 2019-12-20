@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
-use PhpParser\PrettyPrinter\Standard;
+use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -26,7 +26,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
     protected $configFactory;
     /** @var ModelClassGenerator */
     protected $modelClassGenerator;
-    /** @var \PhpParser\PrettyPrinter\Standard */
+    /** @var PrettyPrinter */
     protected $prettyPrinter;
     /** @var Filesystem */
     protected $fileSystem;
@@ -39,24 +39,24 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         $this->entityFieldManager = $entityFieldManager;
         $this->configFactory = $configFactory;
         $this->modelClassGenerator = $modelClassGenerator;
-        $this->prettyPrinter = new Standard();
+        $this->prettyPrinter = new PrettyPrinter();
         $this->fileSystem = new Filesystem();
     }
 
     /** @hook option field:create */
-    public function hookOptionFieldCreate(Command $command)
+    public function hookOptionFieldCreate(Command $command): void
     {
         $this->addModuleOption($command);
     }
 
     /** @hook init field:create */
-    public function hookInitFieldCreate(InputInterface $input, AnnotationData $annotationData)
+    public function hookInitFieldCreate(InputInterface $input, AnnotationData $annotationData): void
     {
         $this->setDefaultValue();
     }
 
     /** @hook post-command field:create */
-    public function hookPostFieldCreate($result, CommandData $commandData)
+    public function hookPostFieldCreate($result, CommandData $commandData): void
     {
         $entityType = $commandData->input()->getArgument('entityType');
         $bundle = $commandData->input()->getArgument('bundle');
@@ -91,60 +91,60 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
     }
 
     /** @hook option nodetype:create */
-    public function hookOptionNodeTypeCreate(Command $command)
+    public function hookOptionNodeTypeCreate(Command $command): void
     {
         $this->addModuleOption($command);
     }
 
     /** @hook init nodetype:create */
-    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData)
+    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData): void
     {
         $this->setDefaultValue();
     }
 
     /** @hook post-command nodetype:create */
-    public function hookPostNodeTypeCreate($result, CommandData $commandData)
+    public function hookPostNodeTypeCreate($result, CommandData $commandData): void
     {
         $this->generateModel($commandData, 'node');
     }
 
     /** @hook option vocabulary:create */
-    public function hookOptionVocabularyCreate(Command $command)
+    public function hookOptionVocabularyCreate(Command $command): void
     {
         $this->addModuleOption($command);
     }
 
     /** @hook init vocabulary:create */
-    public function hookInitVocabularyCreate(InputInterface $input, AnnotationData $annotationData)
+    public function hookInitVocabularyCreate(InputInterface $input, AnnotationData $annotationData): void
     {
         $this->setDefaultValue();
     }
 
     /** @hook post-command vocabulary:create */
-    public function hookPostVocabularyCreate($result, CommandData $commandData)
+    public function hookPostVocabularyCreate($result, CommandData $commandData): void
     {
         $this->generateModel($commandData, 'taxonomy_term');
     }
 
     /** @hook option eck:bundle:create */
-    public function hookOptionEckBundleCreate(Command $command)
+    public function hookOptionEckBundleCreate(Command $command): void
     {
         $this->addModuleOption($command);
     }
 
     /** @hook init eck:bundle:create */
-    public function hookInitEckBundleCreate(InputInterface $input, AnnotationData $annotationData)
+    public function hookInitEckBundleCreate(InputInterface $input, AnnotationData $annotationData): void
     {
         $this->setDefaultValue();
     }
 
     /** @hook post-command eck:bundle:create */
-    public function hookPostEckBundleCreate($result, CommandData $commandData)
+    public function hookPostEckBundleCreate($result, CommandData $commandData): void
     {
         $this->generateModel($commandData, $commandData->input()->getArgument('entityType'));
     }
 
-    protected function addModuleOption(Command $command)
+    protected function addModuleOption(Command $command): void
     {
         if ($command->getDefinition()->hasOption('wmmodel-output-module')) {
             return;
@@ -158,7 +158,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         );
     }
 
-    protected function setDefaultValue()
+    protected function setDefaultValue(): void
     {
         $module = $this->input->getOption('wmmodel-output-module');
 
@@ -171,7 +171,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         }
     }
 
-    protected function generateModel(CommandData $commandData, string $entityType)
+    protected function generateModel(CommandData $commandData, string $entityType): void
     {
         $bundle = $commandData->input()->getOption('machine-name');
         $module = $commandData->input()->getOption('wmmodel-output-module');

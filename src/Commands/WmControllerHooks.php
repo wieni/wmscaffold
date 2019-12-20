@@ -8,7 +8,7 @@ use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
-use PhpParser\PrettyPrinter\Standard;
+use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -21,7 +21,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
     protected $configFactory;
     /** @var ControllerClassGenerator */
     protected $controllerClassGenerator;
-    /** @var \PhpParser\PrettyPrinter\Standard */
+    /** @var PrettyPrinter */
     protected $prettyPrinter;
 
     public function __construct(
@@ -30,46 +30,46 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
     ) {
         $this->configFactory = $configFactory;
         $this->controllerClassGenerator = $controllerClassGenerator;
-        $this->prettyPrinter = new Standard();
+        $this->prettyPrinter = new PrettyPrinter();
     }
 
     /** @hook option nodetype:create */
-    public function hookOptionNodeTypeCreate(Command $command)
+    public function hookOptionNodeTypeCreate(Command $command): void
     {
         $this->addOption($command);
     }
 
     /** @hook init nodetype:create */
-    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData)
+    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData): void
     {
         $this->setDefaultValue();
     }
 
     /** @hook post-command nodetype:create */
-    public function hookPostNodeTypeCreate($result, CommandData $commandData)
+    public function hookPostNodeTypeCreate($result, CommandData $commandData): void
     {
         $this->generateController($commandData, 'node');
     }
 
     /** @hook option vocabulary:create */
-    public function hookOptionVocabularyCreate(Command $command)
+    public function hookOptionVocabularyCreate(Command $command): void
     {
         $this->addOption($command);
     }
 
     /** @hook init vocabulary:create */
-    public function hookInitVocabularyTypeCreate(InputInterface $input, AnnotationData $annotationData)
+    public function hookInitVocabularyTypeCreate(InputInterface $input, AnnotationData $annotationData): void
     {
         $this->setDefaultValue();
     }
 
     /** @hook post-command vocabulary:create */
-    public function hookPostVocabularyCreate($result, CommandData $commandData)
+    public function hookPostVocabularyCreate($result, CommandData $commandData): void
     {
         $this->generateController($commandData, 'taxonomy_term');
     }
 
-    protected function addOption(Command $command)
+    protected function addOption(Command $command): void
     {
         if ($command->getDefinition()->hasOption('wmcontroller-output-module')) {
             return;
@@ -83,7 +83,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
         );
     }
 
-    protected function setDefaultValue()
+    protected function setDefaultValue(): void
     {
         $module = $this->input->getOption('wmcontroller-output-module');
 
@@ -96,7 +96,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
         }
     }
 
-    protected function generateController(CommandData $commandData, string $entityType)
+    protected function generateController(CommandData $commandData, string $entityType): void
     {
         $bundle = $commandData->input()->getOption('machine-name');
         $module = $commandData->input()->getOption('wmcontroller-output-module');

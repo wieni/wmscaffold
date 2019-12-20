@@ -1,6 +1,6 @@
 <?php
 
-function wmscaffold_ksort_recursive(&$array)
+function wmscaffold_ksort_recursive(array &$array): bool
 {
     foreach ($array as &$value) {
         if (is_array($value)) {

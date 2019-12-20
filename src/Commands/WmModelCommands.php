@@ -102,6 +102,8 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->fileSystem->remove($destination);
         $this->fileSystem->appendToFile($destination, $output);
 
+        $this->modelFactory->rebuildMapping();
+
         $this->logger()->success(
             sprintf('Successfully %s model class.', $existingClassName ? 'updated' : 'created')
         );

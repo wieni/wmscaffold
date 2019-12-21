@@ -52,7 +52,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     }
 
     /**
-     * Generates a wmmodel model
+     * Generate a wmmodel model
      *
      * @command wmmodel:generate
      * @aliases wmmodel-generate,wmlg

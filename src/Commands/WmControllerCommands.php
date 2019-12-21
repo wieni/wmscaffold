@@ -46,7 +46,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     }
 
     /**
-     * Generates a wmcontroller controller
+     * Generate a wmcontroller controller
      *
      * @command wmcontroller:generate
      * @aliases wmcontroller-generate,wmcg

@@ -49,9 +49,7 @@ trait RunCommandTrait
         );
     }
 
-    /**
-     * Run a command in a Symphony Application
-     */
+    /** Run a command in a Symphony Application */
     protected function runCommand(Application $application, string $commandName, array $arguments, array $options, array $extra = []): int
     {
         $definition = $application->get($commandName)->getDefinition();

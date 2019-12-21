@@ -42,17 +42,13 @@ class ModelMethodGeneratorHelper
         $this->config = $configFactory->get('wmscaffold.settings');
     }
 
-    /**
-     * Determine whether a field's cardinality is multiple
-     */
+    /** Determine whether a field's cardinality is multiple */
     public function isFieldMultiple(FieldDefinitionInterface $field): bool
     {
         return $field->getFieldStorageDefinition()->getCardinality() !== 1;
     }
 
-    /**
-     * Returns the full classname of the model of a field
-     */
+    /** Returns the full classname of the model of a field */
     public function getFieldModelClass(FieldDefinitionInterface $field): string
     {
         $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
@@ -66,9 +62,7 @@ class ModelMethodGeneratorHelper
         return $this->modelFactory->getClassName($definition, reset($targetBundles));
     }
 
-    /**
-     * Returns the full classname of a field type
-     */
+    /** Returns the full classname of a field type */
     public function getFieldTypeClass(FieldDefinitionInterface $field): ?string
     {
         $definition = $this->fieldTypePluginManager->getDefinition($field->getType());
@@ -76,9 +70,7 @@ class ModelMethodGeneratorHelper
         return $definition['class'] ?? null;
     }
 
-    /**
-     * Convert a string representation of a PHP statement into a PhpParser node
-     */
+    /** Convert a string representation of a PHP statement into a PhpParser node */
     public function parseExpression(string $expression): ?Stmt
     {
         $parser = $this->parserFactory->create(ParserFactory::PREFER_PHP7);

@@ -2,8 +2,6 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -13,13 +11,12 @@ use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInterface
 {
+    use AskBundleTrait;
     use RunCommandTrait;
     use QuestionTrait;
 
@@ -60,6 +57,9 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      * @command wmmodel:generate
      * @aliases wmmodel-generate,wmlg
      *
+     * @validate-entity-type-argument entityType
+     * @validate-bundle-argument entityType bundle
+     *
      * @param string $entityType
      *      The machine name of the entity type
      * @param string $bundle
@@ -79,11 +79,15 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      * @throws PluginNotFoundException
      * @throws \ReflectionException
      */
-    public function generateModel(string $entityType, string $bundle, array $options = [
+    public function generateModel(string $entityType, ?string $bundle = null, array $options = [
         'output-module' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
+        if (!$bundle) {
+            $this->input->setArgument('bundle', $this->askBundle());
+        }
+
         $statements = [];
         $definition = $this->entityTypeManager->getDefinition($entityType);
         $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
@@ -112,26 +116,8 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         );
     }
 
-    /** @hook interact wmmodel:generate */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundle = $this->input->getArgument('bundle');
-
-        if (!$entityType) {
-            return;
-        }
-
-        if (
-            $this->entityTypeHasBundles($entityType)
-            && (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle))
-        ) {
-            $this->input->setArgument('bundle', $this->askBundle());
-        }
-    }
-
     /** @hook init wmmodel:generate */
-    public function init(InputInterface $input, AnnotationData $annotationData): void
+    public function init(): void
     {
         $module = $this->input->getOption('output-module');
 
@@ -144,23 +130,11 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         }
     }
 
-    /** @hook validate wmmodel:generate */
-    public function validateEntityType(CommandData $commandData): void
+    /** @hook post-command wmmodel:generate */
+    public function formatModel(): void
     {
         $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-    }
-
-    /** @hook post-command wmmodel:generate */
-    public function formatModel($result, CommandData $commandData): void
-    {
-        $entityType = $commandData->input()->getArgument('entityType');
-        $bundle = $commandData->input()->getArgument('bundle');
+        $bundle = $this->input->getArgument('bundle');
 
         $definition = $this->entityTypeManager->getDefinition($entityType);
         $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
@@ -175,29 +149,5 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->drush('phpcs:fix', [], ['path' => $destination]);
 
         $this->logger()->success('Successfully formatted model class.');
-    }
-
-    protected function askBundle(): string
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-        $choices = [];
-
-        foreach ($bundleInfo as $bundle => $data) {
-            $label = $this->input->getOption('show-machine-names') ? $bundle : $data['label'];
-            $choices[$bundle] = $label;
-        }
-
-        return $this->choice('Bundle', $choices);
-    }
-
-    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
-    {
-        return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
-    }
-
-    protected function entityTypeHasBundles(string $entityType): bool
-    {
-        return !empty($this->entityTypeBundleInfo->getBundleInfo($entityType));
     }
 }

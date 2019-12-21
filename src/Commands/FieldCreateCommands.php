@@ -3,7 +3,6 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\content_translation\ContentTranslationManagerInterface;
@@ -31,6 +30,7 @@ use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class FieldCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
+    use AskBundleTrait;
     use CustomEventAwareTrait;
     use QuestionTrait;
 
@@ -79,6 +79,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      *
      * @command field:create
      * @aliases field-create,fc
+     *
+     * @validate-entity-type-argument entityType
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -264,18 +266,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
     }
 
-    /** @hook validate field:create */
-    public function validateEntityType(CommandData $commandData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-    }
-
     protected function askExisting(): string
     {
         $entityType = $this->input->getArgument('entityType');
@@ -283,20 +273,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $choices = $this->getExistingFieldStorageOptions($entityType, $bundle);
 
         return $this->choice('Choose an existing field', $choices);
-    }
-
-    protected function askBundle(): string
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-        $choices = [];
-
-        foreach ($bundleInfo as $bundle => $data) {
-            $label = $this->input->getOption('show-machine-names') ? $bundle : $data['label'];
-            $choices[$bundle] = $label;
-        }
-
-        return $this->choice('Bundle', $choices);
     }
 
     protected function askFieldName(): string

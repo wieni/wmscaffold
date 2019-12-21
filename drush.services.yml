@@ -1,4 +1,11 @@
 services:
+    wmscaffold.validators:
+        class: Drupal\wmscaffold\Commands\ValidatorsCommands
+        tags: [{ name: drush.command }]
+        arguments:
+            - '@entity_type.manager'
+            - '@entity_type.bundle.info'
+
     wmscaffold.commands.field-create:
         class: Drupal\wmscaffold\Commands\FieldCreateCommands
         arguments:
@@ -23,7 +30,6 @@ services:
     wmscaffold.commands.base-field-info:
         class: Drupal\wmscaffold\Commands\BaseFieldInfoCommands
         arguments:
-            - '@entity_type.manager'
             - '@entity_field.manager'
         tags: [{ name: drush.command }]
 
@@ -37,7 +43,6 @@ services:
     wmscaffold.commands.base-field-override-create:
         class: Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
         arguments:
-            - '@entity_type.manager'
             - '@entity_type.bundle.info'
             - '@entity_field.manager'
         tags: [{ name: drush.command }]
@@ -49,6 +54,7 @@ services:
             - '@entity_type.bundle.info'
             - '@entity_field.manager'
             - '@module_handler'
+            - '@language_manager'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.vocabulary-create:
@@ -57,6 +63,7 @@ services:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
             - '@module_handler'
+            - '@language_manager'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.eck-type-create:

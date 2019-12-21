@@ -2,8 +2,6 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
@@ -13,12 +11,11 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\EckEntityTypeBundleInfo;
 use Drupal\eck\Entity\EckEntityBundle;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareInterface
 {
+    use AskBundleTrait;
     use CustomEventAwareTrait;
     use QuestionTrait;
 
@@ -40,6 +37,9 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
      *
      * @command eck:bundle:delete
      * @aliases eck-bundle-delete,ebd
+     *
+     * @validate-eck-entity-type-argument entityType
+     * @validate-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -64,13 +64,17 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
      * @throws PluginNotFoundException
      * @throws EntityStorageException
      */
-    public function delete(string $entityType, string $bundle, array $options = [
+    public function delete(string $entityType, ?string $bundle = null, array $options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
         'description' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
+        if (!$bundle) {
+            $this->input->setArgument('bundle', $this->askBundle());
+        }
+
         $definition = $this->entityTypeManager->getDefinition("{$entityType}_type");
         $storage = $this->entityTypeManager->getStorage("{$entityType}_type");
 
@@ -87,63 +91,6 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
 
         $this->entityTypeManager->clearCachedDefinitions();
         $this->logResult($bundle);
-    }
-
-    /** @hook interact eck:bundle:delete */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundle = $this->input->getArgument('bundle');
-
-        if (!$entityType) {
-            return;
-        }
-
-        if (!$bundle || !$this->bundleExists($bundle)) {
-            $this->input->setArgument('bundle', $this->askBundle());
-        }
-    }
-
-    /** @hook validate eck:bundle:delete */
-    public function validateEntityType(CommandData $commandData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-
-        $definition = $this->entityTypeManager->getDefinition($entityType);
-
-        if ($definition->getProvider() !== 'eck') {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' is not an ECK entity type.', [':entityType' => $entityType])
-            );
-        }
-    }
-
-    protected function askBundle(): string
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-        $choices = [];
-
-        foreach ($bundleInfo as $bundle => $data) {
-            $label = $this->input->getOption('show-machine-names') ? $bundle : $data['label'];
-            $choices[$bundle] = $label;
-        }
-
-        return $this->choice('Bundle', $choices);
-    }
-
-    protected function bundleExists(string $id): bool
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-
-        return isset($bundleInfo[$id]);
     }
 
     private function logResult(EckEntityBundle $bundle): void

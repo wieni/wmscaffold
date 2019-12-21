@@ -3,13 +3,11 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\EckEntityTypeBundleInfo;
 use Drupal\eck\Entity\EckEntityBundle;
@@ -20,8 +18,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
+    use AskBundleMachineNameTrait;
     use CustomEventAwareTrait;
     use QuestionTrait;
+    use ValidatorsTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
@@ -41,6 +41,8 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
      *
      * @command eck:bundle:create
      * @aliases eck-bundle-create,ebc
+     *
+     * @validate-eck-entity-type-argument entityType
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -97,11 +99,13 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
     /** @hook interact eck:bundle:create */
     public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
-        $entityType = $this->input->getArgument('entityType');
+        $entityTypeId = $this->input->getArgument('entityType');
 
-        if (!$entityType) {
+        if (!$entityTypeId) {
             return;
         }
+
+        $this->validateEckEntityType($entityTypeId);
 
         $this->input->setOption(
             'label',
@@ -109,7 +113,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         );
         $this->input->setOption(
             'machine-name',
-            $this->input->getOption('machine-name') ?? $this->askMachineName()
+            $this->input->getOption('machine-name') ?? $this->askMachineName($entityTypeId)
         );
         $this->input->setOption(
             'description',
@@ -117,90 +121,14 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         );
     }
 
-    /** @hook validate eck:bundle:create */
-    public function validateEntityType(CommandData $commandData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-
-        $definition = $this->entityTypeManager->getDefinition($entityType);
-
-        if ($definition->getProvider() !== 'eck') {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' is not an ECK entity type.', [':entityType' => $entityType])
-            );
-        }
-    }
-
     protected function askLabel(): string
     {
         return $this->io()->ask('Human-readable name');
     }
 
-    protected function askMachineName(): string
-    {
-        $label = $this->input->getOption('label');
-        $suggestion = null;
-        $machineName = null;
-
-        if ($label) {
-            $suggestion = $this->generateMachineName($label);
-        }
-
-        while (!$machineName) {
-            $answer = $this->io()->ask('Machine-readable name', $suggestion);
-
-            if (preg_match('/[^a-z0-9_]+/', $answer)) {
-                $this->logger()->error('The machine-readable name must contain only lowercase letters, numbers, and underscores.');
-                continue;
-            }
-
-            if (strlen($answer) > EntityTypeInterface::BUNDLE_MAX_LENGTH) {
-                $this->logger()->error('The machine-readable name must not be longer than :maxLength characters.', [':maxLength' => EntityTypeInterface::BUNDLE_MAX_LENGTH]);
-                continue;
-            }
-
-            if ($this->bundleExists($answer)) {
-                $this->logger()->error('A bundle with this name already exists.');
-                continue;
-            }
-
-            $machineName = $answer;
-        }
-
-        return $machineName;
-    }
-
     protected function askDescription(): ?string
     {
         return $this->askOptional('Description');
-    }
-
-    protected function bundleExists(string $id): bool
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-
-        return isset($bundleInfo[$id]);
-    }
-
-    protected function generateMachineName(string $source): string
-    {
-        // Only lowercase alphanumeric characters and underscores
-        $machineName = preg_replace('/[^_a-z0-9]/i', '_', $source);
-        // Maximum one subsequent underscore
-        $machineName = preg_replace('/_+/', '_', $machineName);
-        // Only lowercase
-        $machineName = strtolower($machineName);
-        // Maximum length
-        $machineName = substr($machineName, 0, EntityTypeInterface::BUNDLE_MAX_LENGTH);
-
-        return $machineName;
     }
 
     private function logResult(EckEntityBundle $bundle): void

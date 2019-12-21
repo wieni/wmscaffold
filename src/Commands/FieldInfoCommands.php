@@ -2,29 +2,26 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\StructuredData\FieldDefinitionRowsOfFields;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class FieldInfoCommands extends DrushCommands
 {
+    use AskBundleTrait;
     use QuestionTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
+    /** @var EntityTypeBundleInfoInterface */
     protected $entityTypeBundleInfo;
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo
+        EntityTypeBundleInfoInterface $entityTypeBundleInfo
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
@@ -35,6 +32,9 @@ class FieldInfoCommands extends DrushCommands
      *
      * @command field:info
      * @aliases field-info,fi
+     *
+     * @validate-entity-type-argument entityType
+     * @validate-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -71,10 +71,14 @@ class FieldInfoCommands extends DrushCommands
      * @throws PluginNotFoundException
      *
      */
-    public function info(string $entityType, string $bundle, array $options = [
+    public function info(string $entityType, ?string $bundle = null, array $options = [
         'format' => 'table',
     ]): FieldDefinitionRowsOfFields
     {
+        if (!$bundle) {
+            $this->input->setArgument('bundle', $this->askBundle());
+        }
+
         $fields = $this->entityTypeManager
             ->getStorage('field_config')
             ->loadByProperties([
@@ -83,51 +87,5 @@ class FieldInfoCommands extends DrushCommands
             ]);
 
         return FieldDefinitionRowsOfFields::fromFieldDefinitions($fields);
-    }
-
-    /** @hook interact field:info */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundle = $this->input->getArgument('bundle');
-
-        if (!$entityType) {
-            return;
-        }
-
-        if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
-            $this->input->setArgument('bundle', $this->askBundle());
-        }
-    }
-
-    /** @hook validate field:info */
-    public function validateEntityType(CommandData $commandData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-    }
-
-    protected function askBundle(): string
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-        $choices = [];
-
-        foreach ($bundleInfo as $bundle => $data) {
-            $label = $this->input->getOption('show-machine-names') ? $bundle : $data['label'];
-            $choices[$bundle] = $label;
-        }
-
-        return $this->choice('Bundle', $choices);
-    }
-
-    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
-    {
-        return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
     }
 }

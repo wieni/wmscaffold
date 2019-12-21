@@ -2,7 +2,6 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -10,7 +9,6 @@ use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 
 class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareInterface
@@ -40,7 +38,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
     }
 
     /** @hook init nodetype:create */
-    public function hookInitNodeTypeCreate(InputInterface $input, AnnotationData $annotationData): void
+    public function hookInitNodeTypeCreate(): void
     {
         $this->setDefaultValue();
     }
@@ -58,7 +56,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
     }
 
     /** @hook init vocabulary:create */
-    public function hookInitVocabularyTypeCreate(InputInterface $input, AnnotationData $annotationData): void
+    public function hookInitVocabularyTypeCreate(): void
     {
         $this->setDefaultValue();
     }

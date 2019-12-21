@@ -10,10 +10,9 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
-use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandler;
-use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Url;
 use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\node\Entity\NodeType;
@@ -24,6 +23,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
+    use AskBundleMachineNameTrait;
+    use AskLanguageDefaultTrait;
     use CustomEventAwareTrait;
     use QuestionTrait;
 
@@ -35,17 +36,21 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
     protected $entityFieldManager;
     /** @var ModuleHandler */
     protected $moduleHandler;
+    /** @var LanguageManagerInterface */
+    protected $languageManager;
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
         EntityFieldManager $entityFieldManager,
-        ModuleHandler $moduleHandler
+        ModuleHandler $moduleHandler,
+        LanguageManagerInterface $languageManager
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->entityFieldManager = $entityFieldManager;
         $this->moduleHandler = $moduleHandler;
+        $this->languageManager = $languageManager;
     }
 
     /**
@@ -185,7 +190,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         );
         $this->input->setOption(
             'machine-name',
-            $this->input->getOption('machine-name') ?? $this->askMachineName()
+            $this->input->getOption('machine-name') ?? $this->askMachineName('node_type')
         );
         $this->input->setOption(
             'description',
@@ -248,40 +253,6 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         return $this->io()->ask('Human-readable name');
     }
 
-    protected function askMachineName(): string
-    {
-        $label = $this->input->getOption('label');
-        $suggestion = null;
-        $machineName = null;
-
-        if ($label) {
-            $suggestion = $this->generateMachineName($label);
-        }
-
-        while (!$machineName) {
-            $answer = $this->io()->ask('Machine-readable name', $suggestion);
-
-            if (preg_match('/[^a-z0-9_]+/', $answer)) {
-                $this->logger()->error('The machine-readable name must contain only lowercase letters, numbers, and underscores.');
-                continue;
-            }
-
-            if (strlen($answer) > EntityTypeInterface::BUNDLE_MAX_LENGTH) {
-                $this->logger()->error('Field name must not be longer than :maxLength characters.', [':maxLength' => EntityTypeInterface::BUNDLE_MAX_LENGTH]);
-                continue;
-            }
-
-            if ($this->bundleExists($answer)) {
-                $this->logger()->error('A bundle with this name already exists.');
-                continue;
-            }
-
-            $machineName = $answer;
-        }
-
-        return $machineName;
-    }
-
     protected function askDescription(): ?string
     {
         return $this->askOptional('Description');
@@ -333,48 +304,9 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         return $this->confirm('Display author and date information', true);
     }
 
-    protected function askLanguageDefault(): string
-    {
-        $options = [
-            LanguageInterface::LANGCODE_SITE_DEFAULT => t("Site's default language (@language)", ['@language' => \Drupal::languageManager()->getDefaultLanguage()->getName()]),
-            'current_interface' => t('Interface text language selected for page'),
-            'authors_default' => t("Author's preferred language"),
-        ];
-
-        $languages = \Drupal::languageManager()->getLanguages(LanguageInterface::STATE_ALL);
-        foreach ($languages as $langcode => $language) {
-            $options[$langcode] = $language->isLocked()
-                ? t('- @name -', ['@name' => $language->getName()])
-                : $language->getName();
-        }
-
-        return $this->choice('Default language', $options, false, 0);
-    }
-
     protected function askLanguageShowSelector(): bool
     {
         return $this->confirm('Show language selector on create and edit pages', false);
-    }
-
-    protected function bundleExists(string $id): bool
-    {
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo('node_type');
-
-        return isset($bundleInfo[$id]);
-    }
-
-    protected function generateMachineName(string $source): string
-    {
-        // Only lowercase alphanumeric characters and underscores
-        $machineName = preg_replace('/[^_a-z0-9]/i', '_', $source);
-        // Maximum one subsequent underscore
-        $machineName = preg_replace('/_+/', '_', $machineName);
-        // Only lowercase
-        $machineName = strtolower($machineName);
-        // Maximum length
-        $machineName = substr($machineName, 0, EntityTypeInterface::BUNDLE_MAX_LENGTH);
-
-        return $machineName;
     }
 
     private function logResult(NodeType $type): void

@@ -2,36 +2,28 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class BaseFieldOverrideCreateCommands extends DrushCommands
 {
+    use AskBundleTrait;
     use QuestionTrait;
 
-    /** @var EntityTypeManagerInterface */
-    protected $entityTypeManager;
     /** @var EntityTypeBundleInfo */
     protected $entityTypeBundleInfo;
     /** @var EntityFieldManager */
     protected $entityFieldManager;
 
     public function __construct(
-        EntityTypeManagerInterface $entityTypeManager,
         EntityTypeBundleInfo $entityTypeBundleInfo,
         EntityFieldManager $entityFieldManager
     ) {
-        $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->entityFieldManager = $entityFieldManager;
     }
@@ -41,6 +33,9 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
      *
      * @command base-field-override:create
      * @aliases base-field-override-create,bfoc
+     *
+     * @validate-entity-type-argument entityType
+     * @validate-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -69,7 +64,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
      * @see \Drupal\field_ui\Form\FieldConfigEditForm
      * @see \Drupal\field_ui\Form\FieldStorageConfigEditForm
      */
-    public function create(string $entityType, string $bundle, array $options = [
+    public function create(string $entityType, ?string $bundle = null, array $options = [
         'field-name' => InputOption::VALUE_REQUIRED,
         'field-label' => InputOption::VALUE_REQUIRED,
         'field-description' => InputOption::VALUE_REQUIRED,
@@ -77,27 +72,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
-        $fieldName = $this->input->getOption('field-name');
-        $fieldLabel = $this->input->getOption('field-label');
-        $fieldDescription = $this->input->getOption('field-description');
-        $isRequired = $this->input->getOption('is-required');
-
-        $baseFieldOverride = $this->createBaseFieldOverride($entityType, $bundle, $fieldName, $fieldLabel, $fieldDescription, $isRequired);
-
-        $this->logResult($baseFieldOverride);
-    }
-
-    /** @hook interact base-field-override:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundle = $this->input->getArgument('bundle');
-
-        if (!$entityType) {
-            return;
-        }
-
-        if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
+        if (!$bundle) {
             $this->input->setArgument('bundle', $this->askBundle());
         }
 
@@ -119,32 +94,15 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
             'is-required',
             (bool) ($this->input->getOption('is-required') ?? $this->askRequired($definition->isRequired()))
         );
-    }
 
-    /** @hook validate base-field-override:create */
-    public function validateEntityType(CommandData $commandData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
+        $fieldName = $this->input->getOption('field-name');
+        $fieldLabel = $this->input->getOption('field-label');
+        $fieldDescription = $this->input->getOption('field-description');
+        $isRequired = $this->input->getOption('is-required');
 
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-    }
+        $baseFieldOverride = $this->createBaseFieldOverride($entityType, $bundle, $fieldName, $fieldLabel, $fieldDescription, $isRequired);
 
-    protected function askBundle(): string
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-        $choices = [];
-
-        foreach ($bundleInfo as $bundle => $data) {
-            $label = $this->input->getOption('show-machine-names') ? $bundle : $data['label'];
-            $choices[$bundle] = $label;
-        }
-
-        return $this->choice('Bundle', $choices);
+        $this->logResult($baseFieldOverride);
     }
 
     protected function askFieldName(string $entityType): string
@@ -203,15 +161,11 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
         );
     }
 
-    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
-    {
-        return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
-    }
-
     protected function getBaseFieldDefinition(string $entityType, string $fieldName): ?BaseFieldDefinition
     {
         /** @var BaseFieldDefinition[] $definitions */
         $definitions = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
+
         return $definitions[$fieldName] ?? null;
     }
 }

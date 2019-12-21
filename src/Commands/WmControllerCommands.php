@@ -2,8 +2,6 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfo;
@@ -11,13 +9,12 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwareInterface
 {
+    use AskBundleTrait;
     use RunCommandTrait;
     use QuestionTrait;
 
@@ -54,6 +51,9 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      * @command wmcontroller:generate
      * @aliases wmcontroller-generate,wmcg
      *
+     * @validate-entity-type-argument entityType
+     * @validate-bundle-argument entityType bundle
+     *
      * @param string $entityType
      *      The machine name of the entity type
      * @param string $bundle
@@ -70,11 +70,15 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      * @usage drush wmcontroller:generate
      *      Generate a controller and fill in the remaining information through prompts.
      */
-    public function generateController(string $entityType, string $bundle, array $options = [
+    public function generateController(string $entityType, ?string $bundle = null, array $options = [
         'output-module' => InputOption::VALUE_REQUIRED,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
+        if (!$bundle) {
+            $this->input->setArgument('bundle', $this->askBundle());
+        }
+
         $className = $this->controllerClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);
         $destination = $this->controllerClassGenerator->buildControllerPath($entityType, $bundle, $options['output-module']);
         $statements = [];
@@ -97,23 +101,8 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         $this->logger()->success('Successfully created controller class.');
     }
 
-    /** @hook interact wmcontroller:generate */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundle = $this->input->getArgument('bundle');
-
-        if (!$entityType) {
-            return;
-        }
-
-        if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
-            $this->input->setArgument('bundle', $this->askBundle());
-        }
-    }
-
     /** @hook init wmcontroller:generate */
-    public function init(InputInterface $input, AnnotationData $annotationData): void
+    public function init(): void
     {
         $module = $this->input->getOption('output-module');
 
@@ -126,48 +115,17 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         }
     }
 
-    /** @hook validate wmcontroller:generate */
-    public function validateEntityType(CommandData $commandData): void
+    /** @hook post-command wmcontroller:generate */
+    public function formatController(): void
     {
         $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
-    }
-
-    /** @hook post-command wmcontroller:generate */
-    public function formatController($result, CommandData $commandData): void
-    {
-        $entityType = $commandData->input()->getArgument('entityType');
-        $bundle = $commandData->input()->getArgument('bundle');
-        $module = $commandData->input()->getOption('output-module');
+        $bundle = $this->input->getArgument('bundle');
+        $module = $this->input->getOption('output-module');
         $destination = $this->controllerClassGenerator->buildControllerPath($entityType, $bundle, $module);
 
         $this->logger()->notice('Formatting controller class...');
         $this->drush('phpcs:fix', [], ['path' => $destination]);
 
         $this->logger()->success('Successfully formatted controller class.');
-    }
-
-    protected function askBundle(): string
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
-        $choices = [];
-
-        foreach ($bundleInfo as $bundle => $data) {
-            $label = $this->input->getOption('show-machine-names') ? $bundle : $data['label'];
-            $choices[$bundle] = $label;
-        }
-
-        return $this->choice('Bundle', $choices);
-    }
-
-    protected function entityTypeBundleExists(string $entityType, string $bundleName): bool
-    {
-        return isset($this->entityTypeBundleInfo->getBundleInfo($entityType)[$bundleName]);
     }
 }

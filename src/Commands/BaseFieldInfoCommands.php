@@ -2,27 +2,18 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
-use Consolidation\AnnotatedCommand\CommandData;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
-use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\StructuredData\FieldDefinitionRowsOfFields;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class BaseFieldInfoCommands extends DrushCommands
 {
-    /** @var EntityTypeManagerInterface */
-    protected $entityTypeManager;
     /** @var EntityFieldManagerInterface */
     protected $entityFieldManager;
 
     public function __construct(
-        EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager
     ) {
-        $this->entityTypeManager = $entityTypeManager;
         $this->entityFieldManager = $entityFieldManager;
     }
 
@@ -31,6 +22,8 @@ class BaseFieldInfoCommands extends DrushCommands
      *
      * @command base-field:info
      * @aliases base-field-info,bfi
+     *
+     * @validate-entity-type-argument entityType
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -68,27 +61,5 @@ class BaseFieldInfoCommands extends DrushCommands
         $fields = $this->entityFieldManager->getBaseFieldDefinitions($entityType);
 
         return FieldDefinitionRowsOfFields::fromFieldDefinitions($fields);
-    }
-
-    /** @hook interact field:info */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-
-        if (!$entityType) {
-            return;
-        }
-    }
-
-    /** @hook validate field:info */
-    public function validateEntityType(CommandData $commandData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-
-        if (!$this->entityTypeManager->hasDefinition($entityType)) {
-            throw new \InvalidArgumentException(
-                t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
-            );
-        }
     }
 }

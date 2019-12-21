@@ -2,13 +2,10 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class WmSinglesHooks extends DrushCommands
 {
@@ -24,20 +21,20 @@ class WmSinglesHooks extends DrushCommands
     }
 
     /** @hook interact nodetype:create */
-    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
+    public function hookInteract(): void
     {
         if (!$this->isInstalled()) {
             return;
         }
 
-        $input->setOption(
+        $this->input->setOption(
             'is-single',
             $this->input->getOption('is-single') ?? $this->askIsSingle()
         );
     }
 
     /** @hook option nodetype:create */
-    public function hookOption(Command $command, AnnotationData $annotationData): void
+    public function hookOption(Command $command): void
     {
         if (!$this->isInstalled()) {
             return;
@@ -52,7 +49,7 @@ class WmSinglesHooks extends DrushCommands
     }
 
     /** @hook on-event nodetype-create */
-    public function hookCreate(&$values): void
+    public function hookCreate(array &$values): void
     {
         if (!$this->isInstalled()) {
             return;

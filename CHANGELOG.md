@@ -5,12 +5,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Add changelog
+- Add code style fixers
+- Add issue & pull request templates
+
 ### Changed
-- Change the model generator to use wmmodel to get the model class
-- Change entity reference getter return type to always be optional
+- `wmmodel-generate`: Rebuild the mapping after generating
+- `wmmodel-generate`: Use wmmodel to get the model class
+- `wmmodel-generate`: Change entity reference getter return type to
+  always be optional
+- Add argument/return types
+- Apply code style-related fixes
+- Move duplicated code to seperate classes
+- Update README
+- Update .gitignore
+- Update module description
+- Normalize composer.json
 
 ### Fixed
-- Fix error when content_translation module is not installed
+- `field-create`: Fix error when content_translation module is not
+  installed
+- `field-info`, `base-field-info`: Fix help screen
 
 ## [1.10.0] - 2019-12-12
 ### Added

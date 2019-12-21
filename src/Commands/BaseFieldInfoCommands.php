@@ -2,6 +2,7 @@
 
 namespace Drupal\wmscaffold\Commands;
 
+use Consolidation\OutputFormatters\StructuredData\RowsOfFields;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\wmscaffold\StructuredData\FieldDefinitionRowsOfFields;
 use Drush\Commands\DrushCommands;
@@ -53,6 +54,8 @@ class BaseFieldInfoCommands extends DrushCommands
      *      List all base fields.
      * @usage drush base-field:info
      *      List all base fields and fill in the remaining information through prompts.
+     *
+     * @return FieldDefinitionRowsOfFields
      */
     public function info(string $entityType, array $options = [
         'format' => 'table',

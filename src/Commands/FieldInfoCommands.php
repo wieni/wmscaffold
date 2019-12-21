@@ -67,6 +67,8 @@ class FieldInfoCommands extends DrushCommands
      * @usage drush field:info
      *      List all fields and fill in the remaining information through prompts.
      *
+     * @return FieldDefinitionRowsOfFields
+     *
      * @throws InvalidPluginDefinitionException
      * @throws PluginNotFoundException
      *

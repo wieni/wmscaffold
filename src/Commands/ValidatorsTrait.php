@@ -33,9 +33,15 @@ trait ValidatorsTrait
 
     public function validateBundle(string $entityTypeId, string $bundle): void
     {
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityTypeId);
+        if ($entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId)) {
+            if ($bundleEntityType = $entityTypeDefinition->getBundleEntityType()) {
+                $bundleDefinition = $this->entityTypeManager
+                    ->getStorage($bundleEntityType)
+                    ->load($bundle);
+            }
+        }
 
-        if (!empty($bundle) && !isset($bundleInfo[$bundle])) {
+        if (!isset($bundleDefinition)) {
             throw new \InvalidArgumentException(
                 t('Bundle \':bundle\' does not exist on entity type with id \':entityType\'.', [
                     ':bundle' => $bundle,

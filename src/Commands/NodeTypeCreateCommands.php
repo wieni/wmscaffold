@@ -9,7 +9,6 @@ use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\Language\LanguageManagerInterface;
@@ -30,8 +29,6 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
-    protected $entityTypeBundleInfo;
     /** @var EntityFieldManager */
     protected $entityFieldManager;
     /** @var ModuleHandler */
@@ -41,13 +38,11 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
         EntityFieldManager $entityFieldManager,
         ModuleHandler $moduleHandler,
         LanguageManagerInterface $languageManager
     ) {
         $this->entityTypeManager = $entityTypeManager;
-        $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->entityFieldManager = $entityFieldManager;
         $this->moduleHandler = $moduleHandler;
         $this->languageManager = $languageManager;

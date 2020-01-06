@@ -4,7 +4,6 @@ services:
         tags: [{ name: drush.command }]
         arguments:
             - '@entity_type.manager'
-            - '@entity_type.bundle.info'
 
     wmscaffold.commands.field-create:
         class: Drupal\wmscaffold\Commands\FieldCreateCommands
@@ -51,7 +50,6 @@ services:
         class: Drupal\wmscaffold\Commands\NodeTypeCreateCommands
         arguments:
             - '@entity_type.manager'
-            - '@entity_type.bundle.info'
             - '@entity_field.manager'
             - '@module_handler'
             - '@language_manager'
@@ -61,9 +59,8 @@ services:
         class: Drupal\wmscaffold\Commands\VocabularyCreateCommands
         arguments:
             - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-            - '@module_handler'
             - '@language_manager'
+            - '@module_handler'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.eck-type-create:
@@ -76,7 +73,6 @@ services:
         class: Drupal\wmscaffold\Commands\EckBundleCreateCommands
         arguments:
             - '@entity_type.manager'
-            - '@eck.entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.eck-bundle-delete:
@@ -98,7 +94,7 @@ services:
         class: Drupal\wmscaffold\Commands\WmModelCommands
         arguments:
             - '@entity_type.manager'
-            - '@wmmodel.entity_type.bundle.info'
+            - '@entity_type.bundle.info'
             - '@config.factory'
             - '@wmmodel.factory.model'
             - '@wmscaffold.model_class_generator'
@@ -116,7 +112,7 @@ services:
         class: Drupal\wmscaffold\Commands\WmControllerCommands
         arguments:
             - '@entity_type.manager'
-            - '@wmmodel.entity_type.bundle.info'
+            - '@entity_type.bundle.info'
             - '@config.factory'
             - '@wmscaffold.controller_class_generator'
         tags: [{ name: drush.command }]

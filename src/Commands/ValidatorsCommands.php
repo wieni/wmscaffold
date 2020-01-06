@@ -3,7 +3,6 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\CommandData;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drush\Commands\DrushCommands;
 
@@ -13,15 +12,11 @@ class ValidatorsCommands extends DrushCommands
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
-    protected $entityTypeBundleInfo;
 
     public function __construct(
-        EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo
+        EntityTypeManagerInterface $entityTypeManager
     ) {
         $this->entityTypeManager = $entityTypeManager;
-        $this->entityTypeBundleInfo = $entityTypeBundleInfo;
     }
 
     /**

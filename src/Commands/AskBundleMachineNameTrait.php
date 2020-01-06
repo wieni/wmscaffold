@@ -2,13 +2,13 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * @property InputInterface $input
- * @property EntityTypeBundleInfoInterface $entityTypeBundleInfo
+ * @property EntityTypeManagerInterface $entityTypeManager
  */
 trait AskBundleMachineNameTrait
 {
@@ -62,8 +62,14 @@ trait AskBundleMachineNameTrait
 
     protected function bundleExists(string $entityTypeId, string $id): bool
     {
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityTypeId);
+        if ($entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId)) {
+            if ($bundleEntityType = $entityTypeDefinition->getBundleEntityType()) {
+                $bundleDefinition = $this->entityTypeManager
+                    ->getStorage($bundleEntityType)
+                    ->load($id);
+            }
+        }
 
-        return isset($bundleInfo[$id]);
+        return isset($bundleDefinition);
     }
 }

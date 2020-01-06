@@ -8,10 +8,9 @@ use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityStorageException;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandler;
-use Drupal\Core\Language\LanguageInterface;
+use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Url;
 use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\taxonomy\Entity\Vocabulary;
@@ -23,23 +22,24 @@ use Symfony\Component\Console\Output\OutputInterface;
 class VocabularyCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
     use AskBundleMachineNameTrait;
+    use AskLanguageDefaultTrait;
     use CustomEventAwareTrait;
     use QuestionTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
-    protected $entityTypeBundleInfo;
+    /** @var LanguageManagerInterface */
+    protected $languageManager;
     /** @var ModuleHandler */
     protected $moduleHandler;
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
+        LanguageManagerInterface $languageManager,
         ModuleHandler $moduleHandler
     ) {
         $this->entityTypeManager = $entityTypeManager;
-        $this->entityTypeBundleInfo = $entityTypeBundleInfo;
+        $this->languageManager = $languageManager;
         $this->moduleHandler = $moduleHandler;
     }
 
@@ -152,24 +152,6 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
     protected function askDescription(): ?string
     {
         return $this->askOptional('Description');
-    }
-
-    protected function askLanguageDefault(): string
-    {
-        $options = [
-            LanguageInterface::LANGCODE_SITE_DEFAULT => t("Site's default language (@language)", ['@language' => \Drupal::languageManager()->getDefaultLanguage()->getName()]),
-            'current_interface' => t('Interface text language selected for page'),
-            'authors_default' => t("Author's preferred language"),
-        ];
-
-        $languages = \Drupal::languageManager()->getLanguages(LanguageInterface::STATE_ALL);
-        foreach ($languages as $langcode => $language) {
-            $options[$langcode] = $language->isLocked()
-                ? t('- @name -', ['@name' => $language->getName()])
-                : $language->getName();
-        }
-
-        return $this->choice('Default language', $options, false, 0);
     }
 
     protected function askLanguageShowSelector(): bool

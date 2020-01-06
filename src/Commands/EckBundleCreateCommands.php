@@ -9,7 +9,6 @@ use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\eck\EckEntityTypeBundleInfo;
 use Drupal\eck\Entity\EckEntityBundle;
 use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Input\InputInterface;
@@ -25,15 +24,11 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EckEntityTypeBundleInfo */
-    protected $entityTypeBundleInfo;
 
     public function __construct(
-        EntityTypeManagerInterface $entityTypeManager,
-        EckEntityTypeBundleInfo $entityTypeBundleInfo
+        EntityTypeManagerInterface $entityTypeManager
     ) {
         $this->entityTypeManager = $entityTypeManager;
-        $this->entityTypeBundleInfo = $entityTypeBundleInfo;
     }
 
     /**

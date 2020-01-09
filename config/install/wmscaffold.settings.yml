@@ -7,5 +7,5 @@ generators:
         fieldsToIgnore: []
         outputModule: ''
     controller:
-        baseClass: Drupal\Core\Controller\ControllerBase
+        baseClass: Drupal\wmcontroller\Controller\ControllerBase
         outputModule: ''

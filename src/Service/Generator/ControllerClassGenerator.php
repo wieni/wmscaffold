@@ -7,7 +7,7 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
-use PhpParser\Node\Stmt\Namespace_;
+use PhpParser\Node\Stmt;
 
 class ControllerClassGenerator extends ClassGeneratorBase
 {
@@ -30,7 +30,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $this->baseClass = $this->config->get('generators.controller.baseClass');
     }
 
-    public function generateNew(string $entityType, string $bundle, string $module): Namespace_
+    public function generateNew(string $entityType, string $bundle, string $module): Stmt\Namespace_
     {
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);

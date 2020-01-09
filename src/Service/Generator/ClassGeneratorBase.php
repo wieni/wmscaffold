@@ -10,9 +10,6 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\Use_;
 use PhpParser\ParserFactory;
 
 abstract class ClassGeneratorBase
@@ -54,13 +51,13 @@ abstract class ClassGeneratorBase
         return $statements[0];
     }
 
-    protected function cleanUseStatements(Namespace_ $namespace): Namespace_
+    protected function cleanUseStatements(Stmt\Namespace_ $namespace): Stmt\Namespace_
     {
         $uses = [];
 
         // Deduplicate
         foreach ($namespace->stmts as $i => $statement) {
-            if (!$statement instanceof Use_) {
+            if (!$statement instanceof Stmt\Use_) {
                 continue;
             }
 
@@ -82,7 +79,7 @@ abstract class ClassGeneratorBase
         usort(
             $namespace->stmts,
             function (Stmt $a, Stmt $b) {
-                if ($a instanceof Class_ && $b instanceof Use_) {
+                if ($a instanceof Stmt\Class_ && $b instanceof Stmt\Use_) {
                     return 1;
                 }
 

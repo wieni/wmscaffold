@@ -12,9 +12,7 @@ use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
 use PhpParser\Builder;
 use PhpParser\Node;
-use PhpParser\Node\Stmt\Class_;
-use PhpParser\Node\Stmt\Namespace_;
-use PhpParser\Node\Stmt\Use_;
+use PhpParser\Node\Stmt;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
@@ -47,7 +45,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore') ?? [];
     }
 
-    public function generateNew(string $entityType, string $bundle, string $module): Namespace_
+    public function generateNew(string $entityType, string $bundle, string $module): Stmt\Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
         $this->modelFactory->rebuildMapping();
@@ -81,12 +79,12 @@ class ModelClassGenerator extends ClassGeneratorBase
         return $node;
     }
 
-    public function generateExisting(string $entityType, string $bundle): ?Namespace_
+    public function generateExisting(string $entityType, string $bundle): ?Stmt\Namespace_
     {
         return $this->appendFieldGettersToExistingModel($entityType, $bundle, $this->getCustomFields($entityType, $bundle));
     }
 
-    public function appendFieldGettersToExistingModel(string $entityType, string $bundle, array $fields): ?Namespace_
+    public function appendFieldGettersToExistingModel(string $entityType, string $bundle, array $fields): ?Stmt\Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
         $this->modelFactory->rebuildMapping();
@@ -114,12 +112,12 @@ class ModelClassGenerator extends ClassGeneratorBase
             return null;
         }
 
-        /** @var Namespace_ $namespace */
+        /** @var Stmt\Namespace_ $namespace */
         $namespace = $input[0];
 
         // Add the new method to the class
         foreach ($namespace->stmts as $i => $statement) {
-            if (!$statement instanceof Class_) {
+            if (!$statement instanceof Stmt\Class_) {
                 continue;
             }
 
@@ -134,8 +132,8 @@ class ModelClassGenerator extends ClassGeneratorBase
                 // and don't create a new method if any are found
                 $existingMethods = array_filter(
                     $statement->stmts,
-                    function (Node\Stmt $existingStmt) use ($method) {
-                        if (!$existingStmt instanceof Node\Stmt\ClassMethod) {
+                    function (Stmt $existingStmt) use ($method) {
+                        if (!$existingStmt instanceof Stmt\ClassMethod) {
                             return false;
                         }
                         $existingStmt = clone $existingStmt;
@@ -165,7 +163,7 @@ class ModelClassGenerator extends ClassGeneratorBase
                 foreach ($uses as $use) {
                     if ($use instanceof Builder\Use_) {
                         $namespace->stmts[] = $use->getNode();
-                    } elseif ($use instanceof Use_) {
+                    } elseif ($use instanceof Stmt\Use_) {
                         $namespace->stmts[] = $use;
                     }
                 }
@@ -277,7 +275,7 @@ class ModelClassGenerator extends ClassGeneratorBase
                 {
                     $node->setAttributes([]);
 
-                    if ($node instanceof Node\Stmt\ClassMethod) {
+                    if ($node instanceof Stmt\ClassMethod) {
                         $node->flags = [];
                     }
                 }

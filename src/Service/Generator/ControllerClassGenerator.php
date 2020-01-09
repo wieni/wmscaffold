@@ -78,7 +78,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $method->addParam($this->builderFactory->param($variableName)
             ->setType($modelClass->getShortName()));
         $method->addStmt(
-            $this->parseExpression("return \$this->view('{$templatePath}', compact('{$variableName}'));")
+            $this->parseExpression("return \$this->view('{$templatePath}', ['{$variableName}' => \${$variableName}]);")
         );
 
         $class->addStmt($method);

@@ -2,31 +2,26 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
 use Drupal\content_translation\ContentTranslationManagerInterface;
-use Drupal\Core\Config\Entity\ConfigEntityType;
 use Drupal\Core\Entity\Display\EntityDisplayInterface;
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManager;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\Display\EntityFormDisplayInterface;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Entity\EntityReferenceSelection\SelectionPluginManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
-use Drupal\Core\Field\FieldTypePluginManager;
+use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Field\WidgetPluginManager;
 use Drupal\Core\Url;
-use Drupal\field\Entity\FieldConfig;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field\FieldStorageConfigInterface;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
 
 class FieldCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
@@ -34,31 +29,31 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
     use CustomEventAwareTrait;
     use QuestionTrait;
 
-    /** @var FieldTypePluginManager */
+    /** @var FieldTypePluginManagerInterface */
     protected $fieldTypePluginManager;
     /** @var WidgetPluginManager */
     protected $widgetPluginManager;
-    /** @var SelectionPluginManager */
+    /** @var SelectionPluginManagerInterface */
     protected $selectionPluginManager;
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
+    /** @var EntityTypeBundleInfoInterface */
     protected $entityTypeBundleInfo;
-    /** @var EntityFieldManager */
+    /** @var EntityFieldManagerInterface */
     protected $entityFieldManager;
-    /** @var ModuleHandler */
+    /** @var ModuleHandlerInterface */
     protected $moduleHandler;
     /** @var ContentTranslationManagerInterface */
     protected $contentTranslationManager;
 
     public function __construct(
-        FieldTypePluginManager $fieldTypePluginManager,
+        FieldTypePluginManagerInterface $fieldTypePluginManager,
         WidgetPluginManager $widgetPluginManager,
-        SelectionPluginManager $selectionPluginManager,
+        SelectionPluginManagerInterface $selectionPluginManager,
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
-        ModuleHandler $moduleHandler,
-        EntityFieldManager $entityFieldManager
+        EntityTypeBundleInfoInterface $entityTypeBundleInfo,
+        ModuleHandlerInterface $moduleHandler,
+        EntityFieldManagerInterface $entityFieldManager
     ) {
         $this->fieldTypePluginManager = $fieldTypePluginManager;
         $this->widgetPluginManager = $widgetPluginManager;
@@ -138,33 +133,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         'existing' => false,
     ]): void
     {
-        $fieldName = $this->input->getOption('field-name');
-        $fieldLabel = $this->input->getOption('field-label');
-        $fieldDescription = $this->input->getOption('field-description');
-        $fieldType = $this->input->getOption('field-type');
-        $fieldWidget = $this->input->getOption('field-widget');
-        $isRequired = $this->input->getOption('is-required');
-        $isTranslatable = (bool) $this->input->getOption('is-translatable');
-        $cardinality = $this->input->getOption('cardinality');
-        $targetType = $this->input->getOption('target-type');
-
-        if (!$options['existing']) {
-            $this->createFieldStorage($fieldName, $fieldType, $entityType, $targetType, $cardinality);
-        }
-
-        $field = $this->createField($fieldName, $fieldType, $fieldLabel, $fieldDescription, $entityType, $bundle, $targetType, $isRequired, $isTranslatable);
-        $this->createFieldFormDisplay($fieldName, $fieldWidget, $entityType, $bundle);
-        $this->createFieldViewDisplay($fieldName, $entityType, $bundle);
-
-        $this->logResult($field);
-    }
-
-    /** @hook interact field:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        $entityType = $this->input->getArgument('entityType');
-        $bundle = $this->input->getArgument('bundle');
-
         if (!$this->entityTypeManager->hasDefinition($entityType)) {
             throw new \InvalidArgumentException(
                 t('Entity type with id \':entityType\' does not exist.', [':entityType' => $entityType])
@@ -172,98 +140,43 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
 
         if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
-            $bundle = $this->askBundle();
-            $this->input->setArgument('bundle', $bundle);
+            $this->ensureArgument('bundle', [$this, 'askBundle']);
         }
 
         if ($this->input->getOption('existing')) {
-            $fieldName = $this->input->getOption('field-name') ?? $this->askExisting();
+            $fieldName = $this->ensureOption('field-name', [$this, 'askExisting']);
             $fieldStorage = $this->entityFieldManager->getFieldStorageDefinitions($entityType)[$fieldName];
 
-            $this->input->setOption('field-name', $fieldName);
             $this->input->setOption('field-type', $fieldStorage->getType());
             $this->input->setOption('target-type', $fieldStorage->getSetting('target_type'));
 
-            if (
-                $this->moduleHandler->moduleExists('content_translation')
-                && $this->contentTranslationManager->isEnabled($entityType, $bundle)
-            ) {
-                $this->input->setOption(
-                    'is-translatable',
-                    (bool) ($this->input->getOption('is-translatable') ?? $this->askTranslatable())
-                );
-            }
-
-            $this->input->setOption(
-                'field-label',
-                $this->input->getOption('field-label') ?? $this->askFieldLabel()
-            );
-            $this->input->setOption(
-                'field-description',
-                $this->input->getOption('field-description') ?? $this->askFieldDescription()
-            );
-            $this->input->setOption(
-                'is-required',
-                $this->input->getOption('is-required') ?? $this->askRequired()
-            );
-
-            /** @var \Drupal\Core\Entity\Entity\EntityFormDisplay $formDisplay */
-            $formDisplay = $this->getEntityDisplay('form', $entityType, $bundle);
-
-            if (!$formDisplay || $this->input->getOption('field-widget')) {
-                return;
-            }
-
-            $component = $formDisplay->getComponent($this->input->getOption('field-name'));
-            $this->input->setOption('field-widget', $component['type']);
+            $this->ensureOption('field-label', [$this, 'askFieldLabel']);
+            $this->ensureOption('field-description', [$this, 'askFieldDescription']);
+            $this->ensureOption('field-widget', [$this, 'askFieldWidget']);
+            $this->ensureOption('is-required', [$this, 'askRequired']);
+            $this->ensureOption('is-translatable', [$this, 'askTranslatable']);
         } else {
-            $this->input->setOption(
-                'field-label',
-                $this->input->getOption('field-label') ?? $this->askFieldLabel()
-            );
-            $this->input->setOption(
-                'field-name',
-                $this->input->getOption('field-name') ?? $this->askFieldName()
-            );
-            $this->input->setOption(
-                'field-description',
-                $this->input->getOption('field-description') ?? $this->askFieldDescription()
-            );
-            $this->input->setOption(
-                'field-type',
-                $this->input->getOption('field-type') ?? $this->askFieldType()
-            );
-            $this->input->setOption(
-                'field-widget',
-                $this->input->getOption('field-widget') ?? $this->askFieldWidget()
-            );
-            $this->input->setOption(
-                'is-required',
-                (bool) ($this->input->getOption('is-required') ?? $this->askRequired())
-            );
+            $this->ensureOption('field-label', [$this, 'askFieldLabel']);
+            $this->ensureOption('field-name', [$this, 'askFieldName']);
+            $this->ensureOption('field-description', [$this, 'askFieldDescription']);
+            $this->ensureOption('field-type', [$this, 'askFieldType']);
+            $this->ensureOption('field-widget', [$this, 'askFieldWidget']);
+            $this->ensureOption('is-required', [$this, 'askRequired']);
+            $this->ensureOption('is-translatable', [$this, 'askTranslatable']);
+            $this->ensureOption('cardinality', [$this, 'askCardinality']);
 
-            if (
-                $this->moduleHandler->moduleExists('content_translation')
-                && $this->contentTranslationManager->isEnabled($entityType, $bundle)
-            ) {
-                $this->input->setOption(
-                    'is-translatable',
-                    (bool) ($this->input->getOption('is-translatable') ?? $this->askTranslatable())
-                );
+            if ($this->input->getOption('field-type') === 'entity_reference') {
+                $this->ensureOption('target-type', [$this, 'askReferencedEntityType']);
             }
 
-            $this->input->setOption(
-                'cardinality',
-                $this->input->getOption('cardinality') ?? $this->askCardinality()
-            );
-
-            if (
-                $this->input->getOption('field-type') === 'entity_reference'
-                && !$this->input->getOption('target-type')
-            ) {
-                $this->input->setOption('target-type', $this->askReferencedEntityType());
-            }
+            $this->createFieldStorage();
         }
+
+        $field = $this->createField();
+        $this->createFieldDisplay('form');
+        $this->createFieldDisplay('view');
+
+        $this->logResult($field);
     }
 
     protected function askExisting(): string
@@ -336,6 +249,16 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
 
     protected function askFieldWidget(): string
     {
+        $formDisplay = $this->getEntityDisplay('form');
+
+        if ($formDisplay instanceof EntityFormDisplayInterface) {
+            $component = $formDisplay->getComponent($this->input->getOption('field-name'));
+
+            if (isset($component['type'])) {
+                return $component['type'];
+            }
+        }
+
         $choices = [];
         $fieldType = $this->input->getOption('field-type');
         $widgets = $this->widgetPluginManager->getOptions($fieldType);
@@ -350,11 +273,15 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
 
     protected function askRequired(): bool
     {
-        return $this->io()->askQuestion(new ConfirmationQuestion('Required', false));
+        return $this->confirm('Required', false);
     }
 
     protected function askTranslatable(): bool
     {
+        if (!$this->hasContentTranslation()) {
+            return false;
+        }
+
         return $this->confirm('Translatable', false);
     }
 
@@ -389,7 +316,6 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $definitions = $this->entityTypeManager->getDefinitions();
         $choices = [];
 
-        /** @var ConfigEntityType $definition */
         foreach ($definitions as $name => $definition) {
             $label = $this->input->getOption('show-machine-names')
                 ? $name
@@ -419,17 +345,17 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $this->choice('Referenced bundles', $choices, true, 0);
     }
 
-    protected function createField(string $fieldName, string $fieldType, string $fieldLabel, ?string $fieldDescription, string $entityType, string $bundle, ?string $targetType, bool $isRequired, bool $isTranslatable): FieldConfigInterface
+    protected function createField(): FieldConfigInterface
     {
         $values = [
-            'field_name' => $fieldName,
-            'entity_type' => $entityType,
-            'bundle' => $bundle,
-            'translatable' => $isTranslatable,
-            'required' => $isRequired,
-            'field_type' => $fieldType,
-            'description' => $fieldDescription,
-            'label' => $fieldLabel,
+            'field_name' => $this->input->getOption('field-name'),
+            'entity_type' => $this->input->getArgument('entityType'),
+            'bundle' => $this->input->getArgument('bundle'),
+            'translatable' => $this->input->getOption('is-translatable'),
+            'required' => $this->input->getOption('is-required'),
+            'field_type' => $this->input->getOption('field-type'),
+            'description' => $this->input->getOption('field-description'),
+            'label' => $this->input->getOption('field-label'),
         ];
 
         // Command files may customize $values as desired.
@@ -442,7 +368,8 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             ->getStorage('field_config')
             ->create($values);
 
-        if ($fieldType === 'entity_reference') {
+        if ($this->input->getOption('field-type') === 'entity_reference') {
+            $targetType = $this->input->getOption('field-type');
             $targetTypeDefinition = $this->entityTypeManager->getDefinition($targetType);
             // For the 'target_bundles' setting, a NULL value is equivalent to "allow
             // entities from any bundle to be referenced" and an empty array value is
@@ -471,17 +398,17 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $field;
     }
 
-    protected function createFieldStorage(string $fieldName, string $fieldType, string $entityType, ?string $targetType, int $cardinality): FieldStorageConfigInterface
+    protected function createFieldStorage(): FieldStorageConfigInterface
     {
         $values = [
-            'field_name' => $fieldName,
-            'entity_type' => $entityType,
-            'type' => $fieldType,
-            'cardinality' => $cardinality,
+            'field_name' => $this->input->getOption('field-name'),
+            'entity_type' => $this->input->getArgument('entityType'),
+            'type' => $this->input->getOption('field-type'),
+            'cardinality' => $this->input->getOption('cardinality'),
             'translatable' => true,
         ];
 
-        if ($targetType) {
+        if ($targetType = $this->input->getOption('target-type')) {
             $values['settings']['target_type'] = $targetType;
         }
 
@@ -501,102 +428,58 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         return $fieldStorage;
     }
 
-    protected function createFieldFormDisplay(string $fieldName, ?string $fieldWidget, string $entityType, string $bundle): void
+    protected function createFieldDisplay(string $context): void
     {
+        $entityType = $this->input->getArgument('entityType');
+        $bundle = $this->input->getArgument('bundle');
+        $fieldName = $this->input->getOption('field-name');
+        $fieldWidget = $this->input->getOption('field-widget');
         $values = [];
 
-        if ($fieldWidget) {
+        if ($fieldWidget && $context === 'form') {
             $values['type'] = $fieldWidget;
         }
 
         // Command files may customize $values as desired.
-        $handlers = $this->getCustomEventHandlers('field-create-form-display');
+        $handlers = $this->getCustomEventHandlers("field-create-{$context}-display");
         foreach ($handlers as $handler) {
             $handler($values);
         }
 
-        $storage = $this->getEntityDisplay('form', $entityType, $bundle);
+        $storage = $this->getEntityDisplay($context);
 
         if (!$storage instanceof EntityDisplayInterface) {
             $this->logger()->info(
-                sprintf('Form display storage not found for %s type \'%s\', creating now.', $entityType, $bundle)
+                sprintf('\'%s\' display storage not found for %s type \'%s\', creating now.', $context, $entityType, $bundle)
             );
 
-            $storage = $this->createEntityDisplay('form', $entityType, $bundle);
+            $storage = $this->entityTypeManager
+                ->getStorage(sprintf('entity_%s_display', $context))
+                ->create([
+                    'id' => "$entityType.$bundle.default",
+                    'targetEntityType' => $entityType,
+                    'bundle' => $bundle,
+                    'mode' => 'default',
+                    'status' => true,
+                ]);
+
+            $storage->save();
         }
 
         $storage->setComponent($fieldName, $values)->save();
     }
 
-    protected function createFieldViewDisplay(string $fieldName, string $entityType, string $bundle): void
+    protected function getEntityDisplay(string $context): ?EntityDisplayInterface
     {
-        $values = [];
+        $entityType = $this->input->getArgument('entityType');
+        $bundle = $this->input->getArgument('bundle');
 
-        // Command files may customize $values as desired.
-        $handlers = $this->getCustomEventHandlers('field-create-view-display');
-        foreach ($handlers as $handler) {
-            $handler($values);
-        }
-
-        $storage = $this->getEntityDisplay('view', $entityType, $bundle);
-
-        if (!$storage instanceof EntityDisplayInterface) {
-            $this->logger()->info(
-                sprintf('View display storage not found for %s type \'%s\', creating now.', $entityType, $bundle)
-            );
-
-            $storage = $this->createEntityDisplay('view', $entityType, $bundle);
-        }
-
-        $storage->setComponent($fieldName, $values)->save();
-    }
-
-    /**
-     * Load an entity display object.
-     *
-     * @param string $context
-     *      eg. form, view
-     *
-     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-     */
-    protected function getEntityDisplay(string $context, string $entityType, string $bundle): ?EntityDisplayInterface
-    {
         return $this->entityTypeManager
             ->getStorage(sprintf('entity_%s_display', $context))
             ->load("$entityType.$bundle.default");
     }
 
-    /**
-     * Create and save a new entity display object.
-     *
-     * @param string $context
-     *      eg. form, view
-     *
-     * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-     * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
-     * @throws \Drupal\Core\Entity\EntityStorageException
-     */
-    protected function createEntityDisplay(string $context, string $entityType, string $bundle): EntityDisplayInterface
-    {
-        $storageValues = [
-            'id' => "$entityType.$bundle.default",
-            'targetEntityType' => $entityType,
-            'bundle' => $bundle,
-            'mode' => 'default',
-            'status' => true,
-        ];
-
-        $display = $this->entityTypeManager
-            ->getStorage(sprintf('entity_%s_display', $context))
-            ->create($storageValues);
-
-        $display->save();
-
-        return $display;
-    }
-
-    protected function logResult(FieldConfig $field): void
+    protected function logResult(FieldConfigInterface $field): void
     {
         $this->logger()->success(
             sprintf(
@@ -686,5 +569,30 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         asort($options);
 
         return $options;
+    }
+
+    protected function hasContentTranslation(): bool
+    {
+        $entityType = $this->input->getArgument('entityType');
+        $bundle = $this->input->getArgument('bundle');
+
+        return $this->moduleHandler->moduleExists('content_translation')
+            && $this->contentTranslationManager->isEnabled($entityType, $bundle);
+    }
+
+    protected function ensureArgument(string $name, callable $asker)
+    {
+        $value = $this->input->getArgument($name) ?? $asker();
+        $this->input->setArgument($name, $value);
+
+        return $value;
+    }
+
+    protected function ensureOption(string $name, callable $asker)
+    {
+        $value = $this->input->getOption($name) ?? $asker();
+        $this->input->setOption($name, $value);
+
+        return $value;
     }
 }

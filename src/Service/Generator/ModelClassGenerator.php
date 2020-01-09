@@ -11,6 +11,7 @@ use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
 use PhpParser\Builder;
+use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeTraverser;
@@ -71,12 +72,23 @@ class ModelClassGenerator extends ClassGeneratorBase
             $namespace->addStmts($uses);
         }
 
-        $namespace->addStmt($class);
+        $classNode = $class->getNode();
+        $docComment = new Comment\Doc(sprintf('
+            /**
+             * @Model(
+             *     entity_type = "%s",
+             *     bundle = "%s"
+             * )
+             */
+        ', $entityType, $bundle));
+        $classNode->setDocComment($docComment);
 
-        $node = $namespace->getNode();
-        $this->cleanUseStatements($node);
+        $namespace->addStmt($classNode);
 
-        return $node;
+        $namespaceNode = $namespace->getNode();
+        $this->cleanUseStatements($namespaceNode);
+
+        return $namespaceNode;
     }
 
     public function generateExisting(string $entityType, string $bundle): ?Stmt\Namespace_

@@ -10,6 +10,8 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
+use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
+use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
 use PhpParser\Builder;
 use PhpParser\Comment;
 use PhpParser\Node;
@@ -189,7 +191,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         return $namespace;
     }
 
-    public function buildModelPath(string $entityType, string $bundle, string $module)
+    public function buildModelPath(string $entityType, string $bundle, string $module): string
     {
         $className = $this->buildClassName($entityType, $bundle, $module);
 
@@ -202,47 +204,47 @@ class ModelClassGenerator extends ClassGeneratorBase
         );
     }
 
-    public function buildNamespaceName(string $entityType, string $module)
+    protected function buildNamespaceName(string $entityType, string $module): string
     {
-        $label = $this->toPascalCase($entityType);
-        $label = $this->stripInvalidCharacters($label);
+        $label = StringCapitalisation::toPascalCase($entityType);
+        $label = IdentifierNaming::stripInvalidCharacters($label);
 
         return implode('\\', ['Drupal', $module, 'Entity', $label]);
     }
 
-    public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false)
+    protected function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false): string
     {
-        $label = $this->toPascalCase($bundle);
-        $label = $this->stripInvalidCharacters($label);
+        $label = StringCapitalisation::toPascalCase($bundle);
+        $label = IdentifierNaming::stripInvalidCharacters($label);
 
-        if ($this->isReservedKeyword($label)) {
+        if (IdentifierNaming::isReservedKeyword($label)) {
             $label .= 'Model';
         }
 
         if ($shortName) {
-            return $this->toPascalCase($label);
+            return StringCapitalisation::toPascalCase($label);
         }
 
         return sprintf('%s\%s', $this->buildNamespaceName($entityType, $module), $label);
     }
 
-    public function buildFieldGetterName(FieldDefinitionInterface $field)
+    protected function buildFieldGetterName(FieldDefinitionInterface $field): string
     {
         $label = $field->getLabel();
-        $label = $this->toPascalCase($label);
-        $label = $this->stripInvalidCharacters($label);
+        $label = StringCapitalisation::toPascalCase($label);
+        $label = IdentifierNaming::stripInvalidCharacters($label);
 
         return 'get' . $label;
     }
 
-    protected function buildFieldGetter($field)
+    protected function buildFieldGetter($field): ?array
     {
         if (!$field instanceof FieldDefinitionInterface) {
-            return false;
+            return null;
         }
 
-        if (in_array($field->getName(), $this->fieldsToIgnore)) {
-            return false;
+        if (in_array($field->getName(), $this->fieldsToIgnore, true)) {
+            return null;
         }
 
         $getterMethodName = $this->buildFieldGetterName($field);
@@ -263,7 +265,7 @@ class ModelClassGenerator extends ClassGeneratorBase
     }
 
     /** @return FieldDefinitionInterface[] */
-    protected function getCustomFields(string $entityType, string $bundle)
+    protected function getCustomFields(string $entityType, string $bundle): array
     {
         return array_filter(
             $this->entityFieldManager->getFieldDefinitions($entityType, $bundle),
@@ -273,7 +275,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         );
     }
 
-    protected function compareNodes()
+    protected function compareNodes(): bool
     {
         if (func_num_args() < 2) {
             return true;

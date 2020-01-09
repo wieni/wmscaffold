@@ -7,6 +7,8 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
+use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
+use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
 use PhpParser\Node\Stmt;
 
 class ControllerClassGenerator extends ClassGeneratorBase
@@ -48,13 +50,17 @@ class ControllerClassGenerator extends ClassGeneratorBase
             ->getStorage($bundleEntityType)->load($bundle);
         $isSingle = $bundleType && $bundleType->getThirdPartySetting('wmsingles', 'isSingle');
 
-        $variableName = $this->toCamelCase($modelClass->getShortName());
+        $variableName = StringCapitalisation::toCamelCase($modelClass->getShortName());
         $templateName = str_replace('_', '-', $bundle);
 
         if ($isSingle) {
             $templatePath = "single.{$templateName}";
         } else {
-            $templatePath = "{$this->toKebabCase($entityType)}.{$templateName}.detail";
+            $templatePath = sprintf(
+                '%s.%s.detail',
+                StringCapitalisation::toKebabCase($entityType),
+                $templateName
+            );
         }
 
         $namespace = $this->builderFactory->namespace($namespaceName);
@@ -99,16 +105,16 @@ class ControllerClassGenerator extends ClassGeneratorBase
 
     public function buildNamespaceName(string $entityType, string $module): string
     {
-        $label = $this->toPascalCase($entityType);
-        $label = $this->stripInvalidCharacters($label);
+        $label = StringCapitalisation::toPascalCase($entityType);
+        $label = IdentifierNaming::stripInvalidCharacters($label);
 
         return implode('\\', ['Drupal', $module, 'Controller', $label]);
     }
 
     public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false): string
     {
-        $label = $this->toPascalCase($bundle);
-        $label = $this->stripInvalidCharacters($label);
+        $label = StringCapitalisation::toPascalCase($bundle);
+        $label = IdentifierNaming::stripInvalidCharacters($label);
         $label .= 'Controller';
 
         if ($shortName) {

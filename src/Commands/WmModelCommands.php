@@ -91,8 +91,10 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $statements = [];
         $definition = $this->entityTypeManager->getDefinition($entityType);
         $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
+        $hasExisting = false;
 
         if ($existingClassName && $existingClassName !== $definition->getClass()) {
+            $hasExisting = true;
             $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
             if (file_exists($destination) && !$this->io()->confirm("{$existingClassName} already exists. Append to existing class?", false)) {
@@ -112,7 +114,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->modelFactory->rebuildMapping();
 
         $this->logger()->success(
-            sprintf('Successfully %s model class.', $existingClassName ? 'updated' : 'created')
+            sprintf('Successfully %s model class.', $hasExisting ? 'updated' : 'created')
         );
     }
 

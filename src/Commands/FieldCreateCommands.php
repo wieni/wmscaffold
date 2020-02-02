@@ -139,8 +139,17 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             );
         }
 
-        if (!$bundle || !$this->entityTypeBundleExists($entityType, $bundle)) {
+        if (!$bundle) {
             $this->ensureArgument('bundle', [$this, 'askBundle']);
+        }
+
+        if (!$this->entityTypeBundleExists($entityType, $bundle)) {
+            throw new \InvalidArgumentException(
+                t('Bundle with id \':bundle\' does not exist on entity type \':entityType\'.', [
+                    ':bundle' => $bundle,
+                    ':entityType' => $entityType,
+                ])
+            );
         }
 
         if ($this->input->getOption('existing')) {

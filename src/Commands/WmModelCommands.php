@@ -58,7 +58,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      * @aliases wmmodel-generate,wmlg
      *
      * @validate-entity-type-argument entityType
-     * @validate-bundle-argument entityType bundle
+     * @validate-optional-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -85,7 +85,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     ]): void
     {
         if (!$bundle) {
-            $this->input->setArgument('bundle', $this->askBundle());
+            $this->input->setArgument('bundle', $bundle = $this->askBundle());
         }
 
         $statements = [];

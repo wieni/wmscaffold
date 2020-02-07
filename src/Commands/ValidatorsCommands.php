@@ -60,4 +60,24 @@ class ValidatorsCommands extends DrushCommands
 
         $this->validateBundle($entityType, $bundle);
     }
+
+    /**
+     * Validate that the bundle passed as argument exists.
+     *
+     * @hook validate @validate-optional-bundle-argument
+     */
+    public function hookValidateOptionalBundle(CommandData $commandData): void
+    {
+        $annotation = $commandData->annotationData()->get('validate-optional-bundle-argument');
+        [$entityTypeArgumentName, $bundleArgumentName] = explode(' ', $annotation);
+
+        $entityType = $commandData->input()->getArgument($entityTypeArgumentName);
+        $bundle = $commandData->input()->getArgument($bundleArgumentName);
+
+        if (!$bundle) {
+            return;
+        }
+
+        $this->validateBundle($entityType, $bundle);
+    }
 }

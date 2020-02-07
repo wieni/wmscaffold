@@ -52,7 +52,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      * @aliases wmcontroller-generate,wmcg
      *
      * @validate-entity-type-argument entityType
-     * @validate-bundle-argument entityType bundle
+     * @validate-optional-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -76,7 +76,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
     ]): void
     {
         if (!$bundle) {
-            $this->input->setArgument('bundle', $this->askBundle());
+            $this->input->setArgument('bundle', $bundle = $this->askBundle());
         }
 
         $className = $this->controllerClassGenerator->buildClassName($entityType, $bundle, $options['output-module']);

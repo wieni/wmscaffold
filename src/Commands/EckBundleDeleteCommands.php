@@ -39,7 +39,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
      * @aliases eck-bundle-delete,ebd
      *
      * @validate-eck-entity-type-argument entityType
-     * @validate-bundle-argument entityType bundle
+     * @validate-optional-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -72,7 +72,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
     ]): void
     {
         if (!$bundle) {
-            $this->input->setArgument('bundle', $this->askBundle());
+            $this->input->setArgument('bundle', $bundle = $this->askBundle());
         }
 
         $definition = $this->entityTypeManager->getDefinition("{$entityType}_type");

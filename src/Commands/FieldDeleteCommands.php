@@ -36,7 +36,7 @@ class FieldDeleteCommands extends DrushCommands
      * @aliases field-delete,fd
      *
      * @validate-entity-type-argument entityType
-     * @validate-bundle-argument entityType bundle
+     * @validate-optional-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -65,7 +65,7 @@ class FieldDeleteCommands extends DrushCommands
     ]): void
     {
         if (!$bundle) {
-            $this->input->setArgument('bundle', $this->askBundle());
+            $this->input->setArgument('bundle', $bundle = $this->askBundle());
         }
 
         $fieldName = $this->input->getOption('field-name') ?? $this->askExisting($entityType, $bundle);

@@ -76,6 +76,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @aliases field-create,fc
      *
      * @validate-entity-type-argument entityType
+     * @validate-optional-bundle-argument entityType bundle
      *
      * @param string $entityType
      *      The machine name of the entity type
@@ -118,7 +119,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
      * @see \Drupal\field_ui\Form\FieldConfigEditForm
      * @see \Drupal\field_ui\Form\FieldStorageConfigEditForm
      */
-    public function create(string $entityType, string $bundle, array $options = [
+    public function create(string $entityType, ?string $bundle = null, array $options = [
         'field-name' => InputOption::VALUE_REQUIRED,
         'field-label' => InputOption::VALUE_REQUIRED,
         'field-description' => InputOption::VALUE_OPTIONAL,
@@ -139,9 +140,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             );
         }
 
-        if (!$bundle) {
-            $this->ensureArgument('bundle', [$this, 'askBundle']);
-        }
+        $bundle = $this->ensureArgument('bundle', [$this, 'askBundle']);
 
         if (!$this->entityTypeBundleExists($entityType, $bundle)) {
             throw new \InvalidArgumentException(

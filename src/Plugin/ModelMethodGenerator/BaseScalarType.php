@@ -15,7 +15,7 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
 
         $expression = $this->helper->isFieldMultiple($field)
             ? sprintf(
-                'array_column(
+                'return array_column(
                     $this->get(\'%s\')->getValue(),
                     \'value\'
                 )',

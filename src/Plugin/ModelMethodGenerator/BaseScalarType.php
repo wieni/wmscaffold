@@ -13,15 +13,19 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
     {
         $scalarType = static::getType();
 
-        $expression = $this->helper->isFieldMultiple($field)
-            ? sprintf(
+        if ($this->helper->isFieldMultiple($field)) {
+            $expression = sprintf(
                 'return array_column(
                     $this->get(\'%s\')->getValue(),
                     \'value\'
                 )',
                 $field->getName()
-            )
-            : sprintf('return $this->get(\'%s\')->value;', $field->getName());
+            );
+        } elseif ($this->shouldCastToType()) {
+            $expression = sprintf('return (%s) $this->get(\'%s\')->value;', static::getType(), $field->getName());
+        } else {
+            $expression = sprintf('return $this->get(\'%s\')->value;', $field->getName());
+        }
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
@@ -35,6 +39,11 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
         }
 
         $method->addStmt($this->helper->parseExpression($expression));
+    }
+
+    protected function shouldCastToType(): bool
+    {
+        return false;
     }
 
     abstract public static function getType(): string;

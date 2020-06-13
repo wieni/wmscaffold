@@ -109,7 +109,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         if (!$module) {
             $default = $this->configFactory
                 ->get('wmscaffold.settings')
-                ->get('generators.controller.outputModule');
+                ->get('generators.controller.output_module');
 
             $this->input->setOption('output-module', $default);
         }

@@ -10,6 +10,8 @@ use Drupal\Core\File\FileSystemInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
+use Drupal\wmscaffold\PhpParser\NodeVisitor\ClassMethodNormalizer;
+use Drupal\wmscaffold\PhpParser\NodeVisitor\ParentConnector;
 use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
 use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
 use PhpParser\Builder;
@@ -17,7 +19,6 @@ use PhpParser\Comment;
 use PhpParser\Node;
 use PhpParser\Node\Stmt;
 use PhpParser\NodeTraverser;
-use PhpParser\NodeVisitorAbstract;
 use PhpParser\ParserFactory;
 
 class ModelClassGenerator extends ClassGeneratorBase
@@ -44,8 +45,8 @@ class ModelClassGenerator extends ClassGeneratorBase
         $this->modelFactory = $modelFactory;
         $this->modelMethodGeneratorManager = $modelMethodGeneratorManager;
 
-        $this->baseClasses = $this->config->get('generators.model.baseClasses') ?? [];
-        $this->fieldsToIgnore = $this->config->get('generators.model.fieldsToIgnore') ?? [];
+        $this->baseClasses = $this->config->get('generators.model.base_classes') ?? [];
+        $this->fieldsToIgnore = $this->config->get('generators.model.fields_to_ignore') ?? [];
     }
 
     public function generateNew(string $entityType, string $bundle, string $module): Stmt\Namespace_
@@ -75,14 +76,14 @@ class ModelClassGenerator extends ClassGeneratorBase
         }
 
         $classNode = $class->getNode();
-        $docComment = new Comment\Doc(sprintf('
-            /**
-             * @Model(
-             *     entity_type = "%s",
-             *     bundle = "%s"
-             * )
-             */
-        ', $entityType, $bundle));
+        $docComment = new Comment\Doc(sprintf(<<<EOT
+        /**
+         * @Model(
+         *     entity_type = "%s",
+         *     bundle = "%s",
+         * )
+         */
+        EOT, $entityType, $bundle));
         $classNode->setDocComment($docComment);
 
         $namespace->addStmt($classNode);
@@ -145,11 +146,8 @@ class ModelClassGenerator extends ClassGeneratorBase
                 // Check for existing methods with the same body
                 // and don't create a new method if any are found
                 $existingMethods = array_filter(
-                    $statement->stmts,
-                    function (Stmt $existingStmt) use ($method) {
-                        if (!$existingStmt instanceof Stmt\ClassMethod) {
-                            return false;
-                        }
+                    $statement->getMethods(),
+                    function (Stmt\ClassMethod $existingStmt) use ($method) {
                         $existingStmt = clone $existingStmt;
                         $existingStmt->name = $method->getNode()->name;
                         return $this->compareNodes($existingStmt, $method->getNode());
@@ -194,22 +192,30 @@ class ModelClassGenerator extends ClassGeneratorBase
     public function buildModelPath(string $entityType, string $bundle, string $module): string
     {
         $className = $this->buildClassName($entityType, $bundle, $module);
+        $parts = array_slice(explode('\\', $className), 2);
 
         return sprintf(
             '%s/src/%s.php',
             $this->fileSystem->realpath(
                 drupal_get_path('module', $module)
             ),
-            implode('/', array_slice(explode('\\', $className), 2))
+            implode('/', $parts)
         );
     }
 
     protected function buildNamespaceName(string $entityType, string $module): string
     {
-        $label = StringCapitalisation::toPascalCase($entityType);
-        $label = IdentifierNaming::stripInvalidCharacters($label);
+        $namespacePattern = $this->config->get('generators.model.namespace_pattern')
+            ?? 'Drupal\{module}\Entity\{entityType}';
 
-        return implode('\\', ['Drupal', $module, 'Entity', $label]);
+        $entityType = StringCapitalisation::toPascalCase($entityType);
+        $entityType = IdentifierNaming::stripInvalidCharacters($entityType);
+
+        return str_replace(
+            ['{module}', '{entityType}'],
+            [$module, $entityType],
+            $namespacePattern
+        );
     }
 
     protected function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false): string
@@ -230,7 +236,18 @@ class ModelClassGenerator extends ClassGeneratorBase
 
     protected function buildFieldGetterName(FieldDefinitionInterface $field): string
     {
-        $label = $field->getLabel();
+        $source = $this->config->get('generators.model.field_getter_name_source') ?? 'label';
+
+        if ($source === 'name') {
+            $label = str_replace(
+                [sprintf('field_%s', $field->getTargetBundle()), 'field_'],
+                '',
+                $field->getName()
+            );
+        } else {
+            $label = $field->getLabel();
+        }
+
         $label = StringCapitalisation::toPascalCase($label);
         $label = IdentifierNaming::stripInvalidCharacters($label);
 
@@ -281,25 +298,16 @@ class ModelClassGenerator extends ClassGeneratorBase
             return true;
         }
 
-        $doCompare = function (Node $node) {
+        $toString = function (Node $node) {
             // Remove attributes
             $traverser = new NodeTraverser();
-            $traverser->addVisitor(new class() extends NodeVisitorAbstract {
-                public function leaveNode(Node $node)
-                {
-                    $node->setAttributes([]);
-
-                    if ($node instanceof Stmt\ClassMethod) {
-                        $node->flags = [];
-                    }
-                }
-            });
+            $traverser->addVisitor(new ClassMethodNormalizer());
 
             $nodes = $traverser->traverse([$node]);
             $node = $nodes[0];
 
             // Convert to array
-            $node = ['nodeType' => $node->getType()] + get_object_vars($node);
+            $node = $node->jsonSerialize();
 
             // Sort keys
             wmscaffold_ksort_recursive($node);
@@ -321,7 +329,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         $first = array_shift($args);
 
         foreach ($args as $arg) {
-            $results = array_map($doCompare, [$first, $arg]);
+            $results = array_map($toString, [$first, $arg]);
 
             if ($results[0] === $results[1]) {
                 return true;

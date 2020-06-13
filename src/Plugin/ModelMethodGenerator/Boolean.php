@@ -13,4 +13,9 @@ class Boolean extends BaseScalarType
     {
         return 'bool';
     }
+
+    protected function shouldCastToType(): bool
+    {
+        return true;
+    }
 }

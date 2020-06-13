@@ -16,17 +16,27 @@ class DateTime extends ModelMethodGeneratorBase
 {
     public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
-        $className = \DateTime::class;
+        $className = \DateTimeInterface::class;
         $shortName = (new \ReflectionClass($className))->getShortName();
         $uses[] = $this->builderFactory->use($className);
 
-        // TODO: Fix multiple
-        $expression = $this->helper->isFieldMultiple($field)
-            ? sprintf('return $this->toDateTime(\'%s\');', $field->getName())
-            : sprintf('return $this->toDateTime(\'%s\');', $field->getName());
+        if ($this->helper->isFieldMultiple($field)) {
+            if ($this->helper->supportsArrowFunctions()) {
+                $expression = sprintf('return array_map(
+                    fn ($item): %s => $item->date->getPhpDatetime(),
+                    iterator_to_array($this->get(\'%s\'))
+                );', $shortName, $field->getName());
+            } else {
+                $expression = sprintf('return array_map(
+                    function ($item): %s { return $item->date->getPhpDatetime(); },
+                    iterator_to_array($this->get(\'%s\'))
+                );', $shortName, $field->getName());
+            }
+        } else {
+            $expression = sprintf('return $this->get(\'%s\')->date->getPhpDateTime();', $field->getName());
+        }
 
         if ($this->helper->isFieldMultiple($field)) {
-            $expression = sprintf('return $this->toDateTime(\'%s\');', $field->getName());
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$shortName}[] */");
         } elseif ($field->isRequired()) {

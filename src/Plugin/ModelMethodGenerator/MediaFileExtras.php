@@ -7,6 +7,6 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
  *     id = "wmmedia_media_file_extras"
  * )
  */
-class MediaFileExtras extends BaseFieldItemList
+class MediaFileExtras extends BaseFieldItem
 {
 }

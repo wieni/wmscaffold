@@ -1,0 +1,36 @@
+<?php
+
+/**
+ * Rename existing config & add default values for new config
+ */
+function wmscaffold_update_8001()
+{
+    $config = \Drupal::configFactory()->getEditable('wmscaffold.settings');
+
+    $toRename = [
+        'generators.model.baseClasses' => 'generators.model.base_classes',
+        'generators.model.fieldsToIgnore' => 'generators.model.fields_to_ignore',
+        'generators.model.outputModule' => 'generators.model.output_module',
+        'generators.controller.baseClass' => 'generators.controller.base_class',
+        'generators.controller.outputModule' => 'generators.controller.output_module',
+    ];
+
+    $toCreate = [
+        'generators.model.field_getter_name_source' => 'label',
+        'generators.model.namespace_pattern' => 'Drupal\{module}\Entity\{entityType}',
+        'generators.controller.namespace_pattern' => 'Drupal\{module}\Controller\{entityType}',
+    ];
+
+    foreach ($toRename as $oldKey => $newKey) {
+        $config->set($newKey, $config->get($oldKey));
+        $config->clear($oldKey);
+    }
+
+    foreach ($toCreate as $key => $value) {
+        if ($config->get($key) === null) {
+            $config->set($key, $value);
+        }
+    }
+
+    $config->save();
+}

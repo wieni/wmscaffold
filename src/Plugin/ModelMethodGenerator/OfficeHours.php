@@ -4,13 +4,13 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "link"
+ *     id = "office_hours"
  * )
  */
-class Link extends BaseFieldItem
+class OfficeHours extends BaseFieldItemList
 {
     public static function getType(): ?string
     {
-        return 'Drupal\link\LinkItemInterface';
+        return 'Drupal\office_hours\Plugin\Field\FieldType\OfficeHoursItemListInterface';
     }
 }

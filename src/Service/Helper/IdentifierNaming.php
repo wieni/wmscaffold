@@ -17,7 +17,7 @@ class IdentifierNaming
         ]);
     }
 
-    public static function stripInvalidCharacters(string $string)
+    public static function stripInvalidCharacters(string $string): string
     {
         // A valid function name starts with a letter or underscore.
         while (!preg_match('/^[a-zA-Z_]/', $string)) {

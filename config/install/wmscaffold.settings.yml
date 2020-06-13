@@ -1,11 +1,14 @@
 phpVersion: 7.0
 generators:
     model:
-        baseClasses:
+        base_classes:
             node: Drupal\node\Entity\Node
             taxonomy_term: Drupal\taxonomy\Entity\Term
-        fieldsToIgnore: []
-        outputModule: ''
+        fields_to_ignore: []
+        output_module: ''
+        field_getter_name_source: 'label'
+        namespace_pattern: 'Drupal\{module}\Entity\{entityType}'
     controller:
-        baseClass: Drupal\wmcontroller\Controller\ControllerBase
-        outputModule: ''
+        base_class: Drupal\wmcontroller\Controller\ControllerBase
+        output_module: ''
+        namespace_pattern: 'Drupal\{module}\Controller\{entityType}'

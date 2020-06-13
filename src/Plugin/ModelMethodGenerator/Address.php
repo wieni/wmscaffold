@@ -4,13 +4,13 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "link"
+ *     id = "address"
  * )
  */
-class Link extends BaseFieldItem
+class Address extends BaseFieldItem
 {
     public static function getType(): ?string
     {
-        return 'Drupal\link\LinkItemInterface';
+        return 'Drupal\address\AddressInterface';
     }
 }

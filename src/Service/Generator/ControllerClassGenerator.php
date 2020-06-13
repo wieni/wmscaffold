@@ -29,7 +29,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
         parent::__construct($entityTypeManager, $entityFieldManager, $fileSystem, $configFactory);
         $this->modelFactory = $modelFactory;
 
-        $this->baseClass = $this->config->get('generators.controller.baseClass');
+        $this->baseClass = $this->config->get('generators.controller.base_class');
     }
 
     public function generateNew(string $entityType, string $bundle, string $module): Stmt\Namespace_
@@ -41,38 +41,21 @@ class ControllerClassGenerator extends ClassGeneratorBase
             $this->modelFactory->getClassName($definition, $bundle)
         );
 
-        // Determine entity type folder name
-        $bundleEntityType = $this->entityTypeManager
-            ->getStorage($entityType)
-            ->getEntityType()
-            ->getBundleEntityType();
-        $bundleType = $this->entityTypeManager
-            ->getStorage($bundleEntityType)->load($bundle);
-        $isSingle = $bundleType && $bundleType->getThirdPartySetting('wmsingles', 'isSingle');
-
         $variableName = StringCapitalisation::toCamelCase($modelClass->getShortName());
-        $templateName = str_replace('_', '-', $bundle);
-
-        if ($isSingle) {
-            $templatePath = "single.{$templateName}";
-        } else {
-            $templatePath = sprintf(
-                '%s.%s.detail',
-                StringCapitalisation::toKebabCase($entityType),
-                $templateName
-            );
-        }
+        $templatePath = sprintf(
+            '%s.%s',
+            StringCapitalisation::toKebabCase($entityType),
+            str_replace('_', '-', $bundle)
+        );
 
         $namespace = $this->builderFactory->namespace($namespaceName);
         $class = $this->builderFactory->class($className);
 
         $namespace->addStmt($this->builderFactory->use($modelClass->getName()));
 
-        if ($this->baseClass) {
-            $baseClass = new \ReflectionClass($this->baseClass);
-            $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
-            $class->extend($baseClass->getShortName());
-        }
+        $baseClass = new \ReflectionClass($this->baseClass ?? $definition->getClass());
+        $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
+        $class->extend($baseClass->getShortName());
 
         $method = $this->builderFactory->method('show');
         $method->makePublic()
@@ -94,22 +77,30 @@ class ControllerClassGenerator extends ClassGeneratorBase
     public function buildControllerPath(string $entityType, string $bundle, string $module): string
     {
         $className = $this->buildClassName($entityType, $bundle, $module);
+        $parts = array_slice(explode('\\', $className), 2);
 
         return sprintf(
             '%s/src/%s.php',
             $this->fileSystem->realpath(
                 drupal_get_path('module', $module)
             ),
-            implode('/', array_slice(explode('\\', $className), 2))
+            implode('/', $parts)
         );
     }
 
     public function buildNamespaceName(string $entityType, string $module): string
     {
-        $label = StringCapitalisation::toPascalCase($entityType);
-        $label = IdentifierNaming::stripInvalidCharacters($label);
+        $namespacePattern = $this->config->get('generators.controller.namespace_pattern')
+            ?? 'Drupal\{module}\Controller\{entityType}';
 
-        return implode('\\', ['Drupal', $module, 'Controller', $label]);
+        $entityType = StringCapitalisation::toPascalCase($entityType);
+        $entityType = IdentifierNaming::stripInvalidCharacters($entityType);
+
+        return str_replace(
+            ['{module}', '{entityType}'],
+            [$module, $entityType],
+            $namespacePattern
+        );
     }
 
     public function buildClassName(string $entityType, string $bundle, string $module, bool $shortName = false): string

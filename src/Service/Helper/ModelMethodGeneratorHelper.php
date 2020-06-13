@@ -81,13 +81,13 @@ class ModelMethodGeneratorHelper
             : null;
     }
 
-    public function supportsReturnTypes(): bool
-    {
-        return Comparator::greaterThan($this->config->get('phpVersion'), 7);
-    }
-
     public function supportsNullableTypes(): bool
     {
-        return Comparator::greaterThan($this->config->get('phpVersion'), 7.1);
+        return Comparator::greaterThanOrEqualTo($this->config->get('phpVersion'), 7.1);
+    }
+
+    public function supportsArrowFunctions(): bool
+    {
+        return Comparator::greaterThanOrEqualTo($this->config->get('phpVersion'), 7.4);
     }
 }

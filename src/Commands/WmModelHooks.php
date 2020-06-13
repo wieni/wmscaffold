@@ -163,7 +163,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         if (!$module) {
             $default = $this->configFactory
                 ->get('wmscaffold.settings')
-                ->get('generators.model.outputModule');
+                ->get('generators.model.output_module');
 
             $this->input->setOption('wmmodel-output-module', $default);
         }

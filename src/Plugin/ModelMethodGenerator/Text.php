@@ -5,6 +5,7 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorBase;
 use PhpParser\Builder\Method;
+use PhpParser\Node\NullableType;
 
 /**
  * @ModelMethodGenerator(
@@ -33,9 +34,13 @@ class Text extends ModelMethodGeneratorBase
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
-            $method->setDocComment('/** @return string[] */');
-        } else {
+            $method->setDocComment("/** @return string[] */");
+        } elseif ($field->isRequired()) {
             $method->setReturnType('string');
+        } elseif ($this->helper->supportsNullableTypes()) {
+            $method->setReturnType(new NullableType('string'));
+        } else {
+            $method->setDocComment("/** @return string|null */");
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

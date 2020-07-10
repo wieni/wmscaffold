@@ -53,9 +53,11 @@ class ControllerClassGenerator extends ClassGeneratorBase
 
         $namespace->addStmt($this->builderFactory->use($modelClass->getName()));
 
-        $baseClass = new \ReflectionClass($this->baseClass ?? $definition->getClass());
-        $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
-        $class->extend($baseClass->getShortName());
+        if ($this->baseClass) {
+            $baseClass = new \ReflectionClass($this->baseClass);
+            $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
+            $class->extend($baseClass->getShortName());
+        }
 
         $method = $this->builderFactory->method('show');
         $method->makePublic()

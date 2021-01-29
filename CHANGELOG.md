@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `wmmodel-generate`: Use wmmodel to get the model class
 - `wmmodel-generate`: Change entity reference getter return type to
   always be optional
+- `wmmodel-generate`: Add entity type class as fallback for base class
 - Add argument/return types
 - Apply code style-related fixes
 - Move duplicated code to seperate classes
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update .gitignore
 - Update module description
 - Normalize composer.json
+- Allow v2 and v3 of the `composer/semver` package
 
 ### Fixed
 - `field-create`: Fix error when content_translation module is not

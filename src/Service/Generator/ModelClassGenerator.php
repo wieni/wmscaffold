@@ -57,7 +57,7 @@ class ModelClassGenerator extends ClassGeneratorBase
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);
 
-        $baseClass = new \ReflectionClass($this->baseClasses[$entityType]);
+        $baseClass = new \ReflectionClass($this->getBaseClass($entityType));
         $namespace = $this->builderFactory->namespace($namespaceName);
         $class = $this->builderFactory->class($className);
 
@@ -279,6 +279,21 @@ class ModelClassGenerator extends ClassGeneratorBase
         }
 
         return [$method, $uses];
+    }
+
+    protected function getBaseClass(string $entityTypeId): ?string
+    {
+        if (isset($this->baseClasses[$entityTypeId])) {
+            return $this->baseClasses[$entityTypeId];
+        }
+
+        $definition = $this->entityTypeManager->getDefinition($entityTypeId, false);
+
+        if ($definition) {
+            return $definition->getClass();
+        }
+
+        return null;
     }
 
     /** @return FieldDefinitionInterface[] */

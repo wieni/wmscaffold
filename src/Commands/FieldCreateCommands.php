@@ -153,7 +153,25 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
 
         if ($this->input->getOption('existing')) {
             $fieldName = $this->ensureOption('field-name', [$this, 'askExisting']);
+
+            if (!$this->fieldStorageExists($fieldName, $entityType)) {
+                throw new \InvalidArgumentException(
+                    t('Field storage with name \':fieldName\' does not yet exist. Call this command without the --existing option first.', [
+                        ':fieldName' => $fieldName,
+                    ])
+                );
+            }
+
             $fieldStorage = $this->entityFieldManager->getFieldStorageDefinitions($entityType)[$fieldName];
+
+            if ($this->fieldExists($fieldName, $entityType, $bundle)) {
+                throw new \InvalidArgumentException(
+                    t('Field with name \':fieldName\' already exists on bundle \':bundle\'.', [
+                        ':fieldName' => $fieldName,
+                        ':bundle' => $bundle,
+                    ])
+                );
+            }
 
             $this->input->setOption('field-type', $fieldStorage->getType());
             $this->input->setOption('target-type', $fieldStorage->getSetting('target_type'));
@@ -165,7 +183,16 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $this->ensureOption('is-translatable', [$this, 'askTranslatable']);
         } else {
             $this->ensureOption('field-label', [$this, 'askFieldLabel']);
-            $this->ensureOption('field-name', [$this, 'askFieldName']);
+            $fieldName = $this->ensureOption('field-name', [$this, 'askFieldName']);
+
+            if ($this->fieldStorageExists($fieldName, $entityType)) {
+                throw new \InvalidArgumentException(
+                    t('Field storage with name \':fieldName\' already exists. Call this command with the --existing option to add an existing field to a bundle.', [
+                        ':fieldName' => $fieldName,
+                    ])
+                );
+            }
+
             $this->ensureOption('field-description', [$this, 'askFieldDescription']);
             $this->ensureOption('field-type', [$this, 'askFieldType']);
             $this->ensureOption('field-widget', [$this, 'askFieldWidget']);
@@ -534,6 +561,13 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $machineName = substr($machineName, 0, 32);
 
         return $machineName;
+    }
+
+    protected function fieldExists(string $fieldName, string $entityType, string $bundle): bool
+    {
+        $fieldDefinitions = $this->entityFieldManager->getFieldDefinitions($entityType, $bundle);
+
+        return isset($fieldDefinitions[$fieldName]);
     }
 
     protected function fieldStorageExists(string $fieldName, string $entityType): bool

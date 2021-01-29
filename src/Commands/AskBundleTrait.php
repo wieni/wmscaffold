@@ -3,22 +3,32 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * @property InputInterface $input
  * @property EntityTypeBundleInfoInterface $entityTypeBundleInfo
+ * @property EntityTypeManagerInterface $entityTypeManager
  * @method choice(string $question, array $choices, bool $multiSelect = false, $default = null)
  */
 trait AskBundleTrait
 {
     protected function askBundle(): ?string
     {
-        $entityType = $this->input->getArgument('entityType');
-        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityType);
+        $entityTypeId = $this->input->getArgument('entityType');
+        $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId);
+        $bundleEntityType = $entityTypeDefinition->getBundleEntityType();
+        $bundleInfo = $this->entityTypeBundleInfo->getBundleInfo($entityTypeId);
         $choices = [];
 
         if (empty($bundleInfo)) {
+            if ($bundleEntityType) {
+                throw new \InvalidArgumentException(
+                    t('Entity type with id \':entityType\' does not have any bundles.', [':entityType' => $entityTypeId])
+                );
+            }
+
             return null;
         }
 
@@ -27,6 +37,10 @@ trait AskBundleTrait
             $choices[$bundle] = $label;
         }
 
-        return $this->choice('Bundle', $choices);
+        if (!$answer = $this->choice('Bundle', $choices)) {
+            throw new \InvalidArgumentException(t('The bundle argument is required.'));
+        }
+
+        return $answer;
     }
 }

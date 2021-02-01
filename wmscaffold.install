@@ -61,3 +61,15 @@ function wmscaffold_update_8002(): string
 
     return sprintf('Removed %d redundant base classes from config.', $removedCount);
 }
+
+/**
+ * Rename phpVersion config key
+ */
+function wmscaffold_update_8003(): void
+{
+    $config = \Drupal::configFactory()
+        ->getEditable('wmscaffold.settings');
+    $config->set('php_version', $config->get('phpVersion'));
+    $config->clear('phpVersion');
+    $config->save();
+}

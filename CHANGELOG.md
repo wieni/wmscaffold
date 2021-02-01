@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `wmmodel-generate`: Use wmmodel to get the model class
 - `wmmodel-generate`: Change entity reference getter return type to
   always be optional
+- `wmmodel-generate`: Change boolean getter return type to
+  always be a boolean
 - `wmmodel-generate`: Add entity type class as fallback for base class
 - `field-create`: Add extra validation checking for field name conflicts
 - Add argument/return types

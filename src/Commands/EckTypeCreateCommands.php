@@ -95,7 +95,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
     }
 
     /** @hook interact eck:type:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData)
+    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
     {
         $this->input->setOption(
             'label',
@@ -183,7 +183,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
         return $machineName;
     }
 
-    private function logResult(EckEntityType $type)
+    private function logResult(EckEntityType $type): void
     {
         $this->logger()->success(
             sprintf('Successfully created eck entity type \'%s\'', $type->id())

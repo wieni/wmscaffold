@@ -25,7 +25,7 @@ abstract class ModelMethodGeneratorBase extends PluginBase implements ModelMetho
     ) {
         parent::__construct($configuration, $plugin_id, $plugin_definition);
         $this->helper = $helper;
-        $this->builderFactory = new BuilderFactory;
+        $this->builderFactory = new BuilderFactory();
     }
 
     public static function create(
@@ -44,7 +44,7 @@ abstract class ModelMethodGeneratorBase extends PluginBase implements ModelMetho
 
     abstract public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void;
 
-    public function buildSetter()
+    public function buildSetter(): void
     {
         // TODO: Implement field setters
     }

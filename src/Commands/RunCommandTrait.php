@@ -12,8 +12,8 @@ use Symfony\Component\Console\Input\StringInput;
 
 trait RunCommandTrait
 {
-    use SiteAliasManagerAwareTrait;
     use ProcessManagerAwareTrait;
+    use SiteAliasManagerAwareTrait;
 
     /**
      * Run another Drush command
@@ -40,7 +40,7 @@ trait RunCommandTrait
 
     protected function buildCommandString(SiteAlias $alias, string $command, array $options = [], array $arguments = []): string
     {
-        $processor = new ArgumentProcessor;
+        $processor = new ArgumentProcessor();
 
         return sprintf(
             '<comment>> %s %s</comment>',

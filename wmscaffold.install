@@ -3,7 +3,7 @@
 /**
  * Rename existing config & add default values for new config
  */
-function wmscaffold_update_8001()
+function wmscaffold_update_8001(): void
 {
     $config = \Drupal::configFactory()->getEditable('wmscaffold.settings');
 

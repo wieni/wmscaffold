@@ -14,7 +14,7 @@ class IdentifierNaming
             'instanceof', 'insteadof', 'interface', 'isset', 'list', 'namespace', 'new', 'or', 'print', 'private',
             'protected', 'public', 'require', 'require_once', 'return', 'static', 'switch', 'throw', 'trait', 'try',
             'unset', 'use', 'var', 'while', 'xor',
-        ]);
+        ], true);
     }
 
     public static function stripInvalidCharacters(string $string): string
@@ -24,8 +24,10 @@ class IdentifierNaming
             $string = substr($string, 1);
         }
 
-        // Strip invalid characters
-        // @see https://www.php.net/manual/en/functions.user-defined.php
+        /**
+         * Strip invalid characters
+         * @see https://www.php.net/manual/en/functions.user-defined.php
+         */
         $string = preg_replace('/[^a-zA-Z0-9_\x7f-\xff]*/i', '', $string);
 
         return $string;

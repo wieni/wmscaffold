@@ -15,7 +15,7 @@ class ChoiceQuestion extends ChoiceQuestionBase
         $this->setValidator($this->getBetterValidator());
     }
 
-    public function setMultiselect($multiselect)
+    public function setMultiselect($multiselect): void
     {
         parent::setMultiselect($multiselect);
         $this->setValidator($this->getBetterValidator());
@@ -59,7 +59,7 @@ class ChoiceQuestion extends ChoiceQuestionBase
                     throw new InvalidArgumentException(sprintf('The provided answer is ambiguous. Value should be one of %s.', implode(' or ', $results)));
                 }
 
-                $result = array_search($value, $choices);
+                $result = array_search($value, $choices, true);
 
                 if (!$isAssoc) {
                     if (false !== $result) {

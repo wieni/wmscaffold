@@ -34,13 +34,13 @@ class Text extends ModelMethodGeneratorBase
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
-            $method->setDocComment("/** @return string[] */");
+            $method->setDocComment('/** @return string[] */');
         } elseif ($field->isRequired()) {
             $method->setReturnType('string');
         } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType('string'));
         } else {
-            $method->setDocComment("/** @return string|null */");
+            $method->setDocComment('/** @return string|null */');
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

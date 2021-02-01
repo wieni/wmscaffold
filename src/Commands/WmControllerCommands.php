@@ -15,8 +15,8 @@ use Symfony\Component\Filesystem\Filesystem;
 class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwareInterface
 {
     use AskBundleTrait;
-    use RunCommandTrait;
     use QuestionTrait;
+    use RunCommandTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;

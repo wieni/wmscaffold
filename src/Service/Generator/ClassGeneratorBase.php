@@ -63,7 +63,7 @@ abstract class ClassGeneratorBase
 
             foreach ($statement->uses as $j => $use) {
                 $name = (string) $use->name;
-                if (in_array($name, $uses)) {
+                if (in_array($name, $uses, true)) {
                     unset($statement->uses[$j]);
                     continue;
                 }

@@ -8,7 +8,7 @@ use PhpParser\NodeVisitorAbstract;
 
 class ClassMethodNormalizer extends NodeVisitorAbstract
 {
-    public function leaveNode(Node $node)
+    public function leaveNode(Node $node): void
     {
         $node->setAttributes([]);
 

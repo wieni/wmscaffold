@@ -1,0 +1,11 @@
+parameters:
+    scanFiles:
+        - wmscaffold.module
+    ignoreErrors:
+        -
+            message: '#Consolidation\\OutputFormatters\\StructuredData\\RowsOfFields not found#'
+            path: %currentWorkingDirectory%/src/StructuredData/*
+
+includes:
+	- vendor/wieni/wmcodestyle/phpstan/custom-rules.neon
+	- vendor/wieni/wmcodestyle/phpstan/drupal-module.neon

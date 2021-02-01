@@ -16,6 +16,7 @@ class Boolean extends BaseScalarType
     {
         return 'bool';
     }
+
     public function buildGetter(FieldDefinitionInterface $field, Method $method, array &$uses): void
     {
         parent::buildGetter($field, $method, $uses);

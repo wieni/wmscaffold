@@ -11,7 +11,6 @@ use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
 use Drupal\wmscaffold\PhpParser\NodeVisitor\ClassMethodNormalizer;
-use Drupal\wmscaffold\PhpParser\NodeVisitor\ParentConnector;
 use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
 use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
 use PhpParser\Builder;
@@ -147,7 +146,7 @@ class ModelClassGenerator extends ClassGeneratorBase
                 // and don't create a new method if any are found
                 $existingMethods = array_filter(
                     $statement->getMethods(),
-                    function (Stmt\ClassMethod $existingStmt) use ($method) {
+                    function (Stmt\ClassMethod $existingStmt) use ($method): bool {
                         $existingStmt = clone $existingStmt;
                         $existingStmt->name = $method->getNode()->name;
                         return $this->compareNodes($existingStmt, $method->getNode());
@@ -301,7 +300,7 @@ class ModelClassGenerator extends ClassGeneratorBase
     {
         return array_filter(
             $this->entityFieldManager->getFieldDefinitions($entityType, $bundle),
-            function (FieldDefinitionInterface $field) {
+            static function (FieldDefinitionInterface $field): bool {
                 return $field->getFieldStorageDefinition()->getProvider() === 'field';
             }
         );

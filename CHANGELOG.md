@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update module description
 - Normalize composer.json
 - Allow v2 and v3 of the `composer/semver` package
+- Add Composer 2 as dev dependency
 
 ### Fixed
 - `field-create`: Fix error when content_translation module is not

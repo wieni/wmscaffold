@@ -18,6 +18,7 @@
         "wieni/wmmodel": "^0.3.6 || ^1.0"
     },
     "require-dev": {
+        "composer-runtime-api": "^2.0",
         "ergebnis/composer-normalize": "^2.0",
         "fenetikm/autoload-drupal": "dev-master#4503484",
         "wieni/wmcodestyle": "^1.0"

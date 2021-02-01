@@ -19,9 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   always be a boolean
 - `wmmodel-generate`: Add entity type class as fallback for base class
 - `field-create`: Add extra validation checking for field name conflicts
+- `field-create`: Add custom options for link fields
 - Add argument/return types
 - Apply code style-related fixes
-- Move duplicated code to seperate classes
+- Move duplicated code to separate classes
 - Update README
 - Update .gitignore
 - Update module description
@@ -31,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `field-create`: Fix error when content_translation module is not
   installed
+- `field-create`: Fix hooks setting options not always being triggered
 - `field-info`, `base-field-info`: Fix help screen
 
 ## [1.10.0] - 2019-12-12

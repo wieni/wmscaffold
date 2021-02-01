@@ -8,7 +8,6 @@ use Drush\Commands\DrushCommands;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class AllowedFormatsHooks extends DrushCommands
 {
@@ -21,22 +20,6 @@ class AllowedFormatsHooks extends DrushCommands
         ModuleHandlerInterface $moduleHandler
     ) {
         $this->moduleHandler = $moduleHandler;
-    }
-
-    /** @hook interact field:create */
-    public function hookInteract(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
-    {
-        if (
-            !$this->isInstalled()
-            || !in_array($input->getOption('field-type'), _allowed_formats_field_types(), true)
-        ) {
-            return;
-        }
-
-        $input->setOption(
-            'allowed-formats',
-            $this->input->getOption('allowed-formats') ?? $this->askAllowedFormats()
-        );
     }
 
     /** @hook option field:create */
@@ -54,14 +37,30 @@ class AllowedFormatsHooks extends DrushCommands
         );
     }
 
+    /** @hook on-event field-create-set-options */
+    public function hookSetOptions(InputInterface $input): void
+    {
+        if (
+            !$this->isInstalled()
+            || !in_array($input->getOption('field-type'), _allowed_formats_field_types(), true)
+        ) {
+            return;
+        }
+
+        $input->setOption(
+            'allowed-formats',
+            $this->input->getOption('allowed-formats') ?? $this->askAllowedFormats()
+        );
+    }
+
     /** @hook on-event field-create-field-config */
-    public function hookFieldCreate(array &$values): void
+    public function hookFieldConfig(array $values, InputInterface $input): array
     {
         if (
             !$this->isInstalled()
             || !in_array($values['field_type'], _allowed_formats_field_types(), true)
         ) {
-            return;
+            return $values;
         }
 
         $allFormats = array_keys(filter_formats());
@@ -73,6 +72,8 @@ class AllowedFormatsHooks extends DrushCommands
             array_combine($allowedFormats, $allowedFormats),
             array_combine($otherFormats, array_fill(0, count($otherFormats), '0'))
         );
+
+        return $values;
     }
 
     protected function askAllowedFormats(): array

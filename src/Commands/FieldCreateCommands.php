@@ -207,6 +207,12 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
             $this->createFieldStorage();
         }
 
+        // Command files may set additional options as desired.
+        $handlers = $this->getCustomEventHandlers('field-create-set-options');
+        foreach ($handlers as $handler) {
+            $handler($this->input);
+        }
+
         $field = $this->createField();
         $this->createFieldDisplay('form');
         $this->createFieldDisplay('view');
@@ -396,7 +402,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         // Command files may customize $values as desired.
         $handlers = $this->getCustomEventHandlers('field-create-field-config');
         foreach ($handlers as $handler) {
-            $handler($values);
+            $values = $handler($values, $this->input);
         }
 
         $field = $this->entityTypeManager

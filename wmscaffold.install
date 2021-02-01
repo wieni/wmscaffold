@@ -34,3 +34,30 @@ function wmscaffold_update_8001()
 
     $config->save();
 }
+
+/**
+ * Remove unnecessary model base classes from config
+ */
+function wmscaffold_update_8002(): string
+{
+    $removedCount = 0;
+    $config = \Drupal::configFactory()->getEditable('wmscaffold.settings');
+
+    foreach ($config->get('generators.model.base_classes') as $entityTypeId => $baseClass) {
+        $definition = \Drupal::entityTypeManager()
+            ->getDefinition($entityTypeId, false);
+
+        if (!$definition) {
+            continue;
+        }
+
+        if ($baseClass === $definition->getClass()) {
+            $config->clear(sprintf('generators.model.base_classes.%s', $entityTypeId));
+            $removedCount++;
+        }
+    }
+
+    $config->save();
+
+    return sprintf('Removed %d redundant base classes from config.', $removedCount);
+}

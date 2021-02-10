@@ -76,13 +76,14 @@ class ModelClassGenerator extends ClassGeneratorBase
 
         $classNode = $class->getNode();
         $docComment = new Comment\Doc(sprintf(<<<EOT
-        /**
-         * @Model(
-         *     entity_type = "%s",
-         *     bundle = "%s",
-         * )
-         */
-        EOT, $entityType, $bundle));
+/**
+ * @Model(
+ *     entity_type = "%s",
+ *     bundle = "%s",
+ * )
+ */
+EOT
+        , $entityType, $bundle));
         $classNode->setDocComment($docComment);
 
         $namespace->addStmt($classNode);

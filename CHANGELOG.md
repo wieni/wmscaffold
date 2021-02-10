@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove flexible HEREDOC syntax to keep PHP 7.2 compatibility
 - `base-field-override-create`: Fix error when description is empty
 - Fix issue with link hooks input validation
+- Change minimum version of `friendsofphp/php-cs-fixer` to 2.15.4. This is the version where FixCommand::$defaultName is 
+  introduced, which is referenced in `PhpCsFixerCommands` (see 
+  [commit](https://github.com/FriendsOfPHP/PHP-CS-Fixer/commit/ae86d4f1750720ba46a97baa05654fb63aae6e29))
 
 ## [1.11.0] - 2021-02-01
 ### Added

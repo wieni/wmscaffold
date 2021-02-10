@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Remove flexible HEREDOC syntax to keep PHP 7.2 compatibility
+- `base-field-override-create`: Fix error when description is empty
 
 ## [1.11.0] - 2021-02-01
 ### Added

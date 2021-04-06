@@ -113,6 +113,9 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
         $this->modelFactory->rebuildMapping();
 
+        $this->logger()->notice('Formatting model class...');
+        $this->drush('phpcs:fix', [], ['path' => $destination]);
+
         $this->logger()->success(
             sprintf('Successfully %s model class.', $hasExisting ? 'updated' : 'created')
         );

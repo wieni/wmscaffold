@@ -60,8 +60,15 @@ class ModelClassGenerator extends ClassGeneratorBase
         $namespace = $this->builderFactory->namespace($namespaceName);
         $class = $this->builderFactory->class($className);
 
-        $namespace->addStmt($this->builderFactory->use($baseClass->getName()));
-        $class->extend($baseClass->getShortName());
+        $use = $this->builderFactory->use($baseClass->getName());
+        if ($className === $baseClass->getShortName()) {
+            $alias = $className . 'Base';
+            $namespace->addStmt($use->as($alias));
+            $class->extend($alias);
+        } else {
+            $namespace->addStmt($use);
+            $class->extend($baseClass->getShortName());
+        }
 
         foreach ($this->getCustomFields($entityType, $bundle) as $field) {
             if (!$result = $this->buildFieldGetter($field)) {

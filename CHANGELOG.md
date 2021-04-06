@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `wmmodel-generate`: Run php-cs-fixer at the end
 
+### Fixed
+- Fix issue when overriding entity type class
+
 ## [1.11.1] - 2021-02-12
 ### Fixed
 - Remove flexible HEREDOC syntax to keep PHP 7.2 compatibility

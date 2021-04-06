@@ -290,7 +290,7 @@ EOT
         $definition = $this->entityTypeManager->getDefinition($entityTypeId, false);
 
         if ($definition) {
-            return $definition->getClass();
+            return $definition->getOriginalClass();
         }
 
         return null;

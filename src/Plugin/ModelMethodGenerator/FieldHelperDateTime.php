@@ -15,9 +15,11 @@ class FieldHelperDateTime extends ModelMethodGeneratorBase
         $shortName = (new \ReflectionClass($className))->getShortName();
         $uses[] = $this->builderFactory->use($className);
 
-        $expression = sprintf('return $this->toDateTime(\'%s\');', $field->getName());
+        $expression = sprintf('return $this->getDateTime(\'%s\');', $field->getName());
 
         if ($this->helper->isFieldMultiple($field)) {
+            $expression = sprintf('return $this->getDateTimes(\'%s\');', $field->getName());
+
             $method->setReturnType('array');
             $method->setDocComment("/** @return {$shortName}[] */");
         } elseif ($field->isRequired()) {

@@ -13,7 +13,6 @@
         "php": ">=7.2.0",
         "composer/semver": "^1.0 || ^2.0 || ^3.0",
         "drupal/core": "^8.0 || ^9.0",
-        "friendsofphp/php-cs-fixer": "^2.15.4",
         "nikic/php-parser": "^4.0",
         "wieni/wmmodel": "^0.3.6 || ^1.0"
     },

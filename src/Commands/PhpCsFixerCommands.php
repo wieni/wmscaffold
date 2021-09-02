@@ -4,6 +4,7 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\AnnotatedCommand\AnnotationData;
 use Drush\Commands\DrushCommands;
+use PhpCsFixer\Console\Application;
 use PhpCsFixer\Console\Command\FixCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -31,6 +32,12 @@ class PhpCsFixerCommands extends DrushCommands
      */
     public function fix(?string $path = null, array $options = []): int
     {
+        if (!class_exists(Application::class)) {
+            throw new \InvalidArgumentException(
+                t('The friendsofphp/php-cs-fixer package is required for this command to work.')
+            );
+        }
+
         $arguments = [];
         $extra = [];
 
@@ -50,7 +57,7 @@ class PhpCsFixerCommands extends DrushCommands
             }
         }
 
-        $application = new \PhpCsFixer\Console\Application();
+        $application = new Application();
         $application->setAutoExit(false);
 
         return $this->runCommand($application, FixCommand::getDefaultName(), $arguments, $options, $extra);

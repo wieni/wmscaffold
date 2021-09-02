@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### Removed
+- Remove friendsofphp/php-cs-fixer dependency. You should include it in your project if you intend to use the
+  `phpcs:fix` command.
+
 ## [1.11.3] - 2021-04-14
 ### Changed
 - `wmmodel-generate`: Update `FieldHelperDateTime` getter builder. `getDateTimes` is added in wmmodel 1.3.6

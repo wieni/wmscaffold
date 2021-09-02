@@ -375,7 +375,7 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         );
 
         if (empty($bundleInfo)) {
-            return null;
+            return [];
         }
 
         foreach ($bundleInfo as $bundle => $info) {

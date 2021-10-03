@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "imgix"
+ *     id = "imgix",
+ *     provider = "imgix",
  * )
  */
 class Imgix extends BaseFieldItem

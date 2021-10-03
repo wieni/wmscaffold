@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "link"
+ *     id = "link",
+ *     provider = "link",
  * )
  */
 class Link extends BaseFieldItem

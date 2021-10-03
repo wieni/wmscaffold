@@ -9,7 +9,8 @@ use PhpParser\Node\NullableType;
 
 /**
  * @ModelMethodGenerator(
- *     id = "datetime"
+ *     id = "datetime",
+ *     provider = "datetime",
  * )
  */
 class DateTime extends ModelMethodGeneratorBase

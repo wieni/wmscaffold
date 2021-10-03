@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "email"
+ *     id = "email",
+ *     provider = "core",
  * )
  */
 class Email extends BaseScalarType

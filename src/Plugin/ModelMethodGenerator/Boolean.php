@@ -7,7 +7,8 @@ use PhpParser\Builder\Method;
 
 /**
  * @ModelMethodGenerator(
- *     id = "boolean"
+ *     id = "boolean",
+ *     provider = "core",
  * )
  */
 class Boolean extends BaseScalarType

@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "decimal"
+ *     id = "decimal",
+ *     provider = "core",
  * )
  */
 class DecimalType extends FloatType

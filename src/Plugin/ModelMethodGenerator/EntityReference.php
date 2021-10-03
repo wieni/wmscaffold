@@ -9,7 +9,8 @@ use PhpParser\Node\NullableType;
 
 /**
  * @ModelMethodGenerator(
- *     id = "entity_reference"
+ *     id = "entity_reference",
+ *     provider = "core",
  * )
  */
 class EntityReference extends ModelMethodGeneratorBase

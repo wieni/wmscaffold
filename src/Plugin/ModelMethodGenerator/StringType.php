@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "string"
+ *     id = "string",
+ *     provider = "core",
  * )
  */
 class StringType extends BaseScalarType

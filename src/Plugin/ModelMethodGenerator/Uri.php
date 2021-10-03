@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "uri"
+ *     id = "uri",
+ *     provider = "core",
  * )
  */
 class Uri extends BaseScalarType

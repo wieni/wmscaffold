@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "file"
+ *     id = "file",
+ *     provider = "file",
  * )
  */
 class File extends EntityReference

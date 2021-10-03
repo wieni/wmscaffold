@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "float"
+ *     id = "float",
+ *     provider = "core",
  * )
  */
 class FloatType extends BaseScalarType

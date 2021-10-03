@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "address"
+ *     id = "address",
+ *     provider = "address",
  * )
  */
 class Address extends BaseFieldItem

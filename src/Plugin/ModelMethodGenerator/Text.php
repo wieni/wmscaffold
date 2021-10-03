@@ -9,7 +9,8 @@ use PhpParser\Node\NullableType;
 
 /**
  * @ModelMethodGenerator(
- *     id = "text"
+ *     id = "text",
+ *     provider = "core",
  * )
  */
 class Text extends ModelMethodGeneratorBase

@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "office_hours"
+ *     id = "office_hours",
+ *     provider = "office_hours",
  * )
  */
 class OfficeHours extends BaseFieldItemList

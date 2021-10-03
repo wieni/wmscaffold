@@ -4,7 +4,8 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "list_string"
+ *     id = "list_string",
+ *     provider = "options",
  * )
  */
 class ListString extends BaseScalarType

@@ -152,7 +152,11 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         }
 
         if ($this->input->getOption('existing')) {
-            $fieldName = $this->ensureOption('field-name', [$this, 'askExisting']);
+            if (!$fieldName = $this->ensureOption('field-name', [$this, 'askExisting'])) {
+                throw new \InvalidArgumentException(
+                    t('There are no existing fields that can be added.')
+                );
+            }
 
             if (!$this->fieldStorageExists($fieldName, $entityType)) {
                 throw new \InvalidArgumentException(
@@ -220,11 +224,15 @@ class FieldCreateCommands extends DrushCommands implements CustomEventAwareInter
         $this->logResult($field);
     }
 
-    protected function askExisting(): string
+    protected function askExisting(): ?string
     {
         $entityType = $this->input->getArgument('entityType');
         $bundle = $this->input->getArgument('bundle');
         $choices = $this->getExistingFieldStorageOptions($entityType, $bundle);
+
+        if (empty($choices)) {
+            return null;
+        }
 
         return $this->choice('Choose an existing field', $choices);
     }

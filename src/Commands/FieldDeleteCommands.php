@@ -4,7 +4,7 @@ namespace Drupal\wmscaffold\Commands;
 
 use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field\FieldConfigInterface;
@@ -18,12 +18,12 @@ class FieldDeleteCommands extends DrushCommands
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
+    /** @var EntityTypeBundleInfoInterface */
     protected $entityTypeBundleInfo;
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo
+        EntityTypeBundleInfoInterface $entityTypeBundleInfo
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;

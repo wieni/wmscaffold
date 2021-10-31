@@ -282,7 +282,7 @@ EOT
             $generator = $this->modelMethodGeneratorManager->createInstance($id);
             $generator->buildGetter($field, $method, $uses);
         } else {
-            throw new \Exception("No ModelMethodGenerator implementation for field type $id");
+            throw new \Exception(sprintf('No ModelMethodGenerator implementation for field type %s', $id));
         }
 
         return [$method, $uses];

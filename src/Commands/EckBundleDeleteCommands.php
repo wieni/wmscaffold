@@ -75,8 +75,8 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
             $this->input->setArgument('bundle', $bundle = $this->askBundle());
         }
 
-        $definition = $this->entityTypeManager->getDefinition("{$entityType}_type");
-        $storage = $this->entityTypeManager->getStorage("{$entityType}_type");
+        $definition = $this->entityTypeManager->getDefinition(sprintf('%s_type', $entityType));
+        $storage = $this->entityTypeManager->getStorage(sprintf('%s_type', $entityType));
 
         $bundles = $storage->loadByProperties([$definition->getKey('id') => $bundle]);
         $bundle = reset($bundles);
@@ -96,7 +96,7 @@ class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareI
     private function logResult(EckEntityBundle $bundle): void
     {
         $this->logger()->success(
-            sprintf('Successfully deleted %s bundle \'%s\'', $bundle->getEckEntityTypeMachineName(), $bundle->id())
+            sprintf("Successfully deleted %s bundle '%s'", $bundle->getEckEntityTypeMachineName(), $bundle->id())
         );
     }
 }

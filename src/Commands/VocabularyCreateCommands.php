@@ -162,7 +162,7 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
     private function logResult(Vocabulary $type): void
     {
         $this->logger()->success(
-            sprintf('Successfully created vocabulary with bundle \'%s\'', $type->id())
+            sprintf("Successfully created vocabulary with bundle '%s'", $type->id())
         );
 
         $this->logger()->success(

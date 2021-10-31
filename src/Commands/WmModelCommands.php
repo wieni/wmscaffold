@@ -5,7 +5,7 @@ namespace Drupal\wmscaffold\Commands;
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
@@ -22,7 +22,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
+    /** @var EntityTypeBundleInfoInterface */
     protected $entityTypeBundleInfo;
     /** @var ConfigFactoryInterface */
     protected $configFactory;
@@ -37,7 +37,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
+        EntityTypeBundleInfoInterface $entityTypeBundleInfo,
         ConfigFactoryInterface $configFactory,
         ModelFactory $modelFactory,
         ModelClassGenerator $modelClassGenerator
@@ -97,7 +97,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
             $hasExisting = true;
             $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
-            if (file_exists($destination) && !$this->io()->confirm("{$existingClassName} already exists. Append to existing class?", false)) {
+            if (file_exists($destination) && !$this->io()->confirm(sprintf('%s already exists. Append to existing class?', $existingClassName), false)) {
                 return;
             }
 

@@ -39,13 +39,13 @@ class DateTime extends ModelMethodGeneratorBase
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
-            $method->setDocComment("/** @return {$shortName}[] */");
+            $method->setDocComment(sprintf('/** @return %s[] */', $shortName));
         } elseif ($field->isRequired()) {
             $method->setReturnType($shortName);
         } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($shortName));
         } else {
-            $method->setDocComment("/** @return {$shortName}|null */");
+            $method->setDocComment(sprintf('/** @return %s|null */', $shortName));
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

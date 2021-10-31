@@ -21,13 +21,13 @@ abstract class BaseFieldItem extends ModelMethodGeneratorBase
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
-            $method->setDocComment("/** @return {$fieldTypeClass->getShortName()}[] */");
+            $method->setDocComment(sprintf('/** @return %s[] */', $fieldTypeClass->getShortName()));
         } elseif ($field->isRequired()) {
             $method->setReturnType($fieldTypeClass->getShortName());
         } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($fieldTypeClass->getShortName()));
         } else {
-            $method->setDocComment("/** @return {$fieldTypeClass->getShortName()}|null */");
+            $method->setDocComment(sprintf('/** @return %s|null */', $fieldTypeClass->getShortName()));
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

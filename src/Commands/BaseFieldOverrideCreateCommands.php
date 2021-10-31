@@ -3,7 +3,7 @@
 namespace Drupal\wmscaffold\Commands;
 
 use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\Field\Entity\BaseFieldOverride;
 use Drush\Commands\DrushCommands;
@@ -15,13 +15,13 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
     use AskBundleTrait;
     use QuestionTrait;
 
-    /** @var EntityTypeBundleInfo */
+    /** @var EntityTypeBundleInfoInterface */
     protected $entityTypeBundleInfo;
     /** @var EntityFieldManager */
     protected $entityFieldManager;
 
     public function __construct(
-        EntityTypeBundleInfo $entityTypeBundleInfo,
+        EntityTypeBundleInfoInterface $entityTypeBundleInfo,
         EntityFieldManager $entityFieldManager
     ) {
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
@@ -153,7 +153,7 @@ class BaseFieldOverrideCreateCommands extends DrushCommands
     {
         $this->logger()->success(
             sprintf(
-                'Successfully created base field override \'%s\' on %s type with bundle \'%s\'',
+                "Successfully created base field override '%s' on %s type with bundle '%s'",
                 $baseFieldOverride->getName(),
                 $baseFieldOverride->getEntityTypeId(),
                 $baseFieldOverride->getTargetBundle()

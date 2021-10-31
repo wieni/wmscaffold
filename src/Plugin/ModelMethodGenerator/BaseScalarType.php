@@ -29,13 +29,13 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
-            $method->setDocComment("/** @return {$scalarType}[] */");
+            $method->setDocComment(sprintf('/** @return %s[] */', $scalarType));
         } elseif ($field->isRequired()) {
             $method->setReturnType($scalarType);
         } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($scalarType));
         } else {
-            $method->setDocComment("/** @return {$scalarType}|null */");
+            $method->setDocComment(sprintf('/** @return %s|null */', $scalarType));
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

@@ -7,9 +7,10 @@ use Symfony\Component\Console\Question\ChoiceQuestion as ChoiceQuestionBase;
 
 class ChoiceQuestion extends ChoiceQuestionBase
 {
+    /** @var string */
     private $errorMessage = 'Value "%s" is invalid';
 
-    public function __construct($question, array $choices, $default = null)
+    public function __construct(string $question, array $choices, $default = null)
     {
         parent::__construct($question, $choices, $default);
         $this->setValidator($this->getBetterValidator());
@@ -40,6 +41,7 @@ class ChoiceQuestion extends ChoiceQuestionBase
                 if (!preg_match('/^[^,]+(?:,[^,]+)*$/', $selectedChoices, $matches)) {
                     throw new InvalidArgumentException(sprintf($errorMessage, $selected));
                 }
+
                 $selectedChoices = explode(',', $selectedChoices);
                 $selectedChoices = array_map('trim', $selectedChoices);
             } else {

@@ -32,9 +32,9 @@ trait QuestionTrait
         return array_search($return, $choices);
     }
 
-    protected function confirm($question, $default = false)
+    protected function confirm($question, $default = false): bool
     {
-        return $this->io()->askQuestion(
+        return (bool) $this->io()->askQuestion(
             new ConfirmationQuestion($question, $default)
         );
     }

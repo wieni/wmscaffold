@@ -31,7 +31,7 @@ class FieldMetaCommands extends DrushCommands implements SiteAliasManagerAwareIn
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
-        $arguments = compact('entityType', 'bundle');
+        $arguments = ['entityType' => $entityType, 'bundle' => $bundle];
         $options = [
             'existing' => true,
             'field-name' => 'field_meta',

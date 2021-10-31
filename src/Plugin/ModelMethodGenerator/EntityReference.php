@@ -28,11 +28,11 @@ class EntityReference extends ModelMethodGeneratorBase
 
         if ($this->helper->isFieldMultiple($field)) {
             $method->setReturnType('array');
-            $method->setDocComment("/** @return {$fieldModelClass->getShortName()}[] */");
+            $method->setDocComment(sprintf('/** @return %s[] */', $fieldModelClass->getShortName()));
         } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($fieldModelClass->getShortName()));
         } else {
-            $method->setDocComment("/** @return {$fieldModelClass->getShortName()}|null */");
+            $method->setDocComment(sprintf('/** @return %s|null */', $fieldModelClass->getShortName()));
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

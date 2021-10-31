@@ -67,6 +67,7 @@ abstract class ClassGeneratorBase
                     unset($statement->uses[$j]);
                     continue;
                 }
+
                 $uses[] = $name;
             }
 
@@ -78,7 +79,7 @@ abstract class ClassGeneratorBase
         // Sort
         usort(
             $namespace->stmts,
-            function (Stmt $a, Stmt $b) {
+            function (Stmt $a, Stmt $b): int {
                 if ($a instanceof Stmt\Class_ && $b instanceof Stmt\Use_) {
                     return 1;
                 }

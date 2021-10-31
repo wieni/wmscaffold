@@ -22,7 +22,7 @@ abstract class BaseFieldItemList extends ModelMethodGeneratorBase
         } elseif ($this->helper->supportsNullableTypes()) {
             $method->setReturnType(new NullableType($fieldTypeClass->getShortName()));
         } else {
-            $method->setDocComment("/** @return {$fieldTypeClass->getShortName()}|null */");
+            $method->setDocComment(sprintf('/** @return %s|null */', $fieldTypeClass->getShortName()));
         }
 
         $method->addStmt($this->helper->parseExpression($expression));

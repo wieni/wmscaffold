@@ -109,7 +109,7 @@ class WmControllerHooks extends DrushCommands implements SiteAliasManagerAwareIn
                 'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
                 'output-module' => $module,
             ],
-            compact('entityType', 'bundle')
+            ['entityType' => $entityType, 'bundle' => $bundle]
         );
     }
 }

@@ -62,12 +62,12 @@ trait AskBundleMachineNameTrait
 
     protected function bundleExists(string $entityTypeId, string $id): bool
     {
-        if ($entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId)) {
-            if ($bundleEntityType = $entityTypeDefinition->getBundleEntityType()) {
-                $bundleDefinition = $this->entityTypeManager
-                    ->getStorage($bundleEntityType)
-                    ->load($id);
-            }
+        $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId);
+
+        if ($entityTypeDefinition && $bundleEntityType = $entityTypeDefinition->getBundleEntityType()) {
+            $bundleDefinition = $this->entityTypeManager
+                ->getStorage($bundleEntityType)
+                ->load($id);
         }
 
         return isset($bundleDefinition);

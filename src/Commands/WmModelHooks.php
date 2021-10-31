@@ -184,7 +184,7 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
                 'show-machine-names' => $commandData->input()->getOption('show-machine-names'),
                 'output-module' => $module,
             ],
-            compact('entityType', 'bundle')
+            ['entityType' => $entityType, 'bundle' => $bundle]
         );
     }
 }

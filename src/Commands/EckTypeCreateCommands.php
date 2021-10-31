@@ -153,12 +153,12 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
         return $machineName;
     }
 
-    protected function askBaseField(string $fieldName)
+    protected function askBaseField(string $fieldName): bool
     {
-        return $this->confirm("Add the '{$fieldName}' base field?");
+        return $this->confirm(sprintf("Add the '%s' base field?", $fieldName));
     }
 
-    protected function entityTypeExists(string $id)
+    protected function entityTypeExists(string $id): bool
     {
         try {
             $this->entityTypeManager->getDefinition($id);
@@ -169,7 +169,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
         return true;
     }
 
-    protected function generateMachineName(string $source)
+    protected function generateMachineName(string $source): string
     {
         // Only lowercase alphanumeric characters and underscores
         $machineName = preg_replace('/[^_a-z0-9]/i', '_', $source);
@@ -186,7 +186,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
     private function logResult(EckEntityType $type): void
     {
         $this->logger()->success(
-            sprintf('Successfully created eck entity type \'%s\'', $type->id())
+            sprintf("Successfully created eck entity type '%s'", $type->id())
         );
 
         $this->logger()->success(

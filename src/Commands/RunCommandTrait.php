@@ -64,7 +64,7 @@ trait RunCommandTrait
         }
 
         foreach ($options as $key => $value) {
-            if (empty($value) || (!$definition->hasOption($key) && !in_array($key, ['verbose']))) {
+            if (empty($value) || (!$definition->hasOption($key) && $key != 'verbose')) {
                 continue;
             }
 

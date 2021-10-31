@@ -67,8 +67,8 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
-        $definition = $this->entityTypeManager->getDefinition("{$entityType}_type");
-        $storage = $this->entityTypeManager->getStorage("{$entityType}_type");
+        $definition = $this->entityTypeManager->getDefinition(sprintf('%s_type', $entityType));
+        $storage = $this->entityTypeManager->getStorage(sprintf('%s_type', $entityType));
 
         $values = [
             'status' => true,
@@ -129,7 +129,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
     private function logResult(EckEntityBundle $bundle): void
     {
         $this->logger()->success(
-            sprintf('Successfully created %s bundle \'%s\'', $bundle->getEckEntityTypeMachineName(), $bundle->id())
+            sprintf("Successfully created %s bundle '%s'", $bundle->getEckEntityTypeMachineName(), $bundle->id())
         );
 
         $this->logger()->success(

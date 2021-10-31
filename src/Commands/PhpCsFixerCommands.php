@@ -13,6 +13,7 @@ class PhpCsFixerCommands extends DrushCommands
 {
     use RunCommandTrait;
 
+    /** @var array<string, string> */
     protected $optionsMap = [
         'fixer-config' => 'config',
     ];
@@ -108,8 +109,8 @@ class PhpCsFixerCommands extends DrushCommands
         }
 
         return array_map(
-            function ($path) {
-                return "../$path";
+            function ($path): string {
+                return sprintf('../%s', $path);
             },
             array_filter(
                 explode(PHP_EOL, $output)

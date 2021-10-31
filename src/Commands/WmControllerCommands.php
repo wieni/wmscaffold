@@ -4,7 +4,7 @@ namespace Drupal\wmscaffold\Commands;
 
 use Consolidation\SiteAlias\SiteAliasManagerAwareInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Entity\EntityTypeBundleInfo;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
@@ -20,7 +20,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityTypeBundleInfo */
+    /** @var EntityTypeBundleInfoInterface */
     protected $entityTypeBundleInfo;
     /** @var ConfigFactoryInterface */
     protected $configFactory;
@@ -33,7 +33,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityTypeBundleInfo $entityTypeBundleInfo,
+        EntityTypeBundleInfoInterface $entityTypeBundleInfo,
         ConfigFactoryInterface $configFactory,
         ControllerClassGenerator $controllerClassGenerator
     ) {
@@ -86,7 +86,7 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         try {
             new \ReflectionClass($className);
 
-            if (file_exists($destination) && !$this->io()->confirm("{$className} already exists. Replace existing class?", false)) {
+            if (file_exists($destination) && !$this->io()->confirm(sprintf('%s already exists. Replace existing class?', $className), false)) {
                 return;
             }
         } catch (\ReflectionException $e) {

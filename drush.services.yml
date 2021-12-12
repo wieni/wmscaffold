@@ -82,12 +82,6 @@ services:
             - '@wmscaffold.model_class_generator'
         tags: [{ name: drush.command }]
 
-    wmscaffold.hooks.link:
-        class: Drupal\wmscaffold\Commands\LinkHooks
-        arguments:
-            - '@module_handler'
-        tags: [{ name: drush.command }]
-
     wmscaffold.hooks.wmmodel:
         class: Drupal\wmscaffold\Commands\WmModelHooks
         arguments:

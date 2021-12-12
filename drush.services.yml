@@ -5,20 +5,6 @@ services:
         arguments:
             - '@entity_type.manager'
 
-    wmscaffold.commands.field-create:
-        class: Drupal\wmscaffold\Commands\FieldCreateCommands
-        arguments:
-            - '@plugin.manager.field.field_type'
-            - '@plugin.manager.field.widget'
-            - '@plugin.manager.entity_reference_selection'
-            - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-            - '@module_handler'
-            - '@entity_field.manager'
-        calls:
-            - [setContentTranslationManager, ['@?content_translation.manager']]
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.field-delete:
         class: Drupal\wmscaffold\Commands\FieldDeleteCommands
         arguments:

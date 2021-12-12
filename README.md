@@ -32,7 +32,6 @@ For more information about command aliases, arguments, options & usage
 examples, call the command with the `-h` / `--help` argument
 
 #### Fields
-- `field:create`: Create a new field
 - `field:delete`: Delete a field
 - `field:info`: List all fields of an entity bundle
 - `base-field:info`: List all base fields of an entity type

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Add Drush 11 dependency
 
+### Removed
+- Remove `field-create` since it has been added to Drush in v11
+
 ## [1.12.1] - 2021-12-12
 ### Fixed
 - `field-create`: Add clear error message if there are no existing fields to be added

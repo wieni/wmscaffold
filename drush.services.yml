@@ -18,13 +18,6 @@ services:
             - '@entity_field.manager'
         tags: [{ name: drush.command }]
 
-    wmscaffold.commands.field-info:
-        class: Drupal\wmscaffold\Commands\FieldInfoCommands
-        arguments:
-            - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.base-field-override-create:
         class: Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
         arguments:

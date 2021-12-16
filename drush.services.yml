@@ -5,13 +5,6 @@ services:
         arguments:
             - '@entity_type.manager'
 
-    wmscaffold.commands.field-delete:
-        class: Drupal\wmscaffold\Commands\FieldDeleteCommands
-        arguments:
-            - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.base-field-info:
         class: Drupal\wmscaffold\Commands\BaseFieldInfoCommands
         arguments:

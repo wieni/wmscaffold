@@ -91,9 +91,3 @@ services:
         arguments:
             - '@module_handler'
             - '@menu.parent_form_selector'
-
-    wmscaffold.hooks.allowed_formats:
-        class: Drupal\wmscaffold\Commands\AllowedFormatsHooks
-        tags: [{ name: drush.command }]
-        arguments:
-            - '@module_handler'

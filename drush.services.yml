@@ -5,12 +5,6 @@ services:
         arguments:
             - '@entity_type.manager'
 
-    wmscaffold.commands.base-field-info:
-        class: Drupal\wmscaffold\Commands\BaseFieldInfoCommands
-        arguments:
-            - '@entity_field.manager'
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.base-field-override-create:
         class: Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
         arguments:

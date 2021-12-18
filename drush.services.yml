@@ -5,13 +5,6 @@ services:
         arguments:
             - '@entity_type.manager'
 
-    wmscaffold.commands.base-field-override-create:
-        class: Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
-        arguments:
-            - '@entity_type.bundle.info'
-            - '@entity_field.manager'
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.nodetype-create:
         class: Drupal\wmscaffold\Commands\NodeTypeCreateCommands
         arguments:

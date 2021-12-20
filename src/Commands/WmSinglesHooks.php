@@ -9,8 +9,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class WmSinglesHooks extends DrushCommands
 {
-    use QuestionTrait;
-
     /** @var ModuleHandlerInterface */
     protected $moduleHandler;
 
@@ -61,7 +59,7 @@ class WmSinglesHooks extends DrushCommands
 
     protected function askIsSingle(): bool
     {
-        return $this->confirm('Content type with a single entity?', false);
+        return $this->io()->confirm('Content type with a single entity?', false);
     }
 
     protected function isInstalled(): bool

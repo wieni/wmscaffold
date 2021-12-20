@@ -17,9 +17,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
-    use AskBundleMachineNameTrait;
+    use BundleMachineNameAskTrait;
     use CustomEventAwareTrait;
-    use QuestionTrait;
     use ValidatorsTrait;
 
     /** @var EntityTypeManagerInterface */
@@ -118,12 +117,12 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
 
     protected function askLabel(): string
     {
-        return $this->io()->ask('Human-readable name');
+        return $this->io()->ask('Human-readable name', null, [static::class, 'validateRequired']);
     }
 
     protected function askDescription(): ?string
     {
-        return $this->askOptional('Description');
+        return $this->io()->ask('Description');
     }
 
     private function logResult(EckEntityBundle $bundle): void

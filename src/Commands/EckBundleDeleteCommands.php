@@ -11,13 +11,13 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\EckEntityTypeBundleInfo;
 use Drupal\eck\Entity\EckEntityBundle;
 use Drush\Commands\DrushCommands;
+use Drush\Drupal\Commands\core\EntityTypeBundleAskTrait;
 use Symfony\Component\Console\Input\InputOption;
 
 class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareInterface
 {
-    use AskBundleTrait;
     use CustomEventAwareTrait;
-    use QuestionTrait;
+    use EntityTypeBundleAskTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;

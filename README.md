@@ -37,11 +37,6 @@ examples, call the command with the `-h` / `--help` argument
 - `field:info`: List all fields of an entity bundle
 - `base-field:info`: List all base fields of an entity type
 - `base-field-override:create`: Create a new base field override
-
-#### Coding standards
-- `phpcs:fix`: Fixes PHP coding standards using the
-  [friendsofphp/php-cs-fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
-  package.
   
 #### node module
 - `nodetype:create`: Create a new node type

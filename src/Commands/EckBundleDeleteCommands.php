@@ -11,7 +11,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\eck\EckEntityTypeBundleInfo;
 use Drupal\eck\Entity\EckEntityBundle;
 use Drush\Commands\DrushCommands;
-use Drush\Drupal\Commands\core\EntityTypeBundleAskTrait;
+use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
 use Symfony\Component\Console\Input\InputOption;
 
 class EckBundleDeleteCommands extends DrushCommands implements CustomEventAwareInterface

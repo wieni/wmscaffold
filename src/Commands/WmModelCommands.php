@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmmodel\Factory\ModelFactory;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
-use Drush\Drupal\Commands\core\EntityTypeBundleAskTrait;
+use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;

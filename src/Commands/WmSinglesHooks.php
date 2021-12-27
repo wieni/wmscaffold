@@ -9,8 +9,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class WmSinglesHooks extends DrushCommands
 {
-    use QuestionTrait;
-
     /** @var ModuleHandlerInterface */
     protected $moduleHandler;
 
@@ -18,19 +16,6 @@ class WmSinglesHooks extends DrushCommands
         ModuleHandlerInterface $moduleHandler
     ) {
         $this->moduleHandler = $moduleHandler;
-    }
-
-    /** @hook interact nodetype:create */
-    public function hookInteract(): void
-    {
-        if (!$this->isInstalled()) {
-            return;
-        }
-
-        $this->input->setOption(
-            'is-single',
-            $this->input->getOption('is-single') ?? $this->askIsSingle()
-        );
     }
 
     /** @hook option nodetype:create */
@@ -48,6 +33,19 @@ class WmSinglesHooks extends DrushCommands
         );
     }
 
+    /** @hook on-event node-type-set-options */
+    public function hookSetOptions(): void
+    {
+        if (!$this->isInstalled()) {
+            return;
+        }
+
+        $this->input->setOption(
+            'is-single',
+            $this->input->getOption('is-single') ?? $this->askIsSingle()
+        );
+    }
+
     /** @hook on-event nodetype-create */
     public function hookCreate(array &$values): void
     {
@@ -61,7 +59,7 @@ class WmSinglesHooks extends DrushCommands
 
     protected function askIsSingle(): bool
     {
-        return $this->confirm('Content type with a single entity?', false);
+        return $this->io()->confirm('Content type with a single entity?', false);
     }
 
     protected function isInstalled(): bool

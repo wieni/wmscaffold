@@ -8,15 +8,15 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
+use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
 
 class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwareInterface
 {
-    use AskBundleTrait;
-    use QuestionTrait;
     use RunCommandTrait;
+    use EntityTypeBundleAskTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;

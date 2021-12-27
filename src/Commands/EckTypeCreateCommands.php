@@ -18,7 +18,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
     use CustomEventAwareTrait;
-    use QuestionTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
@@ -155,7 +154,7 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
 
     protected function askBaseField(string $fieldName): bool
     {
-        return $this->confirm(sprintf("Add the '%s' base field?", $fieldName));
+        return $this->io()->confirm(sprintf("Add the '%s' base field?", $fieldName));
     }
 
     protected function entityTypeExists(string $id): bool

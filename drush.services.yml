@@ -5,47 +5,6 @@ services:
         arguments:
             - '@entity_type.manager'
 
-    wmscaffold.commands.field-create:
-        class: Drupal\wmscaffold\Commands\FieldCreateCommands
-        arguments:
-            - '@plugin.manager.field.field_type'
-            - '@plugin.manager.field.widget'
-            - '@plugin.manager.entity_reference_selection'
-            - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-            - '@module_handler'
-            - '@entity_field.manager'
-        calls:
-            - [setContentTranslationManager, ['@?content_translation.manager']]
-        tags: [{ name: drush.command }]
-
-    wmscaffold.commands.field-delete:
-        class: Drupal\wmscaffold\Commands\FieldDeleteCommands
-        arguments:
-            - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-        tags: [{ name: drush.command }]
-
-    wmscaffold.commands.base-field-info:
-        class: Drupal\wmscaffold\Commands\BaseFieldInfoCommands
-        arguments:
-            - '@entity_field.manager'
-        tags: [{ name: drush.command }]
-
-    wmscaffold.commands.field-info:
-        class: Drupal\wmscaffold\Commands\FieldInfoCommands
-        arguments:
-            - '@entity_type.manager'
-            - '@entity_type.bundle.info'
-        tags: [{ name: drush.command }]
-
-    wmscaffold.commands.base-field-override-create:
-        class: Drupal\wmscaffold\Commands\BaseFieldOverrideCreateCommands
-        arguments:
-            - '@entity_type.bundle.info'
-            - '@entity_field.manager'
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.nodetype-create:
         class: Drupal\wmscaffold\Commands\NodeTypeCreateCommands
         arguments:
@@ -82,10 +41,6 @@ services:
             - '@eck.entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
-    wmscaffold.commands.field-meta:
-        class: Drupal\wmscaffold\Commands\FieldMetaCommands
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.wmmodel:
         class: Drupal\wmscaffold\Commands\WmModelCommands
         arguments:
@@ -94,12 +49,6 @@ services:
             - '@config.factory'
             - '@wmmodel.factory.model'
             - '@wmscaffold.model_class_generator'
-        tags: [{ name: drush.command }]
-
-    wmscaffold.hooks.link:
-        class: Drupal\wmscaffold\Commands\LinkHooks
-        arguments:
-            - '@module_handler'
         tags: [{ name: drush.command }]
 
     wmscaffold.hooks.wmmodel:
@@ -138,9 +87,3 @@ services:
         arguments:
             - '@module_handler'
             - '@menu.parent_form_selector'
-
-    wmscaffold.hooks.allowed_formats:
-        class: Drupal\wmscaffold\Commands\AllowedFormatsHooks
-        tags: [{ name: drush.command }]
-        arguments:
-            - '@module_handler'

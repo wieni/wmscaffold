@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### Changed
+- Add Drush 11 dependency
+- Add allow-plugins to composer.json.
+- `nodetype:create`, `vocabulary:create`: Refactor
+
+### Removed
+- `field:create`, `field:info`, `field:delete`, `base-field:info`, `base-field-override:create`: Remove since they have been added to Drush in v11
+- `field:meta`, `phpcs:fix`: Remove without replacement
+- Remove `AskBundleTrait`
+- Remove `QuestionTrait` and `ChoiceQuestion`
+
 ## [1.12.1] - 2021-12-12
 ### Fixed
 - `field-create`: Add clear error message if there are no existing fields to be added

@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
  * @property InputInterface $input
  * @property EntityTypeManagerInterface $entityTypeManager
  */
-trait AskBundleMachineNameTrait
+trait BundleMachineNameAskTrait
 {
     protected function askMachineName(string $entityTypeId): string
     {
@@ -62,12 +62,12 @@ trait AskBundleMachineNameTrait
 
     protected function bundleExists(string $entityTypeId, string $id): bool
     {
-        $entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId);
-
-        if ($entityTypeDefinition && $bundleEntityType = $entityTypeDefinition->getBundleEntityType()) {
-            $bundleDefinition = $this->entityTypeManager
-                ->getStorage($bundleEntityType)
-                ->load($id);
+        if ($entityTypeDefinition = $this->entityTypeManager->getDefinition($entityTypeId)) {
+            if ($bundleEntityType = $entityTypeDefinition->getBundleEntityType()) {
+                $bundleDefinition = $this->entityTypeManager
+                    ->getStorage($bundleEntityType)
+                    ->load($id);
+            }
         }
 
         return isset($bundleDefinition);

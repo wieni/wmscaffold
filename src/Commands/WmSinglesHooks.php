@@ -18,19 +18,6 @@ class WmSinglesHooks extends DrushCommands
         $this->moduleHandler = $moduleHandler;
     }
 
-    /** @hook interact nodetype:create */
-    public function hookInteract(): void
-    {
-        if (!$this->isInstalled()) {
-            return;
-        }
-
-        $this->input->setOption(
-            'is-single',
-            $this->input->getOption('is-single') ?? $this->askIsSingle()
-        );
-    }
-
     /** @hook option nodetype:create */
     public function hookOption(Command $command): void
     {
@@ -43,6 +30,19 @@ class WmSinglesHooks extends DrushCommands
             '',
             InputOption::VALUE_OPTIONAL,
             'Is a content type with a single entity.'
+        );
+    }
+
+    /** @hook on-event node-type-set-options */
+    public function hookSetOptions(): void
+    {
+        if (!$this->isInstalled()) {
+            return;
+        }
+
+        $this->input->setOption(
+            'is-single',
+            $this->input->getOption('is-single') ?? $this->askIsSingle()
         );
     }
 

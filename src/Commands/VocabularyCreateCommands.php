@@ -2,45 +2,26 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityStorageException;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Extension\ModuleHandler;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Url;
-use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\taxonomy\Entity\Vocabulary;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class VocabularyCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
-    use AskBundleMachineNameTrait;
-    use AskLanguageDefaultTrait;
+    use BundleMachineNameAskTrait;
     use CustomEventAwareTrait;
-    use QuestionTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var LanguageManagerInterface */
-    protected $languageManager;
-    /** @var ModuleHandler */
-    protected $moduleHandler;
 
     public function __construct(
-        EntityTypeManagerInterface $entityTypeManager,
-        LanguageManagerInterface $languageManager,
-        ModuleHandler $moduleHandler
+        EntityTypeManagerInterface $entityTypeManager
     ) {
         $this->entityTypeManager = $entityTypeManager;
-        $this->languageManager = $languageManager;
-        $this->moduleHandler = $moduleHandler;
     }
 
     /**
@@ -55,10 +36,6 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
      *      A unique machine-readable name. Can only contain lowercase letters, numbers, and underscores.
      * @option description
      *      Describe this vocabulary.
-     * @option default-language
-     *      The default language of new nodes
-     * @option show-language-selector
-     *      Whether to show the language selector on create and edit pages
      *
      * @option show-machine-names
      *      Show machine names instead of labels in option lists.
@@ -66,20 +43,29 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
      * @usage drush vocabulary:create
      *      Create a taxonomy vocabulary by answering the prompts.
      *
-     * @throws InvalidPluginDefinitionException
-     * @throws PluginNotFoundException
-     * @throws EntityStorageException
+     * @validate-module-enabled taxonomy
+     *
+     * @version 11.0
+     * @see \Drupal\taxonomy\VocabularyForm
      */
     public function create(array $options = [
         'label' => InputOption::VALUE_REQUIRED,
         'machine-name' => InputOption::VALUE_REQUIRED,
         'description' => InputOption::VALUE_OPTIONAL,
-        'default-language' => InputOption::VALUE_OPTIONAL,
-        'show-language-selector' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
-        $bundle = $this->input()->getOption('machine-name');
+        $this->ensureOption('label', [$this, 'askLabel'], true);
+        $this->ensureOption('machine-name', [$this, 'askVocabularyMachineName'], true);
+        $this->ensureOption('description', [$this, 'askDescription'], false);
+
+        // Command files may set additional options as desired.
+        $handlers = $this->getCustomEventHandlers('vocabulary-set-options');
+        foreach ($handlers as $handler) {
+            $handler($this->input);
+        }
+
+        $bundle = $this->input->getOption('machine-name');
         $definition = $this->entityTypeManager->getDefinition('taxonomy_term');
         $storage = $this->entityTypeManager->getStorage('taxonomy_vocabulary');
 
@@ -101,65 +87,43 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
         $type = $storage->create($values);
         $type->save();
 
-        // Update language options
-        if ($this->moduleHandler->moduleExists('language')) {
-            $values['langcode'] = $this->input()->getOption('default-language');
-
-            $config = ContentLanguageSettings::loadByEntityTypeBundle('taxonomy_vocabulary', $bundle);
-            $config->setDefaultLangcode($this->input()->getOption('default-language'))
-                ->setLanguageAlterable((bool) $this->input()->getOption('show-language-selector'))
-                ->save();
-        }
-
         $this->entityTypeManager->clearCachedDefinitions();
         $this->logResult($type);
     }
 
-    /** @hook interact vocabulary:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
+    protected function askVocabularyMachineName(): string
     {
-        $this->input->setOption(
-            'label',
-            $this->input->getOption('label') ?? $this->askLabel()
-        );
-        $this->input->setOption(
-            'machine-name',
-            $this->input->getOption('machine-name') ?? $this->askMachineName('taxonomy_vocabulary')
-        );
-        $this->input->setOption(
-            'description',
-            $this->input->getOption('description') ?? $this->askDescription()
-        );
-
-        // Language settings
-        if ($this->moduleHandler->moduleExists('language')) {
-            $this->input->setOption(
-                'default-language',
-                $this->input->getOption('default-language') ?? $this->askLanguageDefault()
-            );
-            $this->input->setOption(
-                'show-language-selector',
-                $this->input->getOption('show-language-selector') ?? $this->askLanguageShowSelector()
-            );
-        }
+        return $this->askMachineName('taxonomy_vocabulary');
     }
 
     protected function askLabel(): string
     {
-        return $this->io()->ask('Human-readable name');
+        return $this->io()->ask('Human-readable name', null, [static::class, 'validateRequired']);
     }
 
     protected function askDescription(): ?string
     {
-        return $this->askOptional('Description');
+        return $this->io()->ask('Description');
     }
 
-    protected function askLanguageShowSelector(): bool
+    protected function ensureOption(string $name, callable $asker, bool $required): void
     {
-        return $this->confirm('Show language selector on create and edit pages', false);
+        $value = $this->input->getOption($name);
+
+        if ($value === null) {
+            $value = $asker();
+        }
+
+        if ($required && $value === null) {
+            throw new \InvalidArgumentException(dt('The %optionName option is required.', [
+                '%optionName' => $name,
+            ]));
+        }
+
+        $this->input->setOption($name, $value);
     }
 
-    private function logResult(Vocabulary $type): void
+    protected function logResult(Vocabulary $type): void
     {
         $this->logger()->success(
             sprintf("Successfully created vocabulary with bundle '%s'", $type->id())
@@ -172,5 +136,16 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
                 ->setAbsolute(true)
                 ->toString()
         );
+    }
+
+    public static function validateRequired(?string $value): string
+    {
+        // FALSE is not considered as empty value because question helper use
+        // it as negative answer on confirmation questions.
+        if ($value === null || $value === '') {
+            throw new \UnexpectedValueException('This value is required.');
+        }
+
+        return $value;
     }
 }

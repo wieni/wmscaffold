@@ -2,50 +2,31 @@
 
 namespace Drupal\wmscaffold\Commands;
 
-use Consolidation\AnnotatedCommand\AnnotationData;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareInterface;
 use Consolidation\AnnotatedCommand\Events\CustomEventAwareTrait;
-use Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException;
-use Drupal\Component\Plugin\Exception\PluginNotFoundException;
-use Drupal\Core\Entity\EntityFieldManager;
-use Drupal\Core\Entity\EntityStorageException;
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\Core\Extension\ModuleHandler;
-use Drupal\Core\Language\LanguageManagerInterface;
 use Drupal\Core\Url;
-use Drupal\language\Entity\ContentLanguageSettings;
 use Drupal\node\Entity\NodeType;
 use Drush\Commands\DrushCommands;
-use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareInterface
 {
-    use AskBundleMachineNameTrait;
-    use AskLanguageDefaultTrait;
+    use BundleMachineNameAskTrait;
     use CustomEventAwareTrait;
-    use QuestionTrait;
 
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
-    /** @var EntityFieldManager */
+    /** @var EntityFieldManagerInterface */
     protected $entityFieldManager;
-    /** @var ModuleHandler */
-    protected $moduleHandler;
-    /** @var LanguageManagerInterface */
-    protected $languageManager;
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
-        EntityFieldManager $entityFieldManager,
-        ModuleHandler $moduleHandler,
-        LanguageManagerInterface $languageManager
+        EntityFieldManagerInterface $entityFieldManager
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityFieldManager = $entityFieldManager;
-        $this->moduleHandler = $moduleHandler;
-        $this->languageManager = $languageManager;
     }
 
     /**
@@ -82,20 +63,16 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
      * @option create-revision
      *      The default value of the Create new revision field
      *
-     * @option default-language
-     *      The default language of new nodes
-     * @option show-language-selector
-     *      Whether to show the language selector on create and edit pages
-     *
      * @option display-submitted
      *      Display author username and publish date
      *
      * @usage drush nodetype:create
      *      Create a node type by answering the prompts.
      *
-     * @throws InvalidPluginDefinitionException
-     * @throws PluginNotFoundException
-     * @throws EntityStorageException
+     * @validate-module-enabled node
+     *
+     * @version 11.0
+     * @see \Drupal\node\NodeTypeForm
      */
     public function create(array $options = [
         'label' => InputOption::VALUE_REQUIRED,
@@ -108,12 +85,34 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         'promote' => InputOption::VALUE_OPTIONAL,
         'sticky' => InputOption::VALUE_OPTIONAL,
         'create-revision' => InputOption::VALUE_OPTIONAL,
-        'default-language' => InputOption::VALUE_OPTIONAL,
-        'show-language-selector' => InputOption::VALUE_OPTIONAL,
         'display-submitted' => InputOption::VALUE_OPTIONAL,
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
+        $this->ensureOption('label', [$this, 'askLabel'], true);
+        $this->ensureOption('machine-name', [$this, 'askNodeTypeMachineName'], true);
+        $this->ensureOption('description', [$this, 'askDescription'], false);
+
+        // Submission form settings
+        $this->ensureOption('title-label', [$this, 'askSubmissionTitleLabel'], true);
+        $this->ensureOption('preview-before-submit', [$this, 'askSubmissionPreviewMode'], true);
+        $this->ensureOption('submission-guidelines', [$this, 'askSubmissionHelp'], false);
+
+        // Publishing options
+        $this->ensureOption('status', [$this, 'askPublished'], true);
+        $this->ensureOption('promote', [$this, 'askPromoted'], true);
+        $this->ensureOption('sticky', [$this, 'askSticky'], true);
+        $this->ensureOption('create-revision', [$this, 'askCreateRevision'], true);
+
+        // Display settings
+        $this->ensureOption('display-submitted', [$this, 'askDisplaySubmitted'], true);
+
+        // Command files may set additional options as desired.
+        $handlers = $this->getCustomEventHandlers('node-type-set-options');
+        foreach ($handlers as $handler) {
+            $handler($this->input);
+        }
+
         $bundle = $this->input()->getOption('machine-name');
         $definition = $this->entityTypeManager->getDefinition('node');
         $storage = $this->entityTypeManager->getStorage('node_type');
@@ -137,16 +136,6 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
 
         $type = $storage->create($values);
         $type->save();
-
-        // Update language options
-        if ($this->moduleHandler->moduleExists('language')) {
-            $values['langcode'] = $this->input()->getOption('default-language');
-
-            $config = ContentLanguageSettings::loadByEntityTypeBundle('node', $bundle);
-            $config->setDefaultLangcode($this->input()->getOption('default-language'))
-                ->setLanguageAlterable((bool) $this->input()->getOption('show-language-selector'))
-                ->save();
-        }
 
         // Update title field definition.
         $fields = $this->entityFieldManager->getFieldDefinitions('node', $bundle);
@@ -176,81 +165,19 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
         $this->logResult($type);
     }
 
-    /** @hook interact nodetype:create */
-    public function interact(InputInterface $input, OutputInterface $output, AnnotationData $annotationData): void
+    protected function askNodeTypeMachineName(): string
     {
-        $this->input->setOption(
-            'label',
-            $this->input->getOption('label') ?? $this->askLabel()
-        );
-        $this->input->setOption(
-            'machine-name',
-            $this->input->getOption('machine-name') ?? $this->askMachineName('node_type')
-        );
-        $this->input->setOption(
-            'description',
-            $this->input->getOption('description') ?? $this->askDescription()
-        );
-
-        // Submission form settings
-        $this->input->setOption(
-            'title-label',
-            $this->input->getOption('title-label') ?? $this->askSubmissionTitleLabel()
-        );
-        $this->input->setOption(
-            'preview-before-submit',
-            $this->input->getOption('preview-before-submit') ?? $this->askSubmissionPreviewMode()
-        );
-        $this->input->setOption(
-            'submission-guidelines',
-            $this->input->getOption('submission-guidelines') ?? $this->askSubmissionHelp()
-        );
-
-        // Publishing options
-        $this->input->setOption(
-            'status',
-            $this->input->getOption('status') ?? $this->askPublished()
-        );
-        $this->input->setOption(
-            'promote',
-            $this->input->getOption('promote') ?? $this->askPromoted()
-        );
-        $this->input->setOption(
-            'sticky',
-            $this->input->getOption('sticky') ?? $this->askSticky()
-        );
-        $this->input->setOption(
-            'create-revision',
-            $this->input->getOption('create-revision') ?? $this->askCreateRevision()
-        );
-
-        // Language settings
-        if ($this->moduleHandler->moduleExists('language')) {
-            $this->input->setOption(
-                'default-language',
-                $this->input->getOption('default-language') ?? $this->askLanguageDefault()
-            );
-            $this->input->setOption(
-                'show-language-selector',
-                $this->input->getOption('show-language-selector') ?? $this->askLanguageShowSelector()
-            );
-        }
-
-        // Display settings
-        $this->input->setOption(
-            'display-submitted',
-            $this->input->getOption('display-submitted') ?? $this->askDisplaySubmitted()
-        );
+        return $this->askMachineName('node');
     }
 
     protected function askLabel(): string
     {
-        return $this->io()->ask('Human-readable name');
+        return $this->io()->ask('Human-readable name', null, [static::class, 'validateRequired']);
     }
 
     protected function askDescription(): ?string
     {
-        return $this->askOptional('Description');
+        return $this->io()->ask('Description');
     }
 
     protected function askSubmissionTitleLabel(): string
@@ -261,53 +188,65 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
     protected function askSubmissionPreviewMode(): int
     {
         $options = [
-            DRUPAL_DISABLED => t('Disabled'),
-            DRUPAL_OPTIONAL => t('Optional'),
-            DRUPAL_REQUIRED => t('Required'),
+            DRUPAL_DISABLED => dt('Disabled'),
+            DRUPAL_OPTIONAL => dt('Optional'),
+            DRUPAL_REQUIRED => dt('Required'),
         ];
 
-        return $this->choice('Preview before submitting', $options, false, DRUPAL_OPTIONAL);
+        return $this->io()->choice('Preview before submitting', $options, DRUPAL_OPTIONAL);
     }
 
     protected function askSubmissionHelp(): ?string
     {
-        return $this->askOptional('Explanation or submission guidelines');
+        return $this->io()->ask('Explanation or submission guidelines');
     }
 
     protected function askPublished(): bool
     {
-        return $this->confirm('Published', true);
+        return $this->io()->confirm('Published', true);
     }
 
     protected function askPromoted(): bool
     {
-        return $this->confirm('Promoted to front page', true);
+        return $this->io()->confirm('Promoted to front page', true);
     }
 
     protected function askSticky(): bool
     {
-        return $this->confirm('Sticky at top of lists', false);
+        return $this->io()->confirm('Sticky at top of lists', false);
     }
 
     protected function askCreateRevision(): bool
     {
-        return $this->confirm('Create new revision', true);
+        return $this->io()->confirm('Create new revision', true);
     }
 
     protected function askDisplaySubmitted(): bool
     {
-        return $this->confirm('Display author and date information', true);
+        return $this->io()->confirm('Display author and date information', true);
     }
 
-    protected function askLanguageShowSelector(): bool
+    protected function ensureOption(string $name, callable $asker, bool $required): void
     {
-        return $this->confirm('Show language selector on create and edit pages', false);
+        $value = $this->input->getOption($name);
+
+        if ($value === null) {
+            $value = $asker();
+        }
+
+        if ($required && $value === null) {
+            throw new \InvalidArgumentException(dt('The %optionName option is required.', [
+                '%optionName' => $name,
+            ]));
+        }
+
+        $this->input->setOption($name, $value);
     }
 
-    private function logResult(NodeType $type): void
+    protected function logResult(NodeType $type): void
     {
         $this->logger()->success(
-            sprintf("Successfully created node type with bundle '%s'", $type->id())
+            sprintf('Successfully created node type with bundle \'%s\'', $type->id())
         );
 
         $this->logger()->success(
@@ -317,5 +256,16 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
                 ->setAbsolute(true)
                 ->toString()
         );
+    }
+
+    public static function validateRequired(?string $value): string
+    {
+        // FALSE is not considered as empty value because question helper use
+        // it as negative answer on confirmation questions.
+        if ($value === null || $value === '') {
+            throw new \UnexpectedValueException('This value is required.');
+        }
+
+        return $value;
     }
 }

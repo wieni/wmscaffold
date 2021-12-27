@@ -6,9 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Add Drush 11 dependency
+- Add allow-plugins to composer.json.
+- `nodetype:create`, `vocabulary:create`: Refactor
 
 ### Removed
-- Remove field commands since they have been added to Drush in v11
+- `field:create`, `field:info`, `field:delete`, `base-field:info`, `base-field-override:create`: Remove since they have been added to Drush in v11
+- `field:meta`, `phpcs:fix`: Remove without replacement
 - Remove `AskBundleTrait`
 - Remove `QuestionTrait` and `ChoiceQuestion`
 

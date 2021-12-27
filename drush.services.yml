@@ -41,10 +41,6 @@ services:
             - '@eck.entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
-    wmscaffold.commands.field-meta:
-        class: Drupal\wmscaffold\Commands\FieldMetaCommands
-        tags: [{ name: drush.command }]
-
     wmscaffold.commands.wmmodel:
         class: Drupal\wmscaffold\Commands\WmModelCommands
         arguments:

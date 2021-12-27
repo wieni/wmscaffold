@@ -151,7 +151,7 @@ class LanguageHooks extends DrushCommands
                 : $language->getName();
         }
 
-        return $this->io()->choice('Default language', $options, 1);
+        return $this->io()->choice('Default language', $options, 0);
     }
 
     protected function askLanguageShowSelector(): bool

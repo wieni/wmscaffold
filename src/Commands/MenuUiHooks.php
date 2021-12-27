@@ -109,7 +109,7 @@ class MenuUiHooks extends DrushCommands
         $menus = array_intersect_key(menu_ui_get_menus(), array_flip($menus));
         $options = $this->menuParentFormSelector->getParentSelectOptions('', $menus);
 
-        return $this->io()->choice('Default parent item', $options, 1);
+        return $this->io()->choice('Default parent item', $options, 0);
     }
 
     protected function isInstalled(): bool

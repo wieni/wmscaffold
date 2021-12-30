@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 - `field:create`, `field:info`, `field:delete`, `base-field:info`, `base-field-override:create`: Remove since they have been added to Drush in v11
-- `field:meta`, `phpcs:fix`: Remove without replacement
+- `field:meta`: Remove without replacement
 - Remove `AskBundleTrait`
 - Remove `QuestionTrait` and `ChoiceQuestion`
 

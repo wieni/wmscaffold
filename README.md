@@ -30,6 +30,11 @@ entity types, bundles & fields and for generating code.
 
 For more information about command aliases, arguments, options & usage
 examples, call the command with the `-h` / `--help` argument
+
+#### Coding standards
+- `phpcs:fix`: Fixes PHP coding standards using the
+  [friendsofphp/php-cs-fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
+  package.
   
 #### node module
 - `nodetype:create`: Create a new node type

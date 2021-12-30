@@ -41,6 +41,10 @@ services:
             - '@eck.entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
+    wmscaffold.commands.php-cs-fixer:
+        class: Drupal\wmscaffold\Commands\PhpCsFixerCommands
+        tags: [{ name: drush.command }]
+
     wmscaffold.commands.wmmodel:
         class: Drupal\wmscaffold\Commands\WmModelCommands
         arguments:

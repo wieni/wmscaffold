@@ -98,7 +98,7 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
 
     protected function askLabel(): string
     {
-        return $this->io()->ask('Human-readable name', null, [static::class, 'validateRequired']);
+        return $this->io()->askRequired('Human-readable name');
     }
 
     protected function askDescription(): ?string
@@ -136,16 +136,5 @@ class VocabularyCreateCommands extends DrushCommands implements CustomEventAware
                 ->setAbsolute(true)
                 ->toString()
         );
-    }
-
-    public static function validateRequired(?string $value): string
-    {
-        // FALSE is not considered as empty value because question helper use
-        // it as negative answer on confirmation questions.
-        if ($value === null || $value === '') {
-            throw new \UnexpectedValueException('This value is required.');
-        }
-
-        return $value;
     }
 }

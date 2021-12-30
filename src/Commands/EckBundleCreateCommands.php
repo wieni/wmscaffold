@@ -117,7 +117,7 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
 
     protected function askLabel(): string
     {
-        return $this->io()->ask('Human-readable name', null, [static::class, 'validateRequired']);
+        return $this->io()->askRequired('Human-readable name');
     }
 
     protected function askDescription(): ?string

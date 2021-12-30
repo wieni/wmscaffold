@@ -172,7 +172,7 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
 
     protected function askLabel(): string
     {
-        return $this->io()->ask('Human-readable name', null, [static::class, 'validateRequired']);
+        return $this->io()->askRequired('Human-readable name');
     }
 
     protected function askDescription(): ?string
@@ -256,16 +256,5 @@ class NodeTypeCreateCommands extends DrushCommands implements CustomEventAwareIn
                 ->setAbsolute(true)
                 ->toString()
         );
-    }
-
-    public static function validateRequired(?string $value): string
-    {
-        // FALSE is not considered as empty value because question helper use
-        // it as negative answer on confirmation questions.
-        if ($value === null || $value === '') {
-            throw new \UnexpectedValueException('This value is required.');
-        }
-
-        return $value;
     }
 }

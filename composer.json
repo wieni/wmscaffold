@@ -23,7 +23,7 @@
         "fenetikm/autoload-drupal": "dev-master#4503484",
         "wieni/wmcodestyle": "^1.8"
     },
-    "minimum-stability": "rc",
+    "minimum-stability": "RC",
     "autoload": {
         "psr-4": {
             "Drupal\\wmscaffold\\": "src/"

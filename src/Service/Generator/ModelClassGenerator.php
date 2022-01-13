@@ -7,7 +7,7 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\wmmodel\Factory\ModelFactory;
+use Drupal\wmmodel\ModelPluginManager;
 use Drupal\wmscaffold\ModelMethodGeneratorInterface;
 use Drupal\wmscaffold\ModelMethodGeneratorManager;
 use Drupal\wmscaffold\PhpParser\NodeVisitor\ClassMethodNormalizer;
@@ -22,8 +22,8 @@ use PhpParser\ParserFactory;
 
 class ModelClassGenerator extends ClassGeneratorBase
 {
-    /** @var ModelFactory */
-    protected $modelFactory;
+    /** @var ModelPluginManager */
+    protected $modelPluginManager;
     /** @var ModelMethodGeneratorManager */
     protected $modelMethodGeneratorManager;
 
@@ -37,11 +37,11 @@ class ModelClassGenerator extends ClassGeneratorBase
         EntityFieldManagerInterface $entityFieldManager,
         FileSystemInterface $fileSystem,
         ConfigFactoryInterface $configFactory,
-        ModelFactory $modelFactory,
+        ModelPluginManager $modelPluginManager,
         ModelMethodGeneratorManager $modelMethodGeneratorManager
     ) {
         parent::__construct($entityTypeManager, $entityFieldManager, $fileSystem, $configFactory);
-        $this->modelFactory = $modelFactory;
+        $this->modelPluginManager = $modelPluginManager;
         $this->modelMethodGeneratorManager = $modelMethodGeneratorManager;
 
         $this->baseClasses = $this->config->get('generators.model.base_classes') ?? [];
@@ -51,7 +51,7 @@ class ModelClassGenerator extends ClassGeneratorBase
     public function generateNew(string $entityType, string $bundle, string $module): Stmt\Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
-        $this->modelFactory->rebuildMapping();
+        $this->modelPluginManager->clearCachedDefinitions();
 
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);
@@ -109,10 +109,10 @@ EOT
     public function appendFieldGettersToExistingModel(string $entityType, string $bundle, array $fields): ?Stmt\Namespace_
     {
         // Make sure the wmmodel class mapping is up to date
-        $this->modelFactory->rebuildMapping();
+        $this->modelPluginManager->clearCachedDefinitions();
 
         $definition = $this->entityTypeManager->getDefinition($entityType);
-        $className = $this->modelFactory->getClassName($definition, $bundle);
+        $className = $this->entityTypeManager->getStorage($entityType)->getEntityClass($bundle);
 
         // Only edit bundle models
         if ($className === $definition->getClass()) {

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2022-01-11
+### Added
+- Add PHP 8 support
+
+### Changed
+- Increase minimum Drupal core version to 9.3 due to entity bundle class support
+- Increase minimum wieni/wmmodel version to 2.0 due to Drupal core version
+- Increase minimum PHP requirement to 7.3 due to Drupal core PHP requirement
+- Remove RC part from drush/drush dependency
+
 ## [1.13.1] - 2022-01-05
 ### Fixed
 - Fix minimum-stability key in composer.json

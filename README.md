@@ -54,7 +54,7 @@ examples, call the command with the `-h` / `--help` argument
 - `field:meta`: Create a new instance of field_meta
 
 #### [wmmodel](https://github.com/wieni/wmmodel) module
-- `wmmodel:generate`: Generate a wmcontroller controller
+- `wmmodel:generate`: Generate a wmmodel model
 
 ### Code generator
 This package provides Drupal services & Drush commands/hooks that can be

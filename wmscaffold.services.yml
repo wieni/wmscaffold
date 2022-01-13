@@ -11,7 +11,7 @@ services:
         class: Drupal\wmscaffold\Service\Generator\ModelClassGenerator
         parent: wmscaffold.class_generator_base
         arguments:
-            - '@wmmodel.factory.model'
+            - '@plugin.manager.wmmodel.model'
             - '@plugin.manager.model_method_generator'
 
     wmscaffold.model_method_generator.helper:
@@ -19,14 +19,11 @@ services:
         arguments:
             - '@entity_type.manager'
             - '@plugin.manager.field.field_type'
-            - '@wmmodel.factory.model'
             - '@config.factory'
 
     wmscaffold.controller_class_generator:
         class: Drupal\wmscaffold\Service\Generator\ControllerClassGenerator
         parent: wmscaffold.class_generator_base
-        arguments:
-            - '@wmmodel.factory.model'
 
     plugin.manager.model_method_generator:
         class: Drupal\wmscaffold\ModelMethodGeneratorManager

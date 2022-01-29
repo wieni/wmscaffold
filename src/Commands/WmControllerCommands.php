@@ -75,6 +75,10 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         'show-machine-names' => InputOption::VALUE_OPTIONAL,
     ]): void
     {
+        if (empty($options['output-module'])) {
+            throw new \InvalidArgumentException('You must specify an output module through --output-module or through configuration.');
+        }
+
         if (!$bundle) {
             $this->input->setArgument('bundle', $bundle = $this->askBundle());
         }

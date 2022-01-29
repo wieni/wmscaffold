@@ -38,7 +38,6 @@ services:
         class: Drupal\wmscaffold\Commands\EckBundleDeleteCommands
         arguments:
             - '@entity_type.manager'
-            - '@eck.entity_type.bundle.info'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.php-cs-fixer:

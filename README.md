@@ -15,7 +15,7 @@ wmscaffold
 
 ## Installation
 
-This package requires PHP 7.2, Drupal 8 or higher. The Drush commands
+This package requires PHP 7.3, Drupal 8 or higher. The Drush commands
 require version 9 or higher. The package can be installed using
 Composer:
 

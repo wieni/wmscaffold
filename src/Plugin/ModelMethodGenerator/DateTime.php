@@ -33,8 +33,17 @@ class DateTime extends ModelMethodGeneratorBase
                     iterator_to_array($this->get(\'%s\'))
                 );', $shortName, $field->getName());
             }
-        } else {
+        } elseif ($field->isRequired()) {
             $expression = sprintf('return $this->get(\'%s\')->date->getPhpDateTime();', $field->getName());
+        } elseif ($this->helper->supportsOptionalChaining()) {
+            $expression = sprintf('return $this->get(\'%s\')->date?->getPhpDateTime();', $field->getName());
+        } else {
+            $expression = sprintf(<<<'EOT'
+            if ($date = $this->get('%s')->date) {
+                return $date->getPhpDateTime();
+            }
+            return null;
+            EOT, $field->getName());
         }
 
         if ($this->helper->isFieldMultiple($field)) {
@@ -48,6 +57,6 @@ class DateTime extends ModelMethodGeneratorBase
             $method->setDocComment(sprintf('/** @return %s|null */', $shortName));
         }
 
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 }

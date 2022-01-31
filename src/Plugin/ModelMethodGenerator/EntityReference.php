@@ -35,6 +35,6 @@ class EntityReference extends ModelMethodGeneratorBase
             $method->setDocComment(sprintf('/** @return %s|null */', $fieldModelClass->getShortName()));
         }
 
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 }

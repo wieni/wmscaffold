@@ -68,14 +68,12 @@ class ModelMethodGeneratorHelper
     }
 
     /** Convert a string representation of a PHP statement into a PhpParser node */
-    public function parseExpression(string $expression): ?Stmt
+    public function parseExpression(string $expression): array
     {
         $parser = $this->parserFactory->create(ParserFactory::PREFER_PHP7);
         $statements = $parser->parse('<?php ' . $expression . ';');
 
-        return $statements
-            ? $statements[0]
-            : null;
+        return $statements;
     }
 
     public function supportsNullableTypes(): bool
@@ -86,5 +84,10 @@ class ModelMethodGeneratorHelper
     public function supportsArrowFunctions(): bool
     {
         return Comparator::greaterThanOrEqualTo($this->config->get('php_version'), 7.4);
+    }
+
+    public function supportsOptionalChaining(): bool
+    {
+        return Comparator::greaterThanOrEqualTo($this->config->get('php_version'), 8.0);
     }
 }

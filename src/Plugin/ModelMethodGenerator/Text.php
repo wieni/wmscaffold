@@ -44,6 +44,6 @@ class Text extends ModelMethodGeneratorBase
             $method->setDocComment('/** @return string|null */');
         }
 
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 }

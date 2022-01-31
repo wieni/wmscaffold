@@ -30,6 +30,6 @@ class FieldHelperDateTime extends ModelMethodGeneratorBase
             $method->setDocComment(sprintf('/** @return %s|null */', $shortName));
         }
 
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 }

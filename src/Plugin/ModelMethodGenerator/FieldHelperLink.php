@@ -14,6 +14,6 @@ class FieldHelperLink extends ModelMethodGeneratorBase
         $expression = sprintf('return $this->%s(\'%s\');', $methodName, $field->getName());
 
         $method->setReturnType('array');
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 }

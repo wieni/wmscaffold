@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increase minimum PHP requirement to 7.3 due to Drupal core PHP requirement
 - Remove RC part from drush/drush dependency
 
+### Fixed
+- Fix optional datetime getters
+
 ## [1.13.2] - 2022-01-29
 ### Fixed
 - Remove implicit eck dependency

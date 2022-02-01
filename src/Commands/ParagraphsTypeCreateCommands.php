@@ -71,7 +71,7 @@ class ParagraphsTypeCreateCommands extends DrushCommands implements CustomEventA
         $values = [
             'status' => true,
             'id' => $bundle,
-            'name' => $this->input()->getOption('label'),
+            'label' => $this->input()->getOption('label'),
             'description' => $this->input()->getOption('description') ?? '',
         ];
 

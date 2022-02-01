@@ -142,6 +142,24 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         $this->generateModel($commandData, $commandData->input()->getArgument('entityType'));
     }
 
+    /** @hook option paragraphs:type:create */
+    public function hookOptionParagraphsTypeCreate(Command $command): void
+    {
+        $this->addModuleOption($command);
+    }
+
+    /** @hook init paragraphs:type:create */
+    public function hookInitParagraphsTypeCreate(): void
+    {
+        $this->setDefaultValue();
+    }
+
+    /** @hook post-command paragraphs:type:create */
+    public function hookPostParagraphsTypeCreate($result, CommandData $commandData): void
+    {
+        $this->generateModel($commandData, 'paragraph');
+    }
+
     protected function addModuleOption(Command $command): void
     {
         if ($command->getDefinition()->hasOption('wmmodel-output-module')) {

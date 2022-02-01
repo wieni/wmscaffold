@@ -40,6 +40,12 @@ services:
             - '@entity_type.manager'
         tags: [{ name: drush.command }]
 
+    wmscaffold.commands.paragraphs-type-create:
+        class: Drupal\wmscaffold\Commands\ParagraphsTypeCreateCommands
+        arguments:
+            - '@entity_type.manager'
+        tags: [{ name: drush.command }]
+
     wmscaffold.commands.php-cs-fixer:
         class: Drupal\wmscaffold\Commands\PhpCsFixerCommands
         tags: [{ name: drush.command }]

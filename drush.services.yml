@@ -84,6 +84,12 @@ services:
         arguments:
             - '@module_handler'
 
+    wmscaffold.hooks.node_singles:
+        class: Drupal\wmscaffold\Commands\NodeSinglesHooks
+        tags: [{ name: drush.command }]
+        arguments:
+            - '@module_handler'
+
     wmscaffold.hooks.menu_ui:
         class: Drupal\wmscaffold\Commands\MenuUiHooks
         tags: [{ name: drush.command }]

@@ -55,6 +55,8 @@ class EckBundleCreateCommands extends DrushCommands implements CustomEventAwareI
      * @usage drush eck:bundle:create
      *      Create an eck entity type by answering the prompts.
      *
+     * @validate-module-enabled eck
+     *
      * @throws InvalidPluginDefinitionException
      * @throws PluginNotFoundException
      * @throws EntityStorageException

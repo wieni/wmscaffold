@@ -76,6 +76,8 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      * @usage drush wmmodel:generate
      *      Generate a model and fill in the remaining information through prompts.
      *
+     * @validate-module-enabled wmmodel
+     *
      * @throws PluginNotFoundException
      * @throws \ReflectionException
      */

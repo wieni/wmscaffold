@@ -102,3 +102,10 @@ services:
         arguments:
             - '@module_handler'
             - '@menu.parent_form_selector'
+
+    wmscaffold.hooks.language:
+        class: Drupal\wmscaffold\Commands\LanguageHooks
+        tags: [{ name: drush.command }]
+        arguments:
+            - '@module_handler'
+            - '@language_manager'

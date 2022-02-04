@@ -6,6 +6,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
+use Drupal\wmcontroller\ViewBuilder\ViewBuilder;
 use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
 use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
 use PhpParser\Comment;
@@ -61,6 +62,8 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $method->addStmt(
             $this->parseExpression(sprintf('return $this->view(\'%s\', [\'%s\' => $%s]);', $templatePath, $variableName, $variableName))
         );
+        $namespace->addStmt($this->builderFactory->use(ViewBuilder::class));
+        $method->setReturnType('ViewBuilder');
         $class->addStmt($method);
 
         // Add annotation to class

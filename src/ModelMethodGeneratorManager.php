@@ -21,7 +21,7 @@ class ModelMethodGeneratorManager extends DefaultPluginManager
             ModelMethodGeneratorInterface::class,
             ModelMethodGenerator::class
         );
-        $this->alterInfo('wmscaffold_info');
-        $this->setCacheBackend($cacheBackend, 'wmscaffold_info_plugins');
+        $this->alterInfo('wmscaffold_model_method_generator');
+        $this->setCacheBackend($cacheBackend, 'wmscaffold_model_method_generator_plugins');
     }
 }

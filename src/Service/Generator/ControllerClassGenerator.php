@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
 use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
 use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
+use PhpParser\Comment;
 use PhpParser\Node\Stmt;
 
 class ControllerClassGenerator extends ClassGeneratorBase
@@ -52,6 +53,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
             $class->extend($baseClass->getShortName());
         }
 
+        // Add method to class
         $method = $this->builderFactory->method('show');
         $method->makePublic()
             ->addParam($this->builderFactory->param($variableName)
@@ -59,9 +61,26 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $method->addStmt(
             $this->parseExpression(sprintf('return $this->view(\'%s\', [\'%s\' => $%s]);', $templatePath, $variableName, $variableName))
         );
-
         $class->addStmt($method);
-        $namespace->addStmt($class);
+
+        // Add annotation to class
+        $classNode = $class->getNode();
+        $docComment = new Comment\Doc(sprintf(
+            <<<EOT
+            /**
+             * @Controller(
+             *     entity_type = "%s",
+             *     bundle = "%s",
+             * )
+             */
+            EOT,
+            $entityType,
+            $bundle
+        ));
+        $classNode->setDocComment($docComment);
+
+        // Add class to namespace
+        $namespace->addStmt($classNode);
 
         $node = $namespace->getNode();
         $this->cleanUseStatements($node);

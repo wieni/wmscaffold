@@ -19,6 +19,10 @@ class IdentifierNaming
 
     public static function stripInvalidCharacters(string $string): string
     {
+        if ($string === '') {
+            return $string;
+        }
+
         // A valid function name starts with a letter or underscore.
         while (!preg_match('/^[a-zA-Z_]/', $string)) {
             $string = substr($string, 1);
@@ -28,8 +32,6 @@ class IdentifierNaming
          * Strip invalid characters
          * @see https://www.php.net/manual/en/functions.user-defined.php
          */
-        $string = preg_replace('/[^a-zA-Z0-9_\x7f-\xff]*/i', '', $string);
-
-        return $string;
+        return preg_replace('/[^a-zA-Z0-9_\x7f-\xff]*/i', '', $string);
     }
 }

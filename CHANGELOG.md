@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Validate whether modules are installed for commands interacting with contrib
 - Fix image getters not returning an ImageItem instance
 - Fix language hooks not being called
+- `wmmodel:generate`: Fix command being stuck with fields named field_<bundle>
 
 ## [1.13.2] - 2022-01-29
 ### Fixed

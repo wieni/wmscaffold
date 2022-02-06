@@ -246,11 +246,12 @@ EOT
         $source = $this->config->get('generators.model.field_getter_name_source') ?? 'label';
 
         if ($source === 'name') {
-            $label = str_replace(
-                [sprintf('field_%s', $field->getTargetBundle()), 'field_'],
-                '',
-                $field->getName()
-            );
+            if ($field->getName() === sprintf('field_%s', $field->getTargetBundle())) {
+                $fieldPrefixes = ['field_'];
+            } else {
+                $fieldPrefixes = [sprintf('field_%s', $field->getTargetBundle()), 'field_'];
+            }
+            $label = str_replace($fieldPrefixes, '', $field->getName());
         } else {
             $label = $field->getLabel();
         }

@@ -272,19 +272,18 @@ EOT
             return null;
         }
 
-        $getterMethodName = $this->buildFieldGetterName($field);
         $id = $field->getType();
+        if (!$this->modelMethodGeneratorManager->hasDefinition($id)) {
+            $id = '_field_item';
+        }
 
+        $getterMethodName = $this->buildFieldGetterName($field);
         $method = $this->builderFactory->method($getterMethodName)->makePublic();
         $uses = [];
 
-        if ($this->modelMethodGeneratorManager->hasDefinition($id)) {
-            /** @var ModelMethodGeneratorInterface $generator */
-            $generator = $this->modelMethodGeneratorManager->createInstance($id);
-            $generator->buildGetter($field, $method, $uses);
-        } else {
-            throw new \Exception(sprintf('No ModelMethodGenerator implementation for field type %s', $id));
-        }
+        /** @var ModelMethodGeneratorInterface $generator */
+        $generator = $this->modelMethodGeneratorManager->createInstance($id);
+        $generator->buildGetter($field, $method, $uses);
 
         return [$method, $uses];
     }

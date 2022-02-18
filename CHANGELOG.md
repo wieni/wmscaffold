@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add entity_reference_revisions support
 - Add node_singles support
 - Add paragraphs:type:create command
+- Add timestamp field model method generator
 
 ### Changed
 - Increase minimum Drupal core version to 9.3 due to entity bundle class support

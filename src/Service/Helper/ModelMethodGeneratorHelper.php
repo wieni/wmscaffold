@@ -12,7 +12,7 @@ use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt;
 use PhpParser\ParserFactory;
 
-class ModelMethodGeneratorHelper
+class EntityBundleClassMethodGeneratorHelper
 {
     /** @var EntityTypeManagerInterface */
     protected $entityTypeManager;
@@ -43,8 +43,8 @@ class ModelMethodGeneratorHelper
         return $field->getFieldStorageDefinition()->getCardinality() !== 1;
     }
 
-    /** Returns the full classname of the model of a field */
-    public function getFieldModelClass(FieldDefinitionInterface $field): string
+    /** Returns the full classname of the entity of a field */
+    public function getFieldEntityClass(FieldDefinitionInterface $field): string
     {
         $targetType = $field->getFieldStorageDefinition()->getSetting('target_type');
         $definition = $this->entityTypeManager->getDefinition($targetType);

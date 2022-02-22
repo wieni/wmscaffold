@@ -50,22 +50,21 @@ services:
         class: Drupal\wmscaffold\Commands\PhpCsFixerCommands
         tags: [{ name: drush.command }]
 
-    wmscaffold.commands.wmmodel:
-        class: Drupal\wmscaffold\Commands\WmModelCommands
+    wmscaffold.commands.entity_bundle_class:
+        class: Drupal\wmscaffold\Commands\EntityBundleClassCommands
         arguments:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
             - '@config.factory'
-            - '@plugin.manager.wmmodel.model'
-            - '@wmscaffold.model_class_generator'
+            - '@wmscaffold.entity_bundle_class_generator'
         tags: [{ name: drush.command }]
 
-    wmscaffold.hooks.wmmodel:
-        class: Drupal\wmscaffold\Commands\WmModelHooks
+    wmscaffold.hooks.entity_bundle_class:
+        class: Drupal\wmscaffold\Commands\EntityBundleClassHooks
         arguments:
             - '@entity_field.manager'
             - '@config.factory'
-            - '@wmscaffold.model_class_generator'
+            - '@wmscaffold.entity_bundle_class_generator'
         tags: [{ name: drush.command }]
 
     wmscaffold.commands.wmcontroller:

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0]
+Check [`UPGRADING.md`](UPGRADING.md) for more details and instructions.
+
+### Changed
+- Replace _model_ terminology with _entity bundle class_, to more closely match the Drupal core terminology 
+
+### Removed
+- Remove wmmodel dependency. This module still has support for wmmodel/entity_model, but can be used without those 
+  modules as well.
+
 ## [1.14.1] - 2022-02-23
 ### Changed
 - Only call phpcs:fix if package is installed

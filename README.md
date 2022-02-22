@@ -5,12 +5,12 @@ wmscaffold
 [![Total Downloads](https://poser.pugx.org/wieni/wmscaffold/downloads)](https://packagist.org/packages/wieni/wmscaffold)
 [![License](https://poser.pugx.org/wieni/wmscaffold/license)](https://packagist.org/packages/wieni/wmscaffold)
 
-> Provides Drupal services and Drush 9 commands for easy creation of fields & entity types, code style fixing, model & controller generating and more.
+> Provides Drupal services and Drush 9 commands for easy creation of fields & entity types, code style fixing, entity bundle class & controller generating and more.
 
 ## Why?
 - Managing entity types, bundles & fields by clicking through the
   interface is inefficient, time consuming and not developer friendly.
-- Creating entity models & controllers is equally repetitive and time
+- Creating entity bundle classes & controllers is equally repetitive and time
   consuming
 
 ## Installation
@@ -36,10 +36,9 @@ examples, call the command with the `-h` / `--help` argument
   [friendsofphp/php-cs-fixer](https://github.com/FriendsOfPHP/PHP-CS-Fixer)
   package.
   
-#### node module
+#### Drupal core
+- `entity:bundle-class-generate`: Generate an entity bundle class
 - `nodetype:create`: Create a new node type
-
-#### taxonomy module
 - `vocabulary:create`: Create a new vocabulary
 
 #### [eck](https://www.drupal.org/project/eck) module
@@ -53,21 +52,17 @@ examples, call the command with the `-h` / `--help` argument
 #### [wmmeta](https://github.com/wieni/wmmeta) module
 - `field:meta`: Create a new instance of field_meta
 
-#### [wmmodel](https://github.com/wieni/wmmodel) module
-- `wmmodel:generate`: Generate a wmmodel model
-
 ### Code generator
 This package provides Drupal services & Drush commands/hooks that can be
-used to generate entity models and controllers for the wmmodel and
-wmcontroller modules.
+used to generate entity bundle classes and controllers for the wmcontroller module.
 
 Controllers are generated with a single _show_ method, having the entity
 injected as an argument and rendering a template following our naming
 conventions. The template itself is not (yet) generated.
 
-Models are generated with field getters. The content of the
+Entity bundle classes are generated with field getters. The content of the
 getters is based on the field type and can be customized through
-`ModelMethodGenerator` plugins. Out of the box, implementations for all
+`EntityBundleClassMethodGenerator` plugins. Out of the box, implementations for all
 common field types are provided.
 
 ## Changelog

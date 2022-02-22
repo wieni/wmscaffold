@@ -7,15 +7,17 @@ services:
             - '@file_system'
             - '@config.factory'
 
-    wmscaffold.model_class_generator:
-        class: Drupal\wmscaffold\Service\Generator\ModelClassGenerator
+    wmscaffold.entity_bundle_class_generator:
+        class: Drupal\wmscaffold\Service\Generator\EntityBundleClassGenerator
         parent: wmscaffold.class_generator_base
         arguments:
-            - '@plugin.manager.wmmodel.model'
-            - '@plugin.manager.model_method_generator'
+            - '@plugin.manager.entity_bundle_class_method_generator'
+        calls:
+            - [setPluginManager, ['@?plugin.manager.wmmodel.model']]
+            - [setPluginManager, ['@?plugin.manager.entity_model.model']]
 
-    wmscaffold.model_method_generator.helper:
-        class: Drupal\wmscaffold\Service\Helper\ModelMethodGeneratorHelper
+    wmscaffold.entity_bundle_class_method_generator.helper:
+        class: Drupal\wmscaffold\Service\Helper\EntityBundleClassMethodGeneratorHelper
         arguments:
             - '@entity_type.manager'
             - '@plugin.manager.field.field_type'
@@ -25,6 +27,6 @@ services:
         class: Drupal\wmscaffold\Service\Generator\ControllerClassGenerator
         parent: wmscaffold.class_generator_base
 
-    plugin.manager.model_method_generator:
-        class: Drupal\wmscaffold\ModelMethodGeneratorManager
+    plugin.manager.entity_bundle_class_method_generator:
+        class: Drupal\wmscaffold\EntityBundleClassMethodGeneratorManager
         parent: default_plugin_manager

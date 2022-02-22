@@ -32,11 +32,11 @@ class ControllerClassGenerator extends ClassGeneratorBase
     {
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);
-        $modelClass = new \ReflectionClass(
+        $entityClass = new \ReflectionClass(
             $this->entityTypeManager->getStorage($entityType)->getEntityClass($bundle)
         );
 
-        $variableName = StringCapitalisation::toCamelCase($modelClass->getShortName());
+        $variableName = StringCapitalisation::toCamelCase($entityClass->getShortName());
         $templatePath = sprintf(
             '%s.%s',
             StringCapitalisation::toKebabCase($entityType),
@@ -46,7 +46,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $namespace = $this->builderFactory->namespace($namespaceName);
         $class = $this->builderFactory->class($className);
 
-        $namespace->addStmt($this->builderFactory->use($modelClass->getName()));
+        $namespace->addStmt($this->builderFactory->use($entityClass->getName()));
 
         if ($this->baseClass) {
             $baseClass = new \ReflectionClass($this->baseClass);
@@ -58,7 +58,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $method = $this->builderFactory->method('show');
         $method->makePublic()
             ->addParam($this->builderFactory->param($variableName)
-                ->setType($modelClass->getShortName()));
+                ->setType($entityClass->getShortName()));
         $method->addStmt(
             $this->parseExpression(sprintf('return $this->view(\'%s\', [\'%s\' => $%s]);', $templatePath, $variableName, $variableName))
         );

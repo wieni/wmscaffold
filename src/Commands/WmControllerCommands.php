@@ -69,6 +69,8 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
      *      Generate a controller.
      * @usage drush wmcontroller:generate
      *      Generate a controller and fill in the remaining information through prompts.
+     *
+     * @validate-module-enabled wmcontroller
      */
     public function generateController(string $entityType, ?string $bundle = null, array $options = [
         'output-module' => InputOption::VALUE_REQUIRED,

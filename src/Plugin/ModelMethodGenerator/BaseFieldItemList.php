@@ -25,7 +25,7 @@ abstract class BaseFieldItemList extends ModelMethodGeneratorBase
             $method->setDocComment(sprintf('/** @return %s|null */', $fieldTypeClass->getShortName()));
         }
 
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 
     public static function getType(): ?string

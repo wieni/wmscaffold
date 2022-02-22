@@ -7,7 +7,7 @@ use Drupal\Component\Plugin\Exception\PluginNotFoundException;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
-use Drupal\wmmodel\Factory\ModelFactory;
+use Drupal\wmmodel\ModelPluginManager;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
 use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
@@ -26,8 +26,8 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
     protected $entityTypeBundleInfo;
     /** @var ConfigFactoryInterface */
     protected $configFactory;
-    /** @var ModelFactory */
-    protected $modelFactory;
+    /** @var ModelPluginManager */
+    protected $modelPluginManager;
     /** @var ModelClassGenerator */
     protected $modelClassGenerator;
     /** @var PrettyPrinter */
@@ -39,13 +39,13 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         EntityTypeManagerInterface $entityTypeManager,
         EntityTypeBundleInfoInterface $entityTypeBundleInfo,
         ConfigFactoryInterface $configFactory,
-        ModelFactory $modelFactory,
+        ModelPluginManager $modelPluginManager,
         ModelClassGenerator $modelClassGenerator
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->entityTypeBundleInfo = $entityTypeBundleInfo;
         $this->configFactory = $configFactory;
-        $this->modelFactory = $modelFactory;
+        $this->modelPluginManager = $modelPluginManager;
         $this->modelClassGenerator = $modelClassGenerator;
         $this->prettyPrinter = new PrettyPrinter();
         $this->fileSystem = new Filesystem();
@@ -76,6 +76,8 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
      * @usage drush wmmodel:generate
      *      Generate a model and fill in the remaining information through prompts.
      *
+     * @validate-module-enabled wmmodel
+     *
      * @throws PluginNotFoundException
      * @throws \ReflectionException
      */
@@ -94,7 +96,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
         $statements = [];
         $definition = $this->entityTypeManager->getDefinition($entityType);
-        $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
+        $existingClassName = $this->entityTypeManager->getStorage($entityType)->getEntityClass($bundle);
         $hasExisting = false;
 
         if ($existingClassName && $existingClassName !== $definition->getClass()) {
@@ -115,7 +117,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $this->fileSystem->remove($destination);
         $this->fileSystem->appendToFile($destination, $output);
 
-        $this->modelFactory->rebuildMapping();
+        $this->modelPluginManager->clearCachedDefinitions();
 
         $this->logger()->notice('Formatting model class...');
         $this->drush('phpcs:fix', [], ['path' => $destination]);
@@ -146,7 +148,7 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
         $bundle = $this->input->getArgument('bundle');
 
         $definition = $this->entityTypeManager->getDefinition($entityType);
-        $existingClassName = $this->modelFactory->getClassName($definition, $bundle);
+        $existingClassName = $this->entityTypeManager->getStorage($entityType)->getEntityClass($bundle);
 
         if ($existingClassName === $definition->getClass()) {
             return;

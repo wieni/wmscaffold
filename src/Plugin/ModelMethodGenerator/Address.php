@@ -2,6 +2,8 @@
 
 namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
+use Drupal\address\AddressInterface;
+
 /**
  * @ModelMethodGenerator(
  *     id = "address",
@@ -12,6 +14,6 @@ class Address extends BaseFieldItem
 {
     public static function getType(): ?string
     {
-        return 'Drupal\address\AddressInterface';
+        return AddressInterface::class;
     }
 }

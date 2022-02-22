@@ -53,6 +53,8 @@ class EckTypeCreateCommands extends DrushCommands implements CustomEventAwareInt
      * @usage drush eck:type:create
      *      Create a eck entity type by answering the prompts.
      *
+     * @validate-module-enabled eck
+     *
      * @throws PluginNotFoundException
      * @throws InvalidPluginDefinitionException
      * @throws EntityStorageException

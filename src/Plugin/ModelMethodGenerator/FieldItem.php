@@ -4,10 +4,10 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "image",
- *     provider = "image",
+ *     id = "_field_item",
+ *     provider = "core",
  * )
  */
-class Image extends EntityReference
+class FieldItem extends BaseFieldItem
 {
 }

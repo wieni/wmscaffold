@@ -2,6 +2,8 @@
 
 namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
+use Drupal\link\LinkItemInterface;
+
 /**
  * @ModelMethodGenerator(
  *     id = "link",
@@ -12,6 +14,6 @@ class Link extends BaseFieldItem
 {
     public static function getType(): ?string
     {
-        return 'Drupal\link\LinkItemInterface';
+        return LinkItemInterface::class;
     }
 }

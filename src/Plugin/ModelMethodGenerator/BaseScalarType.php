@@ -38,7 +38,7 @@ abstract class BaseScalarType extends ModelMethodGeneratorBase
             $method->setDocComment(sprintf('/** @return %s|null */', $scalarType));
         }
 
-        $method->addStmt($this->helper->parseExpression($expression));
+        $method->addStmts($this->helper->parseExpression($expression));
     }
 
     abstract public static function getType(): string;

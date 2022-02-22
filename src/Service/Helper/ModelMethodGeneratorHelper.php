@@ -8,7 +8,6 @@ use Drupal\Core\Config\ImmutableConfig;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldTypePluginManager;
-use Drupal\wmmodel\Factory\ModelFactory;
 use PhpParser\BuilderFactory;
 use PhpParser\Node\Stmt;
 use PhpParser\ParserFactory;
@@ -23,20 +22,16 @@ class ModelMethodGeneratorHelper
     protected $builderFactory;
     /** @var ParserFactory */
     protected $parserFactory;
-    /** @var ModelFactory */
-    protected $modelFactory;
     /** @var ImmutableConfig */
     protected $config;
 
     public function __construct(
         EntityTypeManagerInterface $entityTypeManager,
         FieldTypePluginManager $fieldTypePluginManager,
-        ModelFactory $modelFactory,
         ConfigFactoryInterface $configFactory
     ) {
         $this->entityTypeManager = $entityTypeManager;
         $this->fieldTypePluginManager = $fieldTypePluginManager;
-        $this->modelFactory = $modelFactory;
         $this->builderFactory = new BuilderFactory();
         $this->parserFactory = new ParserFactory();
         $this->config = $configFactory->get('wmscaffold.settings');
@@ -59,7 +54,9 @@ class ModelMethodGeneratorHelper
             return $definition->getClass();
         }
 
-        return $this->modelFactory->getClassName($definition, reset($handlerSettings['target_bundles']));
+        return $this->entityTypeManager
+            ->getStorage($definition->id())
+            ->getEntityClass(reset($handlerSettings['target_bundles']));
     }
 
     /** Returns the full classname of a field type */
@@ -71,14 +68,12 @@ class ModelMethodGeneratorHelper
     }
 
     /** Convert a string representation of a PHP statement into a PhpParser node */
-    public function parseExpression(string $expression): ?Stmt
+    public function parseExpression(string $expression): array
     {
         $parser = $this->parserFactory->create(ParserFactory::PREFER_PHP7);
         $statements = $parser->parse('<?php ' . $expression . ';');
 
-        return $statements
-            ? $statements[0]
-            : null;
+        return $statements;
     }
 
     public function supportsNullableTypes(): bool
@@ -89,5 +84,10 @@ class ModelMethodGeneratorHelper
     public function supportsArrowFunctions(): bool
     {
         return Comparator::greaterThanOrEqualTo($this->config->get('php_version'), 7.4);
+    }
+
+    public function supportsOptionalChaining(): bool
+    {
+        return Comparator::greaterThanOrEqualTo($this->config->get('php_version'), 8.0);
     }
 }

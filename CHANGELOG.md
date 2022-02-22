@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2022-01-11
+### Added
+- Add PHP 8 support
+- Add entity_reference_revisions support
+- Add node_singles support
+- Add paragraphs:type:create command
+- Add timestamp field model method generator
+
+### Changed
+- Increase minimum Drupal core version to 9.3 due to entity bundle class support
+- Increase minimum wieni/wmmodel version to 2.0 due to Drupal core version
+- Increase minimum PHP requirement to 7.3 due to Drupal core PHP requirement
+- Remove RC part from drush/drush dependency
+- Change model method generator to fall back to field item getters instead of showing an error
+
+### Fixed
+- Fix optional datetime getters
+- Validate whether modules are installed for commands interacting with contrib
+- Fix image getters not returning an ImageItem instance
+- Fix language hooks not being called
+- `wmmodel:generate`: Fix command being stuck with fields named field_<bundle>
+
 ## [1.13.2] - 2022-01-29
 ### Fixed
 - Remove implicit eck dependency

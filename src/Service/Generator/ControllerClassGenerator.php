@@ -6,16 +6,14 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\File\FileSystemInterface;
-use Drupal\wmmodel\Factory\ModelFactory;
+use Drupal\wmcontroller\ViewBuilder\ViewBuilder;
 use Drupal\wmscaffold\Service\Helper\IdentifierNaming;
 use Drupal\wmscaffold\Service\Helper\StringCapitalisation;
+use PhpParser\Comment;
 use PhpParser\Node\Stmt;
 
 class ControllerClassGenerator extends ClassGeneratorBase
 {
-    /** @var ModelFactory */
-    protected $modelFactory;
-
     /** @var string */
     protected $baseClass;
 
@@ -23,11 +21,9 @@ class ControllerClassGenerator extends ClassGeneratorBase
         EntityTypeManagerInterface $entityTypeManager,
         EntityFieldManagerInterface $entityFieldManager,
         FileSystemInterface $fileSystem,
-        ConfigFactoryInterface $configFactory,
-        ModelFactory $modelFactory
+        ConfigFactoryInterface $configFactory
     ) {
         parent::__construct($entityTypeManager, $entityFieldManager, $fileSystem, $configFactory);
-        $this->modelFactory = $modelFactory;
 
         $this->baseClass = $this->config->get('generators.controller.base_class');
     }
@@ -36,9 +32,8 @@ class ControllerClassGenerator extends ClassGeneratorBase
     {
         $className = $this->buildClassName($entityType, $bundle, $module, true);
         $namespaceName = $this->buildNamespaceName($entityType, $module);
-        $definition = $this->entityTypeManager->getDefinition($entityType);
         $modelClass = new \ReflectionClass(
-            $this->modelFactory->getClassName($definition, $bundle)
+            $this->entityTypeManager->getStorage($entityType)->getEntityClass($bundle)
         );
 
         $variableName = StringCapitalisation::toCamelCase($modelClass->getShortName());
@@ -59,6 +54,7 @@ class ControllerClassGenerator extends ClassGeneratorBase
             $class->extend($baseClass->getShortName());
         }
 
+        // Add method to class
         $method = $this->builderFactory->method('show');
         $method->makePublic()
             ->addParam($this->builderFactory->param($variableName)
@@ -66,9 +62,28 @@ class ControllerClassGenerator extends ClassGeneratorBase
         $method->addStmt(
             $this->parseExpression(sprintf('return $this->view(\'%s\', [\'%s\' => $%s]);', $templatePath, $variableName, $variableName))
         );
-
+        $namespace->addStmt($this->builderFactory->use(ViewBuilder::class));
+        $method->setReturnType('ViewBuilder');
         $class->addStmt($method);
-        $namespace->addStmt($class);
+
+        // Add annotation to class
+        $classNode = $class->getNode();
+        $docComment = new Comment\Doc(sprintf(
+            <<<EOT
+            /**
+             * @Controller(
+             *     entity_type = "%s",
+             *     bundle = "%s",
+             * )
+             */
+            EOT,
+            $entityType,
+            $bundle
+        ));
+        $classNode->setDocComment($docComment);
+
+        // Add class to namespace
+        $namespace->addStmt($classNode);
 
         $node = $namespace->getNode();
         $this->cleanUseStatements($node);

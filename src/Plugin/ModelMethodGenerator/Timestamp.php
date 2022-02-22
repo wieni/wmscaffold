@@ -4,10 +4,10 @@ namespace Drupal\wmscaffold\Plugin\ModelMethodGenerator;
 
 /**
  * @ModelMethodGenerator(
- *     id = "imgix",
- *     provider = "imgix",
+ *     id = "timestamp",
+ *     provider = "core",
  * )
  */
-class Imgix extends BaseFieldItem
+class Timestamp extends StringType
 {
 }

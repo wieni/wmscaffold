@@ -40,6 +40,12 @@ services:
             - '@entity_type.manager'
         tags: [{ name: drush.command }]
 
+    wmscaffold.commands.paragraphs-type-create:
+        class: Drupal\wmscaffold\Commands\ParagraphsTypeCreateCommands
+        arguments:
+            - '@entity_type.manager'
+        tags: [{ name: drush.command }]
+
     wmscaffold.commands.php-cs-fixer:
         class: Drupal\wmscaffold\Commands\PhpCsFixerCommands
         tags: [{ name: drush.command }]
@@ -50,7 +56,7 @@ services:
             - '@entity_type.manager'
             - '@entity_type.bundle.info'
             - '@config.factory'
-            - '@wmmodel.factory.model'
+            - '@plugin.manager.wmmodel.model'
             - '@wmscaffold.model_class_generator'
         tags: [{ name: drush.command }]
 
@@ -84,9 +90,22 @@ services:
         arguments:
             - '@module_handler'
 
+    wmscaffold.hooks.node_singles:
+        class: Drupal\wmscaffold\Commands\NodeSinglesHooks
+        tags: [{ name: drush.command }]
+        arguments:
+            - '@module_handler'
+
     wmscaffold.hooks.menu_ui:
         class: Drupal\wmscaffold\Commands\MenuUiHooks
         tags: [{ name: drush.command }]
         arguments:
             - '@module_handler'
             - '@menu.parent_form_selector'
+
+    wmscaffold.hooks.language:
+        class: Drupal\wmscaffold\Commands\LanguageHooks
+        tags: [{ name: drush.command }]
+        arguments:
+            - '@module_handler'
+            - '@language_manager'

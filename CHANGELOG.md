@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Increase minimum wieni/wmmodel version to 2.0 due to Drupal core version
 - Increase minimum PHP requirement to 7.3 due to Drupal core PHP requirement
 - Remove RC part from drush/drush dependency
-- Rename model method generator alter hook to `hook_wmscaffold_model_method_generator_alter`
 - Change model method generator to fall back to field item getters instead of showing an error
 
 ### Fixed

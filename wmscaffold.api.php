@@ -11,7 +11,7 @@
  * @param array $generators
  *   The array of generator plugins, keyed by the machine-readable name.
  */
-function hook_wmscaffold_model_method_generator_alter(array &$generators) {
+function hook_wmscaffold_info_alter(array &$generators) {
     $generators['link']['class'] = \Drupal\wmscaffold\Plugin\ModelMethodGenerator\FieldHelperLink::class;
 }
 

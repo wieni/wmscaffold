@@ -13,6 +13,7 @@ Check [`UPGRADING.md`](UPGRADING.md) for more details and instructions.
 ### Removed
 - Remove wmmodel dependency. This module still has support for wmmodel/entity_model, but can be used without those 
   modules as well.
+- Remove wmsingles support
 
 ## [1.14.1] - 2022-02-23
 ### Changed

@@ -83,12 +83,6 @@ services:
             - '@wmscaffold.controller_class_generator'
         tags: [{ name: drush.command }]
 
-    wmscaffold.hooks.wmsingles:
-        class: Drupal\wmscaffold\Commands\WmSinglesHooks
-        tags: [{ name: drush.command }]
-        arguments:
-            - '@module_handler'
-
     wmscaffold.hooks.node_singles:
         class: Drupal\wmscaffold\Commands\NodeSinglesHooks
         tags: [{ name: drush.command }]

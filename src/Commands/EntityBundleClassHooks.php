@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\wmscaffold\Service\Generator\EntityBundleClassGenerator;
 use Drush\Commands\DrushCommands;
+use PhpCsFixer\Console\Application as PhpCsFixerApplication;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -82,8 +83,10 @@ class EntityBundleClassHooks extends DrushCommands implements SiteAliasManagerAw
         $this->fileSystem->remove($destination);
         $this->fileSystem->appendToFile($destination, $output);
 
-        $this->logger()->notice('Formatting entity bundle class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting entity bundle class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success('Successfully updated entity bundle class.');
     }

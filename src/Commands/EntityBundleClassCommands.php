@@ -10,6 +10,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\EntityBundleClassGenerator;
 use Drush\Commands\DrushCommands;
 use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
+use PhpCsFixer\Console\Application as PhpCsFixerApplication;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
@@ -110,8 +111,10 @@ class EntityBundleClassCommands extends DrushCommands implements SiteAliasManage
         $this->fileSystem->remove($destination);
         $this->fileSystem->appendToFile($destination, $output);
 
-        $this->logger()->notice('Formatting entity bundle class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting entity bundle class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success(
             sprintf('Successfully %s entity bundle class.', $hasExisting ? 'updated' : 'created')
@@ -147,8 +150,10 @@ class EntityBundleClassCommands extends DrushCommands implements SiteAliasManage
 
         $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
-        $this->logger()->notice('Formatting entity bundle class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting entity bundle class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success('Successfully formatted entity bundle class.');
     }

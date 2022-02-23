@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityFieldManager;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
+use PhpCsFixer\Console\Application as PhpCsFixerApplication;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -82,8 +83,10 @@ class WmModelHooks extends DrushCommands implements SiteAliasManagerAwareInterfa
         $this->fileSystem->remove($destination);
         $this->fileSystem->appendToFile($destination, $output);
 
-        $this->logger()->notice('Formatting model class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting model class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success('Successfully updated model.');
     }

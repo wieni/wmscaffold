@@ -11,6 +11,7 @@ use Drupal\wmmodel\ModelPluginManager;
 use Drupal\wmscaffold\Service\Generator\ModelClassGenerator;
 use Drush\Commands\DrushCommands;
 use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
+use PhpCsFixer\Console\Application as PhpCsFixerApplication;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
@@ -119,8 +120,10 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
         $this->modelPluginManager->clearCachedDefinitions();
 
-        $this->logger()->notice('Formatting model class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting model class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success(
             sprintf('Successfully %s model class.', $hasExisting ? 'updated' : 'created')
@@ -156,8 +159,10 @@ class WmModelCommands extends DrushCommands implements SiteAliasManagerAwareInte
 
         $destination = (new \ReflectionClass($existingClassName))->getFileName();
 
-        $this->logger()->notice('Formatting model class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting model class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success('Successfully formatted model class.');
     }

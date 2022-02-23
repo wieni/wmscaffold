@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\wmscaffold\Service\Generator\ControllerClassGenerator;
 use Drush\Commands\DrushCommands;
 use Drush\Drupal\Commands\field\EntityTypeBundleAskTrait;
+use PhpCsFixer\Console\Application as PhpCsFixerApplication;
 use PhpParser\PrettyPrinter\Standard as PrettyPrinter;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Filesystem\Filesystem;
@@ -129,8 +130,10 @@ class WmControllerCommands extends DrushCommands implements SiteAliasManagerAwar
         $module = $this->input->getOption('output-module');
         $destination = $this->controllerClassGenerator->buildControllerPath($entityType, $bundle, $module);
 
-        $this->logger()->notice('Formatting controller class...');
-        $this->drush('phpcs:fix', [], ['path' => $destination]);
+        if (class_exists(PhpCsFixerApplication::class)) {
+            $this->logger()->notice('Formatting controller class...');
+            $this->drush('phpcs:fix', [], ['path' => $destination]);
+        }
 
         $this->logger()->success('Successfully formatted controller class.');
     }
